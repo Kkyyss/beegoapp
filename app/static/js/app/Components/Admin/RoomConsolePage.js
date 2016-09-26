@@ -110,7 +110,6 @@ export default class AdminConsolePage extends Component {
       default:
         campusDataSource = iuRoomTypes;
     }
-    console.log($('#types-of-rooms'));
     this.setState({value});
   }  
 
@@ -126,6 +125,33 @@ export default class AdminConsolePage extends Component {
         });
         thisObj.changeResource(userCampus);
       }
+
+      updateRoomList();
+
+      function updateRoomList() {
+        console.log(userData.campus);
+        var userState = {
+          userCampus: userData.campus,
+        };        
+        ajax({
+          url: "/api/view-room-list",
+          method: "POST",
+          cache: false,
+          data: JSON.stringify(userState),
+          beforeSend: function() {
+            wrapFunc.LoadingSwitch(true);
+          },
+          success: function(res) {
+            wrapFunc.LoadingSwitch(false);
+            if (res.error != null) {
+              $('#errMsg').text(res.error);
+            } else {
+              wrapFunc.SetRoomDataSource(res.data);
+              wrapFunc.PaginateRoomContent(res.data);           
+            }
+          }
+        });
+      }      
     }); 
 
     $(window).resize(function() {
@@ -146,28 +172,6 @@ export default class AdminConsolePage extends Component {
     $('#bg-overlay, #cancel-btn').on('click', function() {
       $('#bg-overlay, #edit-room-box').css('display', 'none');
     });
-
-    updateRoomList();
-
-    function updateRoomList() {
-      ajax({
-        url: "/api/view-room-list",
-        method: "POST",
-        cache: false,
-        beforeSend: function() {
-          wrapFunc.LoadingSwitch(true);
-        },
-        success: function(res) {
-          wrapFunc.LoadingSwitch(false);
-          if (res.error != null) {
-            $('#errMsg').text(res.error);
-          } else {
-            wrapFunc.SetRoomDataSource(res.data);
-            wrapFunc.PaginateRoomContent(res.data);           
-          }
-        }
-      });
-    }
 
     $('#update-btn').on('click', updateRoom);
 

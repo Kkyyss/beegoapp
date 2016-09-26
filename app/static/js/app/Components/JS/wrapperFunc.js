@@ -528,10 +528,17 @@ function editRoom(e) {
 }
 
 function updateRoomView() {
+  var userData = window.UserData;
+
+  var userState = {
+    userCampus: userData.campus,
+  };
+
   ajax({
     url: "/api/view-room-list",
     method: "POST",
     cache: false,
+    data: JSON.stringify(userState),
     beforeSend: function() {
       wrapFunc.LoadingSwitch(true);
     },    
@@ -542,9 +549,7 @@ function updateRoomView() {
       } else {
         roomDataSource = res.data;
         wrapFunc.PaginateRoomContent(roomDataSource);
-      }
-      // var removeRoomBtn = $('.removeRoomButton');
-      // removeRoomBtn.on('click', removeRoom);                
+      }        
       wrapFunc.LoadingSwitch(false);
     }
   });
@@ -554,7 +559,7 @@ function removeRequest(e) {
   e.preventDefault();
   var requestId = {
     requestId: $(this).parent().parent().children("#request-id").text()
-  }
+  };
   ajax({
     url: "/user/request-console",
     method: "DELETE",

@@ -981,3 +981,25 @@ func (u *User) Update() (err error) {
 
 	return
 }
+
+func (u *User) GetRoomList() (errMsg string, rooms []*Room) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("room")
+
+	if u.Campus != "ALL" {
+		qs = qs.Filter("campus", u.Campus)
+	}
+
+	n, _ := qs.Count()
+	if n == 0 {
+		errMsg = "No Room Available."
+		return errMsg, nil
+	}
+	_, err := qs.All(&rooms)
+
+	if err != nil {
+		errMsg = "Oops...Something happened when find the room list."
+		return errMsg, nil
+	}
+	return
+}
