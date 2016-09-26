@@ -127,32 +127,32 @@ export default class AdminConsolePage extends Component {
       }
 
       updateRoomList();
-
-      function updateRoomList() {
-        console.log(userData.campus);
-        var userState = {
-          userCampus: userData.campus,
-        };        
-        ajax({
-          url: "/api/view-room-list",
-          method: "POST",
-          cache: false,
-          data: JSON.stringify(userState),
-          beforeSend: function() {
-            wrapFunc.LoadingSwitch(true);
-          },
-          success: function(res) {
-            wrapFunc.LoadingSwitch(false);
-            if (res.error != null) {
-              $('#errMsg').text(res.error);
-            } else {
-              wrapFunc.SetRoomDataSource(res.data);
-              wrapFunc.PaginateRoomContent(res.data);           
-            }
-          }
-        });
-      }      
     }); 
+
+    function updateRoomList() {
+      console.log(userData.campus);
+      var userState = {
+        userCampus: userData.campus,
+      };        
+      ajax({
+        url: "/api/view-room-list",
+        method: "POST",
+        cache: false,
+        data: JSON.stringify(userState),
+        beforeSend: function() {
+          wrapFunc.LoadingSwitch(true);
+        },
+        success: function(res) {
+          wrapFunc.LoadingSwitch(false);
+          if (res.error != null) {
+            $('#errMsg').text(res.error);
+          } else {
+            wrapFunc.SetRoomDataSource(res.data);
+            wrapFunc.PaginateRoomContent(res.data);           
+          }
+        }
+      });
+    }
 
     $(window).resize(function() {
       $(window).trigger("window:resize");

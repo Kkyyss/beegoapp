@@ -175,6 +175,27 @@ func (u *User) IsUniqueDataDuplicated() (errMsg string) {
 	return
 }
 
+func (u *User) UpdateIsUniqueDataDuplicated() (errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("users").Exclude("id", u.Id)
+	num, _ := qs.Filter("email", u.Email).Count()
+	if num >= 1 {
+		errMsg = "User"
+	}
+	num, _ = qs.Filter("contact_no", u.ContactNo).Count()
+	if num >= 1 {
+		if errMsg != "" {
+			errMsg += " and Contact No."
+		} else {
+			errMsg = "Contact No."
+		}
+	}
+	if errMsg != "" {
+		errMsg += " exist!"
+	}
+	return
+}
+
 func (u *User) IsValidContactNo() (errMsg string) {
 	o := orm.NewOrm()
 	qs := o.QueryTable("users")
@@ -972,6 +993,7 @@ func (u *User) Update() (err error) {
 		"name":            u.Name,
 		"email":           u.Email,
 		"campus":          u.Campus,
+		"gender":          u.Gender,
 		"contact_no":      u.ContactNo,
 		"location":        u.Location,
 		"activated":       u.Activated,
@@ -999,6 +1021,26 @@ func (u *User) GetRoomList() (errMsg string, rooms []*Room) {
 
 	if err != nil {
 		errMsg = "Oops...Something happened when find the room list."
+		return errMsg, nil
+	}
+	return
+}
+
+func (u *User) GetUsersList() (errMsg string, users []*User) {
+	o := orm.NewOrm()
+	cond := orm.NewCondition()
+	c1 := cond.And("campus", u.Campus).Or("is_admin", true)
+	qs := o.QueryTable("users").SetCond(c1)
+
+	n, _ := qs.Count()
+	beego.Debug(n)
+	if n == 0 {
+		errMsg = "No User Available."
+		return errMsg, nil
+	}
+	_, err := qs.All(&users)
+	if err != nil {
+		errMsg = "Oops...Something happened when find the users list."
 		return errMsg, nil
 	}
 	return

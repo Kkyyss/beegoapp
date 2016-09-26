@@ -81,6 +81,7 @@ func (self *AdminUserController) Post() {
 		AvatarUrl:     "../static/upload/default/pikachu.png",
 		ContactNo:     self.GetString("user-contact-no"),
 		Location:      self.GetString("user-location"),
+		Gender:        self.GetString("user-gender"),
 		Activated:     activated,
 		IsAdmin:       isAdmin,
 		FillUpProfile: profiled,
@@ -157,12 +158,13 @@ func (self *AdminUserController) Put() {
 		// AvatarUrl:     "../static/upload/default/pikachu.png",
 		ContactNo:     self.GetString("edit-user-contact-no"),
 		Location:      self.GetString("edit-user-location"),
+		Gender:        self.GetString("edit-user-gender"),
 		Activated:     activated,
 		IsAdmin:       isAdmin,
 		FillUpProfile: profiled,
 	}
 
-	errMsg = user.IsUniqueDataDuplicated()
+	errMsg = user.UpdateIsUniqueDataDuplicated()
 	if errMsg != "" {
 		goto Response
 	}

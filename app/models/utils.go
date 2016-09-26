@@ -261,21 +261,3 @@ func GetBookedList() (errMsg string, users []*User) {
 	}
 	return
 }
-
-func GetUsersList() (errMsg string, users []*User) {
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-
-	n, _ := qs.Count()
-	beego.Debug(n)
-	if n == 0 {
-		errMsg = "No Booked Room Available."
-		return errMsg, nil
-	}
-	_, err := qs.All(&users)
-	if err != nil {
-		errMsg = "Oops...Something happened when find the users list."
-		return errMsg, nil
-	}
-	return
-}

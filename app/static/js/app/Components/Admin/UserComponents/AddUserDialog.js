@@ -148,7 +148,6 @@ export default class AddUserDialog extends Component {
           value: userCampus,
           disabled: true,
         });
-        thisObj.changeResource(userCampus);
       }
     });
   }

@@ -921,10 +921,16 @@ function editUser(e) {
 }
 
 function updateUserView() {
+  var userData = window.UserData;
+
+  var userState = {
+    userCampus: userData.campus
+  };
   ajax({
     url: "/api/view-users-list",
     method: "POST",
     cache: false,
+    data: JSON.stringify(userState),
     beforeSend: function() {
       wrapFunc.LoadingSwitch(true);
     },

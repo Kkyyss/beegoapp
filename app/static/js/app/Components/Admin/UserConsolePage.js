@@ -16,6 +16,7 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+
 import intlTelInput from 'intl-tel-input';
 
 const styles = {
@@ -74,6 +75,7 @@ const styles = {
 };
 
 export default class UserConsolePage extends Component {
+
   state = {
     value: "IU",
     disabled: false,
@@ -98,9 +100,34 @@ export default class UserConsolePage extends Component {
           value: userCampus,
           disabled: true,
         });
-        thisObj.changeResource(userCampus);
       }
+      console.log("Here");
+      updateUserList();
     });
+
+    function updateUserList() {
+      var userState = {
+        userCampus: userData.campus
+      };
+      ajax({
+        url: "/api/view-users-list",
+        method: "POST",
+        cache: false,
+        data: JSON.stringify(userState),
+        beforeSend: function() {
+          wrapFunc.LoadingSwitch(true);
+        },
+        success: function(res) {
+          wrapFunc.LoadingSwitch(false);
+          if (res.error != null) {
+            $('#errMsg').text(res.error);
+          } else {
+            wrapFunc.SetUsersDataSource(res.data);
+            wrapFunc.PaginateUsersContent(res.data);
+          }
+        }
+      });
+    }    
 
     var userContactNo = $('#edit-user-contact-no');
     userContactNo.intlTelInput({
@@ -133,28 +160,6 @@ export default class UserConsolePage extends Component {
     $('#bg-overlay, #cancel-btn').on('click', function() {
       $('#bg-overlay, #edit-user-box').css('display', 'none');
     });
-
-    updateUserList();
-
-    function updateUserList() {
-      ajax({
-        url: "/api/view-users-list",
-        method: "POST",
-        cache: false,
-        beforeSend: function() {
-          wrapFunc.LoadingSwitch(true);
-        },
-        success: function(res) {
-          wrapFunc.LoadingSwitch(false);
-          if (res.error != null) {
-            $('#errMsg').text(res.error);
-          } else {
-            wrapFunc.SetUsersDataSource(res.data);
-            wrapFunc.PaginateUsersContent(res.data);
-          }
-        }
-      });
-    }
 
     $('#update-btn').on('click', updateUser);
 
