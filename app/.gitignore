@@ -1,0 +1,10 @@
+static/js/node_modules
+static/js/maps
+
+app.exe
+app.exe*
+testing.db
+static/download
+static/upload/img
+
+README.md

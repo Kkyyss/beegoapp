@@ -1,0 +1,211 @@
+/* Overall customization */
+
+body {
+  left: 0;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  padding-top: 64px;
+  font-family: 'Roboto',sans-serif;
+  box-sizing: border-box;
+  letter-spacing: 1px;
+  overflow: hidden;
+}
+
+#body-wrapper {
+  background-color: #FAFAFA;
+}
+
+/* Tel [input] cusmization */
+.intl-tel-input {width: 100%;}
+.selected-flag {
+  box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+    outline:0px !important;
+    -webkit-appearance:none !important;  
+}
+
+/* Rules for sizing the icon. */
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; }
+.material-icons.md-48 { font-size: 48px; }
+
+/* Rules for using icons as black on a light background. */
+.material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
+.material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
+
+/* Rules for using icons as white on a dark background. */
+.material-icons.md-light { color: rgba(255, 255, 255, 1); }
+.material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
+
+.home-theme {
+  height: 100%;
+  background-color: azure;
+}
+.content-wrapper {
+  /*margin-top: 70px;*/
+  /*margin-bottom: 70px;*/
+  border: 25px solid transparent;
+  position: relative;
+}
+.content-body {
+  height: 100%;
+  width: 100%;
+  top: 70px;
+  position: absolute;
+  background-color: pink;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.26);
+}
+
+.universe {
+	display: none;
+}
+
+.preload {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: url(/static/img/Preloader_8.gif) center no-repeat #fff;
+
+  animation-delay: 0.3s;
+  -webkit-animation-delay: 0.3s;
+  -moz-animation-delay: 0.3s;
+  -o-animation-delay: 0.3s;
+  -ms-animation-delay: 0.3s;
+}
+
+@media (max-width: 767px) {
+  div[name="login-register-card"],
+  div[name="forgot-password-card"],
+  div[name="reset-password-card"],
+  div[name="account-card"] {
+    width: 80% !important;
+    margin-left: 10% !important;
+  }
+  .card-content {
+    padding-left: 20% !important;
+    padding-right: 20% !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .card-content {
+    padding-left: 10% !important;
+    padding-right: 10% !important;
+  }
+}
+
+input[name="reg-email"], 
+input[name="log-email"], 
+input[name="user-email"] {
+  background-image: url(/static/img/ic_email_black_24dp.png);
+  background-repeat: no-repeat;
+  background-position: right 10px center;  
+}
+
+input[name="reg-username"], input[name="user-name"] {
+  background-image: url(/static/img/ic_account_box_black_24dp.png);
+  background-repeat: no-repeat;
+  background-position: right 10px center;  
+}
+
+input[name="reg-password"], 
+input[name="log-password"], 
+input[name="user-password"],
+input[name="old-password"],
+input[name="new-password"] {
+  background-image: url(/static/img/ic_lock_black_24dp.png);
+  background-repeat: no-repeat;
+  background-position: right 10px center;  
+}
+
+#userMsg, 
+#pwdMsg, 
+#emailMsg, 
+#oldPwdMsg, 
+#newPwdMsg,
+#icMsg,
+#genderMsg,
+#contactMsg,
+#locationMsg,
+#permanentAddressMsg,
+#monthMsg,
+#yearMsg,
+#torMsg {
+  font-size: 12px;
+  line-height: 12px;
+  color: #BDBDBD;  
+}
+
+.hide {
+  display: none !important;
+}
+
+.show {
+  display: block !important;
+}
+
+.text-danger {
+  color: #F44336 !important;
+}
+
+.text-info {
+  color: #039BE5 !important;
+}
+
+@media screen and (max-width: 575px){
+  #rc-imageselect, #reg-recap, #log-recap {
+    transform:scale(0.77);
+    -webkit-transform:scale(0.77);
+    transform-origin:0 0;
+    -webkit-transform-origin:0 0;
+  }
+  #footer {
+    font-size: 12px;
+  }  
+}
+
+@media screen and (max-width: 360px) {
+  #rc-imageselect, #reg-recap, #log-recap {
+    transform:scale(0.57);
+    -webkit-transform:scale(0.67);
+    transform-origin:0 0;
+    -webkit-transform-origin:0 0;
+  }
+}
+
+.loading-screen {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background-color: rgba(255,255,255, 0.9);
+
+  animation-delay: 1s;
+  -webkit-animation-delay: 1s;
+  -moz-animation-delay: 1s;
+  -o-animation-delay: 1s;
+  -ms-animation-delay: 1s;  
+}
+
+.loadingPos {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+/*  text-align: center;
+  margin-top: 10px;*/
+}
+
+.whitify {
+  color: white !important;
+}

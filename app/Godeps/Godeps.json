@@ -1,0 +1,126 @@
+{
+	"ImportPath": "akgo/app",
+	"GoVersion": "go1.7.1",
+	"GodepVersion": "v74",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/astaxie/beego",
+			"Comment": "v1.7.1-2-gb4171b5",
+			"Rev": "b4171b58d94ff674db950960e1da6de00351ddd6"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/config",
+			"Comment": "v1.7.1-2-gb4171b5",
+			"Rev": "b4171b58d94ff674db950960e1da6de00351ddd6"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/context",
+			"Comment": "v1.7.1-2-gb4171b5",
+			"Rev": "b4171b58d94ff674db950960e1da6de00351ddd6"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/grace",
+			"Comment": "v1.7.1-2-gb4171b5",
+			"Rev": "b4171b58d94ff674db950960e1da6de00351ddd6"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/httplib",
+			"Comment": "v1.7.1-2-gb4171b5",
+			"Rev": "b4171b58d94ff674db950960e1da6de00351ddd6"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/logs",
+			"Comment": "v1.7.1-2-gb4171b5",
+			"Rev": "b4171b58d94ff674db950960e1da6de00351ddd6"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/orm",
+			"Comment": "v1.7.1-2-gb4171b5",
+			"Rev": "b4171b58d94ff674db950960e1da6de00351ddd6"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/session",
+			"Comment": "v1.7.1-2-gb4171b5",
+			"Rev": "b4171b58d94ff674db950960e1da6de00351ddd6"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/toolbox",
+			"Comment": "v1.7.1-2-gb4171b5",
+			"Rev": "b4171b58d94ff674db950960e1da6de00351ddd6"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/utils",
+			"Comment": "v1.7.1-2-gb4171b5",
+			"Rev": "b4171b58d94ff674db950960e1da6de00351ddd6"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/validation",
+			"Comment": "v1.7.1-2-gb4171b5",
+			"Rev": "b4171b58d94ff674db950960e1da6de00351ddd6"
+		},
+		{
+			"ImportPath": "github.com/dgrijalva/jwt-go",
+			"Comment": "v3.0.0-8-g24c63f5",
+			"Rev": "24c63f56522a87ec5339cc3567883f1039378fdb"
+		},
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Comment": "v1.1-4-gaed02d1",
+			"Rev": "aed02d124ae4a0e94fea4541c8effd05bf0c8296"
+		},
+		{
+			"ImportPath": "github.com/gorilla/securecookie",
+			"Comment": "v1.1-2-gff35634",
+			"Rev": "ff356348f74133a59d3e93aa24b5b4551b6fe90d"
+		},
+		{
+			"ImportPath": "github.com/gorilla/sessions",
+			"Rev": "a4e6dd28f9e9274729417506b9bd0a6c3edb91ce"
+		},
+		{
+			"ImportPath": "github.com/markbates/goth",
+			"Rev": "8a213051ac20e107004a69ef22f1f2e1c4cdc273"
+		},
+		{
+			"ImportPath": "github.com/markbates/goth/gothic",
+			"Rev": "8a213051ac20e107004a69ef22f1f2e1c4cdc273"
+		},
+		{
+			"ImportPath": "github.com/markbates/goth/providers/gplus",
+			"Rev": "8a213051ac20e107004a69ef22f1f2e1c4cdc273"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-sqlite3",
+			"Comment": "v1.1.0-69-g38ee283",
+			"Rev": "38ee283dabf11c9cbdb968eebd79b1fa7acbabe6"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/bcrypt",
+			"Rev": "f160b6bf95857cd862817875dd958be022e587c4"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/blowfish",
+			"Rev": "f160b6bf95857cd862817875dd958be022e587c4"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "1358eff22f0dd0c54fc521042cc607f6ff4b531a"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2",
+			"Rev": "3c3a985cb79f52a3190fbc056984415ca6763d01"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2/internal",
+			"Rev": "3c3a985cb79f52a3190fbc056984415ca6763d01"
+		},
+		{
+			"ImportPath": "gopkg.in/gomail.v2",
+			"Comment": "2.0.0-23-g81ebce5",
+			"Rev": "81ebce5c23dfd25c6c67194b37d3dd3f338c98b1"
+		}
+	]
+}

@@ -1,0 +1,12 @@
+app/static/js/node_modules
+
+app/static/js/build/bundle.js
+
+app/Godeps/_workspace
+app/vendor
+
+app/app
+app/app.exe*
+app/static/upload/img
+app/.git
+app/testing.db

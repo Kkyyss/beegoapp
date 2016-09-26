@@ -1,0 +1,9 @@
+docker stop beegodb
+docker rm beegodb
+docker run -d -e POSTGRES_DB=beego -e POSTGRES_USER=beego -e POSTGRES_PASSWORD=beego  --name beegodb beegoapp:db
+
+docker stop beegoapp
+docker rm beegoapp
+docker run --link beegodb:beegodb  -dit -p 8080:8080 -v `pwd`/app:/go/src/akgo/app --name beegoapp beegoapp:latest bee run
+
+

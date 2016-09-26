@@ -1,0 +1,5 @@
+cd app/static/js
+
+webpack --color --progress --watch
+
+

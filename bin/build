@@ -1,0 +1,4 @@
+#! /bin/bash
+
+docker build -t beegoapp:db postgres
+docker build -t beegoapp:latest .

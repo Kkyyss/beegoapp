@@ -1,0 +1,937 @@
+import $ from 'jquery';
+import swal from 'sweetalert2';
+import moment from 'moment';
+import Fuse from 'fuse.js';
+
+window.Jquery = $;
+window.Moment = moment;
+window.SweetAlert = swal;
+
+var ajax = $.ajax;
+var roomDataSource,
+    requestDataSource,
+    bookedDataSource,
+    usersDataSource;
+
+require('./pagination.min.js');
+
+window.Wrapper = {
+  DisabledFormSubmitByEnterKeyDown: function(obj) {
+    obj.on('keyup keypress', function(e) {
+      var keyCode = e.keyCode || e.which;
+      if (keyCode === 13) {
+        e.preventDefault();
+        return false;
+      }
+    });
+  },
+  LockScreen: function(btnObj, formObj, decision) {
+     btnObj.prop('disabled', decision);
+     lockForm(formObj, decision);
+     this.LoadingSwitch(decision);
+  },
+  ResetCap: function(obj) {
+    grecaptcha.reset(obj);
+  },
+  AlertStatus: function(title, text, type, allowOutsideClick, allowEscapeKey) {
+   swal({
+     title: title,
+       text: text,
+       type: type,
+       allowOutsideClick: allowOutsideClick,
+       allowEscapeKey: allowEscapeKey,
+   }).done();
+  },
+  BasicValidation: function(valid, msgObj, message, object) {
+   if (!valid) {
+     showErrorMessage(msgObj, message);
+     verifiedInput(object, false);
+     return false;
+   }
+   hideErrorMessage(msgObj);
+   verifiedInput(object, true);
+   return true;
+  },
+  MeetRequirement: function(object, msgObj, message) {
+   hideErrorMessage(msgObj);
+   setMessage(msgObj, message);
+   verifiedInput(object, true);
+  },
+  ResizeChanging: function() {
+    var cardWrapperHeight, cardHeight, marginCardHeight;
+    var windowHeight = $(window).height();
+    var windowWidth = $(window).width();
+    var locationBox = $('#location-box');
+    cardWrapperHeight = windowHeight - 112;
+    $('#card-wrapper').height(cardWrapperHeight);
+    cardHeight = $('#card').height();
+    marginCardHeight = 32;
+    $('#card').css('margin-top', marginCardHeight).
+               css('margin-bottom', marginCardHeight);
+    locationBox.width(windowWidth * 0.8);
+    locationBox.height(windowHeight * 0.8);
+    $('#map').height(locationBox.height() * 0.8);
+    // var dialogLeft = (windowWidth/2) - ($('#location-box').width()/2);
+    // $('#location-box').css({left:dialogLeft});
+    if (windowWidth <= 767) {
+      $('.paginationjs').removeClass('paginationjs-big').addClass('paginationjs-medium');
+    } else {
+      $('.paginationjs').removeClass('paginationjs-medium').addClass('paginationjs-big');
+    }
+
+    // var contentTop = (($(window).height())/3) - ($('#content').height());
+    // $('#content').css('margin-top', contentTop);
+  },
+  LoadingSwitch: function(switcher) {
+   if (switcher) {
+     $('<div id="wrapper" class="loading-screen">'+
+       '<div class="loadingPos"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>' +
+       '</div>'
+     ).prependTo('body');
+     return;
+   }
+   $('#wrapper').remove();
+  },
+  PaginateRoomContent: function(ds) {
+    var container = $('#pagination-container');
+    var content = $('#pagination-content');
+    var searchBox = $('#search-box');
+
+    if (ds.length == 0) {
+      content.empty();
+      container.pagination('destroy');
+      $('#errMsg').text('No Results Found.');
+      return;
+    }
+    container.pagination({
+        dataSource: ds,
+        pageSize: 5,
+        // autoHidePrevious: true,
+        // autoHideNext: true,
+        threshold: 0.6,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        showGoInput: true,
+        showGoButton: true,
+        className: 'paginationjs-theme-green paginationjs-big',
+        formatGoInput: 'Go to <%= input %>',
+        callback: function(data, pagination) {
+          $('#errMsg').text('');
+          var html = roomListTemplate(data);
+          content.html(html);
+        },
+        afterRender: function() {
+          var removeRoomBtn = $('.removeRoomButton');
+          var editRoomBtn = $('.editRoomButton');
+          searchBox.unbind('input', SearchRoomQuery);
+          removeRoomBtn.unbind('click', removeRoom);
+          editRoomBtn.unbind('click', editRoom);
+          searchBox.bind('input', SearchRoomQuery);
+          removeRoomBtn.bind('click', removeRoom);
+          editRoomBtn.bind('click', editRoom);
+        },
+        afterPaging: function() {
+          var removeRoomBtn = $('.removeRoomButton');
+          var editRoomBtn = $('.editRoomButton');
+          removeRoomBtn.on('click', removeRoom);
+          editRoomBtn.on('click', editRoom);
+        }
+    });
+  },
+  PaginateRequestContent: function(ds) {
+    var container = $('#pagination-container');
+    var content = $('#pagination-content');
+    var searchBox = $('#search-box');
+
+    if (ds.length == 0) {
+      content.empty();
+      container.pagination('destroy');
+      $('#errMsg').text('No Results Found.');
+      return;
+    }
+    container.pagination({
+        dataSource: ds,
+        pageSize: 5,
+        // autoHidePrevious: true,
+        // autoHideNext: true,
+        threshold: 0.6,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        showGoInput: true,
+        showGoButton: true,
+        className: 'paginationjs-theme-green paginationjs-big',
+        formatGoInput: 'Go to <%= input %>',
+        callback: function(data, pagination) {
+          $('#errMsg').text('');
+          var html = requestListTemplate(data);
+          content.html(html);
+        },
+        afterRender: function() {
+          var removeRequestBtn = $('.removeRequestButton'),
+          viewRequestBtn = $('.viewRequestButton'),
+          approveRequestButton = $('.approveRequestButton'),
+          deniedRequestButton = $('.deniedRequestButton');
+
+          searchBox.unbind('input', SearchRequestQuery);
+          removeRequestBtn.unbind('click', removeRequest);
+          viewRequestBtn.unbind('click', viewRequest);
+          approveRequestButton.unbind('click', approveRequest);
+          deniedRequestButton.unbind('click', deniedRequest);
+
+          searchBox.bind('input', SearchRequestQuery);
+          removeRequestBtn.bind('click', removeRequest);
+          viewRequestBtn.bind('click', viewRequest);
+          approveRequestButton.bind('click', approveRequest);
+          deniedRequestButton.bind('click', deniedRequest);
+        },
+        afterPaging: function() {
+          var removeRequestBtn = $('.removeRequestButton'),
+          viewRequestBtn = $('.viewRequestButton'),
+          approveRequestButton = $('.approveRequestButton'),
+          deniedRequestButton = $('.deniedRequestButton');
+
+          removeRequestBtn.on('click', removeRequest);
+          viewRequestBtn.on('click', viewRequest);
+          approveRequestButton.on('click', approveRequest);
+          deniedRequestButton.on('click', deniedRequest);
+        }
+    });
+  },
+  PaginateBookedContent: function(ds) {
+    var container = $('#pagination-container');
+    var content = $('#pagination-content');
+    var searchBox = $('#search-box');
+
+    if (ds.length == 0) {
+      content.empty();
+      container.pagination('destroy');
+      $('#errMsg').text('No Results Found.');
+      return;
+    }
+    container.pagination({
+        dataSource: ds,
+        pageSize: 5,
+        // autoHidePrevious: true,
+        // autoHideNext: true,
+        threshold: 0.6,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        showGoInput: true,
+        showGoButton: true,
+        className: 'paginationjs-theme-green paginationjs-big',
+        formatGoInput: 'Go to <%= input %>',
+        callback: function(data, pagination) {
+          $('#errMsg').text('');
+          var html = bookedListTemplate(data);
+          content.html(html);
+        },
+        afterRender: function() {
+          var removeBookedBtn = $('.removeBookedButton'),
+          viewBookedBtn = $('.viewBookedButton');
+
+          searchBox.unbind('input', SearchBookedQuery);
+          removeBookedBtn.unbind('click', removeBooked);
+          viewBookedBtn.unbind('click', viewBooked);
+
+          searchBox.bind('input', SearchBookedQuery);
+          removeBookedBtn.bind('click', removeBooked);
+          viewBookedBtn.bind('click', viewBooked);
+        },
+        afterPaging: function() {
+          var removeBookedBtn = $('.removeBookedButton'),
+          viewBookedBtn = $('.viewBookedButton');
+
+          removeBookedBtn.on('click', removeBooked);
+          viewBookedBtn.on('click', viewBooked);
+        }
+    });
+  },
+  PaginateUsersContent: function(ds) {
+    var container = $('#pagination-container');
+    var content = $('#pagination-content');
+    var searchBox = $('#search-box');
+
+    if (ds.length == 0) {
+      content.empty();
+      container.pagination('destroy');
+      $('#errMsg').text('No Results Found.');
+      return;
+    }
+    container.pagination({
+        dataSource: ds,
+        pageSize: 5,
+        // autoHidePrevious: true,
+        // autoHideNext: true,
+        threshold: 0.6,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        showGoInput: true,
+        showGoButton: true,
+        className: 'paginationjs-theme-green paginationjs-big',
+        formatGoInput: 'Go to <%= input %>',
+        callback: function(data, pagination) {
+          $('#errMsg').text('');
+          var html = userListTemplate(data);
+          content.html(html);
+        },
+        afterRender: function() {
+          var removeUserBtn = $('.removeUserButton'),
+          editUserBtn = $('.editUserButton');
+
+          searchBox.unbind('input', SearchUserQuery);
+          removeUserBtn.unbind('click', removeUser);
+          editUserBtn.unbind('click', editUser);
+
+          searchBox.bind('input', SearchUserQuery);
+          removeUserBtn.bind('click', removeUser);
+          editUserBtn.bind('click', editUser);
+        },
+        afterPaging: function() {
+          var removeUserBtn = $('.removeUserButton'),
+          editUserBtn = $('.editUserButton');
+
+          removeUserBtn.on('click', removeUser);
+          editUserBtn.on('click', editUser);
+        }
+    });
+  },
+  SetRoomDataSource: function(ds) {
+    roomDataSource = ds;
+  },
+  SetRequestDataSource: function(ds) {
+    requestDataSource = ds;
+  },
+  SetBookedDataSource: function(ds) {
+    bookedDataSource = ds;
+  },
+  SetUsersDataSource: function(ds) {
+    usersDataSource = ds;
+  },
+  ClearContent: function() {
+    var container = $('#pagination-container');
+    var content = $('#pagination-content');
+    content.empty();
+    container.pagination('destroy');    
+  },
+  SetUpUser: function(ds) {
+    window.UserData = ds;
+  },
+}
+
+function setObjectCss(object, selector, value) {
+ $(object).css(selector, value);
+}
+
+function showErrorMessage(object, message) {
+ object.text(message).removeClass("text-success")
+   .addClass("text-danger");
+}
+function hideErrorMessage(object) {
+ object.removeClass("text-danger")
+   .addClass("text-success");
+}
+function setMessage(object, message) {
+ object.text(message);
+}
+function lockForm(obj, decision) {
+ obj.each(function(){
+     $(this).find(':input').prop('readonly', decision);
+ });
+}
+
+function verifiedInput(object, verified) {
+ if (verified) {
+   object.removeClass("text-danger");
+   return;
+ }
+ object.addClass("text-danger");
+}
+
+function roomListTemplate(data) {
+  var html = '';
+  $.each(data, function(index, item){
+    var available = item.IsAvailable ? 'Available' : 'Not Available';
+    var twin = item.Twin ? 'Twin' : 'Single';
+    html += '<div class="room-list-style">'+ 
+    '<span id="room-id" class="hide">' + item.Id + '</span>' +
+    '<span id="room-pmf" class="hide">' + item.PerMonthFee + '</span>' +
+    '<span id="room-cp" class="paraStyle">' + item.Campus + '</span>' + 
+    '<span id="room-no" class="paraStyle">' + item.RoomNo + '</span>' +
+    '<span id="room-tp" class="paraStyle">' + item.TypesOfRooms + '</span>' +
+    '<span id="room-a" class="paraStyle">' + available + '</span>' +
+    '<span id="room-t" class="paraStyle">' + twin + '</span>' +
+    '<div class="rightAlignment">' +
+    '<button type="button" class="editRoomButton">Edit</button>' +
+    '<button type="button" class="removeRoomButton">Remove</button>' +
+    '</div>' +
+    '</div>';
+  });
+  return html;
+}
+function requestListTemplate(data) {
+  var html = '';
+  $.each(data, function(index, item){
+    var Isprocess = (item.Status === 'Processing') ? '<button type="button" class="deniedRequestButton">Denied</button>' + 
+    '<button type="button" class="approveRequestButton">Approve</button>' : "";
+    html += '<div class="request-list-style">'+
+    '<span id="request-id" class="hide">' + item.Id + '</span>' +
+    '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('MMMM Do YYYY') + '</span>' +
+    '<span id="request-sm" class="hide">' + item.SessionMonth + '</span>' + 
+    '<span id="request-sy" class="hide">' + item.SessionYear + '</span>' +
+    '<span id="request-tp" class="hide">' + item.TypesOfRooms + '</span>' +
+    '<span id="request-s" class="paraStyle">' + item.Status + '</span>' +
+    '<span id="request-dmd" class="hide">' + moment(item.DicisionMadeDate).format('MMMM Do YYYY') + '</span>' +
+    '<span id="request-user-id" class="hide">' + item.User.Id + '</span>' +      
+    '<span id="request-user-name" class="paraStyle">' + item.User.Name + '</span>' + 
+    '<span id="request-user-gender" class="hide">' + item.User.Gender + '</span>' +    
+    '<span id="request-user-email" class="hide">' + item.User.Email + '</span>' +    
+    '<span id="request-user-location" class="hide">' + item.User.Location + '</span>' +    
+    '<span id="request-user-contactno" class="hide">' + item.User.ContactNo + '</span>' +    
+    '<span id="request-user-avatar" class="hide">' + item.User.AvatarUrl + '</span>' +    
+    '<div class="rightAlignment">' +    
+    Isprocess +
+    '<button type="button" class="viewRequestButton">View</button>' +
+    '<button type="button" class="removeRequestButton">Remove</button>' +
+    '</div>' +
+    '</div>';
+  });
+  return html;  
+}
+
+function bookedListTemplate(data) {
+  var html = '';
+  $.each(data, function(index, item){
+    html += '<div class="booked-list-style">'+
+    '<span id="booked-id" class="hide">' + item.Id + '</span>' +
+    '<span id="booked-room-id" class="hide">' + item.Room.Id + '</span>' +
+    '<span id="booked-name" class="paraStyle">' + item.Name + '</span>' +
+    '<span id="booked-student-id" class="hide">' + item.StudentId + '</span>' +
+    '<span id="booked-cp" class="paraStyle">' + item.Room.Campus + '</span>' +
+    '<span id="booked-tor" class="paraStyle">' + item.Room.TypesOfRooms + '</span>' +
+    '<span id="booked-rn" class="paraStyle">' + item.Room.RoomNo + '</span>' +
+    '<div class="rightAlignment">' +    
+    '<button type="button" class="viewBookedButton">View</button>' +
+    '<button type="button" class="removeBookedButton">Remove</button>' +
+    '</div>' +
+    '</div>';
+  });
+
+  return html;
+}
+
+
+function userListTemplate(data) {
+  var html = '';
+  var user_data = window.UserData;
+  $.each(data, function(index, item){
+    var buttons;
+    if (user_data.campus === 'ALL') {
+      buttons = (item.Campus !== 'ALL') ? '<button type="button" class="editUserButton">Edit</button>' +
+      '<button type="button" class="removeUserButton">Remove</button>' : '<button type="button" class="viewUserButton">View</button>';
+    } else {
+      buttons = (!item.IsAdmin) ? '<button type="button" class="editUserButton">Edit</button>' + 
+      '<button type="button" class="removeUserButton">Remove</button>' : '<button type="button" class="viewUserButton">View</button>';
+    }
+    var student_id = (item.StudentId.length != 0) ? '<span class="paraStyle">ID - </span><span id="u-student-id">' + item.StudentId + '</span>' : "";
+
+    var activated = (item.Activated) ? "Activated" : "Inactivated";
+    var profiled = (item.FillUpProfile) ? "Filled" : "Not yet";
+    var isAdmin = (item.IsAdmin) ? "Admin" : "Student";
+
+    html += '<div class="user-list-style">'+
+    '<img src="'+ item.AvatarUrl +'" width="32x32" class="imgRound" />'+
+    '<span id="u-id" class="hide">' + item.Id + '</span>' +
+    '<span id="u-cn" class="hide">' + item.ContactNo + '</span>' +
+    '<span id="u-email" class="hide">' + item.Email + '</span>' +
+    '<span id="u-location" class="hide">' + item.Location + '</span>' +
+    '<span id="u-gender" class="hide">' + item.Gender + '</span>' +
+    '<span id="u-activated" class="hide">' + activated + '</span>' +
+    '<span id="u-profiled" class="hide">' + profiled + '</span>' +
+    '<span id="u-isAdmin" class="hide">' + isAdmin + '</span>' +
+    '<span class="paraStyle">Campus -</span><span id="u-campus">' + item.Campus + '</span>' +
+    student_id +
+    '<span class="paraStyle">Name -</span><span id="u-name">' + item.Name + '</span>' +
+    '<div class="rightAlignment">' +
+    buttons +
+    '</div>' +
+    '</div>';
+  });
+
+  return html;
+}
+
+var wrapFunc = window.Wrapper;
+
+function removeRoom(e) {
+  e.preventDefault();
+  var roomId = {
+    roomId: $(this).parent().parent().children("#room-id").text()
+  }
+  ajax({
+    url: "/user/room-console",
+    method: "DELETE",
+    data: JSON.stringify(roomId),
+    dataType: 'json',
+    cache: false,
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      wrapFunc.LoadingSwitch(false);
+      if (res.length != 0) {
+        wrapFunc.AlertStatus(
+          'Oops...',
+          res,
+          'error',
+          false,
+          false
+        );
+      } else {
+        updateRoomView();
+      }
+    }
+  });
+}
+
+function editRoom(e) {
+  e.preventDefault();
+  var thisObj = $(this).parent().parent();
+  $('#bg-overlay, #edit-room-box').css('display', 'block');
+  $('#edit-room-id').val(thisObj.children("#room-id").text());
+  $('#edit-campusDropDown').val(thisObj.children("#room-cp").text());
+  $('#edit-types-of-rooms').val(thisObj.children("#room-tp").text());
+  $('#edit-room-no').val(thisObj.children("#room-no").text());
+  $('#edit-per-month-fee').val(thisObj.children("#room-pmf").text());
+  var twin = thisObj.children("#room-t").text();
+  var available = thisObj.children("#room-a").text(); 
+  if (twin !== 'Twin' &&
+      $('#edit-twin:checked').length != 0) {
+    $('#edit-twin').click();
+  }
+  if (twin === 'Twin' &&
+      $('#edit-twin:checked').length == 0) {
+    $('#edit-twin').click();    
+  }
+  if (available !== 'Available' &&
+      $('#edit-available:checked').length != 0) {
+    console.log("Yes");
+    $('#edit-available').click();
+  } 
+  if (available === 'Available' &&
+      $('#edit-available:checked').length == 0) {
+    $('#edit-available').click();
+  }
+}
+
+function updateRoomView() {
+  ajax({
+    url: "/api/view-room-list",
+    method: "POST",
+    cache: false,
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },    
+    success: function(res) {
+      if (res.error != null) {
+        wrapFunc.ClearContent();
+        $('#errMsg').text(res.error);                
+      } else {
+        roomDataSource = res.data;
+        wrapFunc.PaginateRoomContent(roomDataSource);
+      }
+      // var removeRoomBtn = $('.removeRoomButton');
+      // removeRoomBtn.on('click', removeRoom);                
+      wrapFunc.LoadingSwitch(false);
+    }
+  });
+}
+
+function removeRequest(e) {
+  e.preventDefault();
+  var requestId = {
+    requestId: $(this).parent().parent().children("#request-id").text()
+  }
+  ajax({
+    url: "/user/request-console",
+    method: "DELETE",
+    data: JSON.stringify(requestId),
+    dataType: 'json',
+    cache: false,
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      wrapFunc.LoadingSwitch(false);
+      if (res.length != 0) {
+        wrapFunc.AlertStatus(
+          'Oops...',
+          res,
+          'error',
+          false,
+          false
+        );
+      } else {
+        updateRequestView();
+      }
+    }
+  });
+}
+
+function approveRequest(e) {
+  e.preventDefault();
+  var thisObj = $(this).parent().parent();
+  updateRequestStatus("Approved", thisObj);
+}
+
+function deniedRequest(e) {
+  e.preventDefault();
+  var thisObj = $(this).parent().parent();
+  updateRequestStatus("Denied", thisObj);
+}
+
+function updateRequestStatus(reqStatus, thisObj) {
+  var requestId = {
+    requestId: thisObj.children("#request-id").text(),
+    status: reqStatus,
+    userId: thisObj.children("#request-user-id").text()
+  }
+  ajax({
+    url: "/user/request-console",
+    method: "PUT",
+    data: JSON.stringify(requestId),
+    dataType: 'json',    
+    cache: false,
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      wrapFunc.LoadingSwitch(false);
+      if (res.length != 0) {
+        wrapFunc.AlertStatus(
+          'Oops...',
+          res,
+          'error',
+          false,
+          false
+        );
+      } else {
+        updateRequestView();
+      }
+    }
+  });
+}
+
+function updateRequestView() {
+  console.log(requestDataSource);
+  ajax({
+    url: "/api/view-request-list",
+    method: "POST",
+    cache: false,
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      if (res.error != null) {
+        wrapFunc.ClearContent();
+        $('#errMsg').text(res.error);                
+      } else {
+        requestDataSource = res.data;
+        wrapFunc.PaginateRequestContent(requestDataSource);
+      }                
+      wrapFunc.LoadingSwitch(false);
+    }
+  });
+}
+
+function viewRequest(e) {
+  e.preventDefault();
+  var thisObj = $(this).parent().parent();
+  $('#bg-overlay, #view-request-box').css('display', 'block');
+  $('#view-user-name').val(thisObj.children("#request-user-name").text());
+  $('#view-user-gender').val(thisObj.children("#request-user-gender").text());
+  $('#view-user-contactno').val(thisObj.children("#request-user-contactno").text());
+  $('#view-user-location').val(thisObj.children("#request-user-location").text());
+  $('#view-user-month').val(thisObj.children("#request-sm").text());
+  $('#view-user-year').val(thisObj.children("#request-sy").text());
+  $('#view-rd').val(thisObj.children("#request-rd").text());
+  $('#view-tp').val(thisObj.children("#request-tp").text());
+  $('#view-s').val(thisObj.children("#request-s").text());
+  var dmd = thisObj.children("#request-dmd").text();
+  if (dmd === 'January 1st 0001') {
+    $('#view-dmd').val("");  
+  } else {
+    $('#view-dmd').val(dmd);
+  }
+}
+
+function SearchRoomQuery() {
+  var query = $('#search-box').val();
+  console.log(query.length);
+  if (query.length == 0) {
+    wrapFunc.PaginateRoomContent(roomDataSource);
+    return;
+  }      
+  var options = {
+    caseSensitive: true,
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    keys: [
+      "RoomNo"
+    ]
+  };
+  console.log(roomDataSource);
+  var fuse = new Fuse(roomDataSource, options);
+  var result = fuse.search(query);
+  console.log(result);
+  wrapFunc.PaginateRoomContent(result);
+}
+
+function SearchRequestQuery() {
+  console.log(requestDataSource);
+  var query = $('#search-box').val();
+  console.log(query.length);
+  if (query.length == 0) {
+    wrapFunc.PaginateRequestContent(requestDataSource);
+    return;
+  }
+  var options = {
+    caseSensitive: true,
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    keys: [
+      "Status"
+    ]
+  };
+  console.log(requestDataSource);
+  var fuse = new Fuse(requestDataSource, options);
+  var result = fuse.search(query);
+  console.log(result);
+  wrapFunc.PaginateRequestContent(result);
+}
+
+function SearchBookedQuery() {
+  var query = $('#search-box').val();
+  console.log(query.length);
+  if (query.length == 0) {
+    wrapFunc.PaginateBookedContent(bookedDataSource);
+    return;
+  }      
+  var options = {
+    caseSensitive: true,
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    keys: [
+      "RoomNo"
+    ]
+  };
+  console.log(bookedDataSource);
+  var fuse = new Fuse(bookedDataSource, options);
+  var result = fuse.search(query);
+  console.log(result);
+  wrapFunc.PaginateBookedContent(result);
+}
+
+function removeBooked(e) {
+  e.preventDefault();
+
+  var bookedId = {
+    bookedId: $(this).parent().parent().children("#booked-id").text(),
+    bookedRoomId: $(this).parent().parent().children("#booked-room-id").text()
+  }
+  ajax({
+    url: "/user/booked-room-console",
+    method: "DELETE",
+    data: JSON.stringify(bookedId),
+    dataType: 'json',
+    cache: false,
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      wrapFunc.LoadingSwitch(false);
+      if (res.length != 0) {
+        wrapFunc.AlertStatus(
+          'Oops...',
+          res,
+          'error',
+          false,
+          false
+        );
+      } else {
+        updateBookedView();
+      }
+    }
+  });
+}
+
+function viewBooked(e) {
+  e.preventDefault();
+
+  $('#bg-overlay, #view-booked-box').css('display', 'block');
+}
+
+function updateBookedView() {
+  ajax({
+    url: "/api/view-booked-list",
+    method: "POST",
+    cache: false,
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      if (res.error != null) {
+        wrapFunc.ClearContent();
+        $('#errMsg').text(res.error);                
+      } else {
+        bookedDataSource = res.data;
+        wrapFunc.PaginateBookedContent(bookedDataSource);
+      }                
+      wrapFunc.LoadingSwitch(false);
+    }
+  });
+}
+
+function SearchUserQuery() {
+  console.log(usersDataSource);
+  var query = $('#search-box').val();
+  console.log(query.length);
+  if (query.length == 0) {
+    wrapFunc.PaginateUsersContent(usersDataSource);
+    return;
+  }
+  var options = {
+    caseSensitive: true,
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    keys: [
+      "StudentId"
+    ]
+  };
+  console.log(usersDataSource);
+  var fuse = new Fuse(usersDataSource, options);
+  var result = fuse.search(query);
+  console.log(result);
+  wrapFunc.PaginateUsersContent(result);
+}
+
+function removeUser(e) {
+  e.preventDefault();
+  console.log($(this).parent().parent().children("#u-id").text());
+  var userId = {
+    userId: $(this).parent().parent().children("#u-id").text(),
+  }
+  ajax({
+    url: "/user/user-console",
+    method: "DELETE",
+    data: JSON.stringify(userId),
+    dataType: 'json',
+    cache: false,
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      wrapFunc.LoadingSwitch(false);
+      if (res.length != 0) {
+        wrapFunc.AlertStatus(
+          'Oops...',
+          res,
+          'error',
+          false,
+          false
+        );
+      } else {
+        updateUserView();
+      }
+    }
+  });
+}
+
+function editUser(e) {
+  e.preventDefault();
+  var thisObj = $(this).parent().parent();
+  var gender = thisObj.children("#u-gender").text();
+  switch (gender) {
+    case 'Male':
+      $('input[name=edit-user-gender]')[0].click();
+      break;
+    case 'Female':
+      $('input[name=edit-user-gender]')[1].click();
+      break;
+    default: break;
+  }
+
+  $('#bg-overlay, #edit-user-box').css('display', 'block');
+  $('#edit-user-id').val(thisObj.children("#u-id").text());
+  $('#edit-user-campus').val(thisObj.children("#u-campus").text());
+  $('#edit-user-name').val(thisObj.children("#u-name").text());
+  $('#edit-user-email').val(thisObj.children("#u-email").text());
+  $('#edit-user-location').val(thisObj.children("#u-location").text());
+  $('#edit-user-contact-no').val(thisObj.children("#u-cn").text());
+  var activated = thisObj.children("#u-activated").text();
+  var profiled = thisObj.children("#u-profiled").text();
+  var isAdmin = thisObj.children("#u-isAdmin").text();
+  console.log(isAdmin);
+  if (activated !== 'Activated' &&
+      $('#edit-user-activated:checked').length != 0) {
+    $('#edit-user-activated').click();
+  }
+  if (activated === 'Activated' &&
+      $('#edit-user-activated:checked').length == 0) {
+    $('#edit-user-activated').click();
+  }
+
+  if (profiled !== 'Filled' &&
+      $('#edit-user-profiled:checked').length != 0) {
+    $('#edit-user-profiled').click();
+  }
+  if (profiled === 'Filled' &&
+      $('#edit-user-profiled:checked').length == 0) {
+    $('#edit-user-profiled').click();
+  }  
+
+  if (isAdmin !== 'Admin' &&
+      $('#edit-user-admin:checked').length != 0) {
+    $('#edit-user-admin').click();
+  }
+  if (isAdmin === 'Admin' &&
+      $('#edit-user-admin:checked').length == 0) {
+    $('#edit-user-admin').click();
+  }  
+}
+
+function updateUserView() {
+  ajax({
+    url: "/api/view-users-list",
+    method: "POST",
+    cache: false,
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      if (res.error != null) {
+        wrapFunc.ClearContent();
+        $('#errMsg').text(res.error);                
+      } else {
+        usersDataSource = res.data;
+        wrapFunc.PaginateUsersContent(usersDataSource);
+      } 
+      wrapFunc.LoadingSwitch(false);
+    }
+  });
+}
