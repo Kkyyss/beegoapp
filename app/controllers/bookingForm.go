@@ -46,7 +46,7 @@ func (self *BookingFormController) Prepare() {
 }
 
 func (self *BookingFormController) Get() {
-	self.Data["Title"] = "IU Form -"
+	self.Data["Title"] = "Booking Form -"
 	directory := make(map[string]bool)
 	directory["IsUser"] = true
 	self.Data["Directory"] = directory

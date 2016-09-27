@@ -313,7 +313,7 @@ export default class BookingFormPage extends Component {
             <a href="/user/account">Complete User Profile</a>
           </div>
           <div id="form-content">
-            <CardTitle title="IU - ACOMMODATION APPLICATION FORM" subtitle="Please fill up the blanks."/>
+            <CardTitle title="ACOMMODATION APPLICATION FORM" subtitle="Please fill up the blanks."/>
             <form id="request-form">
               <input type="text" style={styles.hide} name="form-user-id" id="form-user-id" />
               <p style={styles.titleStyle}>Campus & Types of Rooms</p>

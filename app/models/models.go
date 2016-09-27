@@ -37,6 +37,7 @@ type (
 		DepositIsPaid       bool
 		IsAdmin             bool
 		FillUpProfile       bool
+		FullPermission      bool
 		Room                *Room      `orm:"null;rel(fk);"`
 		Request             []*Request `orm:"null;reverse(many);"`
 	}
@@ -771,6 +772,42 @@ func (r *Request) UpdateStatus(userId int) (errMsg string) {
 	rObj := qs.Filter("id", r.Id)
 
 	switch status {
+	case "Cancelled":
+		qs2 := o.QueryTable("users").Filter("id", userId)
+		urObj := qs2.RelatedSel("room").Filter("room_id__isnull", false)
+		num, _ := urObj.Count()
+		if num != 0 {
+			var user User
+			err = urObj.One(&user)
+
+			_, err = qs2.Update(orm.Params{
+				"room": nil,
+			})
+
+			if err != nil {
+				beego.Debug(err)
+			}
+
+			qs2 = o.QueryTable("room")
+			rObj := qs2.Filter("id", user.Room.Id)
+
+			_, err = rObj.Update(orm.Params{
+				"is_available": true,
+			})
+
+			if err != nil {
+				beego.Debug(err)
+			}
+		}
+		_, err = rObj.Update(orm.Params{
+			"status":             status,
+			"dicision_made_date": dmd,
+		})
+		if err != nil {
+			errMsg = "Oopps...Something goes wrong when update Cancelled status."
+			beego.Debug(err)
+			return
+		}
 	case "Denied":
 		_, err = rObj.Update(orm.Params{
 			"status":             status,
@@ -815,18 +852,6 @@ func (r *Request) UpdateStatus(userId int) (errMsg string) {
 		}
 	default:
 		errMsg = "Uncaught case: Neither Denied nor Approved."
-		return
-	}
-	return
-}
-
-func (u *User) GetUserRequest() (requests []*Request, err error) {
-	o := orm.NewOrm()
-	qs := o.QueryTable("request")
-	_, err = qs.Filter("User__Id", u.Id).RelatedSel().All(&requests)
-	if err != nil {
-		beego.Debug(err)
-		requests = nil
 		return
 	}
 	return
@@ -945,7 +970,8 @@ func (u *User) RemoveBooked(bookedRoomId int) (err error) {
 	reqObj := qs.Filter("status", "Approved").Filter("User__Id", userId).RelatedSel()
 
 	_, err = reqObj.Update(orm.Params{
-		"status": "Cancelled",
+		"status":             "Cancelled",
+		"dicision_made_date": time.Now(),
 	})
 
 	if err != nil {
@@ -1091,4 +1117,28 @@ func (u *User) GetBookedList() (errMsg string, users []*User) {
 		return errMsg, nil
 	}
 	return
+}
+
+func (u *User) GetUserRequestList() (errMsg string, requests []*Request) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("request").Filter("User__Id", u.Id).RelatedSel()
+
+	n, _ := qs.Count()
+	if n == 0 {
+		errMsg = "No Request Available."
+		return errMsg, nil
+	}
+
+	_, err := qs.All(&requests)
+	if err != nil {
+		errMsg = "Oops...Something happened when find the request list."
+		return errMsg, nil
+	}
+	return
+}
+
+type RoomTypes struct {
+	Id           int
+	Campus       string
+	TypesOfRooms string
 }

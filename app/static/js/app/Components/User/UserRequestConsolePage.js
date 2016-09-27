@@ -100,7 +100,7 @@ const styles = {
   // }
 };
 
-export default class RequestConsolePage extends Component {
+export default class UserRequestConsolePage extends Component {
 
   componentDidMount() {
     var thisObj = this;
@@ -129,12 +129,13 @@ export default class RequestConsolePage extends Component {
     });
 
     function updateRequestList() {
+      console.log(userData.id);
       var userState = {
-        userCampus: userData.campus
+        userId: userData.id
       };
 
       ajax({
-        url: "/api/view-request-list",
+        url: "/api/user-request-list",
         method: "POST",
         cache: false,
         data: JSON.stringify(userState),
@@ -147,12 +148,12 @@ export default class RequestConsolePage extends Component {
             $('#errMsg').text(res.error);
           } else {
             console.log(res.data);
-            wrapFunc.SetRequestDataSource(res.data);
-            wrapFunc.PaginateRequestContent(res.data);
+            wrapFunc.SetUserRequestDataSource(res.data);
+            wrapFunc.PaginateUserRequestContent(res.data);
           }
         }
       });
-    }    
+    }
   }
 
   render() {
@@ -258,7 +259,7 @@ export default class RequestConsolePage extends Component {
         <div id="card-wrapper">
           <Card id="card" style={styles.cardSize}>
             <div style={styles.toolBar}>
-              <ToolbarTitle text="Request Console" />
+              <ToolbarTitle text="User Request Console" />
               <ToolbarSeparator />
               <span style={styles.wall}></span>
               <input 

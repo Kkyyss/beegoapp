@@ -12,14 +12,14 @@ import RaisedButton from 'material-ui/RaisedButton';
 
 require('./CSS/animate.css');
 require('./CSS/sweetalert2.min.css');
-require('./CSS/scrollbar/jquery.mCustomScrollbar.css');
+// require('./CSS/scrollbar/jquery.mCustomScrollbar.css');
 require('./CSS/backup.css');
 require('./JS/wrapperFunc.js');
 
 var $ = window.Jquery;
 var moment = window.Moment;
 require("jquery-mousewheel")($);
-require('malihu-custom-scrollbar-plugin')($);
+// require('malihu-custom-scrollbar-plugin')($);
 
 require('./JS/jquery.fittext.js');
 require('./JS/jquery.lettering.js');
@@ -106,6 +106,14 @@ export default class Master extends Component {
     this.redirectUrl(event, "/user/user-console");
   };
 
+  userRequestConsole = (event) => {
+    this.redirectUrl(event, "/user/request");
+  };
+
+  userBookedRoomConsole = (event) => {
+    this.redirectUrl(event, "/user/booked-room");
+  };
+
   downloadAccommodation = (event) => {
     event.preventDefault();
     _gaq.push(['_trackEvent', 'Download', 'Accommodation', '7z']);
@@ -176,13 +184,19 @@ export default class Master extends Component {
 
     IsLogined(url_path)
 
-    $('.left-drawer-scrollbar, .right-drawer-scrollbar, #card-wrapper').mCustomScrollbar({
-      autoHideScrollbar: true,
-      theme: "minimal-dark",
-      documentTouchScroll: true,
-      mouseWheel:{ preventDefault: true }
+    // $('#card-wrapper').mCustomScrollbar({
+    //   autoHideScrollbar: true,
+    //   theme: "minimal-dark",
+    //   documentTouchScroll: true,
+    //   mouseWheel:{ preventDefault: true }
+    // });
+    $('.left-drawer-scrollbar, #card-wrapper, .right-drawer-scrollbar').mousewheel(function(event, delta, deltaX, deltaY){
+      event.preventDefault();
+      if (delta < 0) $(this).scrollTop($(this).scrollTop() + 55);
+      else if (delta > 0) $(this).scrollTop($(this).scrollTop() - 55);
+      return false;
     });
-    
+
     $(window).resize(function() {
       $(window).trigger("window:resize");
     });
@@ -202,8 +216,8 @@ export default class Master extends Component {
         cache: false,
         success: function(res, ts, request) {       
           if (request.getResponseHeader('IsLogined') === 'FALSE') {
-            $('#sidebar-admin-console').next().remove();
-            $("#sidebar-admin-console, #booking-item, #sidebar-download, #user-btn, #sidebar-user-item, #campus-item").remove();
+            $('#sidebar-admin-console, #sidebar-user-item').next().remove();
+            $("#sidebar-admin-console, #sidebar-user-item, #booking-item, #sidebar-download, #user-btn, #sidebar-user-item, #campus-item").remove();
             // /login_register
             if (request.getResponseHeader('recap') === 'TRUE') {
               $('#log-recap').removeClass('hide').addClass('show');
@@ -257,6 +271,12 @@ export default class Master extends Component {
             if (isUser === 'TRUE') {
               $('#account-item').remove();
               $('#reg-gplus').parent().remove();
+
+              // if (campus !== 'ALL') {
+              //   var campusItem = $('#campus-item').next()
+              //   var item = campusItem.find('.' + campus).detach();
+              //   campusItem.empty().append(item);
+              // }
 
               document.title += ' ' + username;
               $('#sidebar-user-avatar, #user-avatar, #menu-avatar').attr('src', avatarURL);
@@ -374,33 +394,6 @@ export default class Master extends Component {
               ]}
             />
             <ListItem
-              id="sidebar-user-item"
-              primaryTogglesNestedList={true}
-              leftAvatar={
-                <Avatar
-                  id="sidebar-user-avatar"
-                  src="/"
-                  size={36}
-                />
-              }
-              nestedItems = {[
-                <ListItem
-                  key={1}
-                  primaryText="Account"
-                  onTouchTap={this.accessUserAccount}
-                  leftIcon={<FontIcon className="fa fa-user" />}
-                />,
-                <ListItem
-                  key={2}
-                  primaryText="Sign Out"
-                  onTouchTap={this.logout}
-                  leftIcon={<FontIcon className="fa fa-sign-out" />}
-                />,
-              ]}              
-            >
-            User Preference
-            </ListItem>
-            <ListItem
               id="sidebar-admin-console"
               primaryTogglesNestedList={true}
               initiallyOpen={true}
@@ -433,22 +426,59 @@ export default class Master extends Component {
               ]}
             >
               Admin Console
-            </ListItem>
+            </ListItem>             
             <ListItem
-              id="booking-item"
+              id="sidebar-user-item"
               primaryTogglesNestedList={true}
-              leftIcon={<FontIcon className="fa fa-book" />}
+              initiallyOpen={true}
+              leftAvatar={
+                <Avatar
+                  id="sidebar-user-avatar"
+                  src="/"
+                  size={36}
+                />
+              }
               nestedItems = {[
-                <ListItem 
+                <ListItem
                   key={1}
-                  primaryText="Form"
+                  primaryText="Account"
+                  onTouchTap={this.accessUserAccount}
+                  leftIcon={<FontIcon className="fa fa-user" />}
+                />,
+                <ListItem 
+                  key={2}
+                  primaryText="Room Status"
+                  leftIcon={<FontIcon className="fa fa-pie-chart" />}
+                  href="/user/room-status"
+                />,
+                <ListItem 
+                  key={3}
+                  primaryText="Booking Form"
                   leftIcon={<FontIcon className="fa fa-file-text" />}
                   href="/user/booking-form"
-                />       
-              ]}
+                />,
+                <ListItem
+                  key={4}
+                  primaryText="Request"
+                  leftIcon={<FontIcon className="fa fa-list-ul" />}
+                  onTouchTap={this.userRequestConsole}
+                />,
+                <ListItem
+                  key={5}
+                  primaryText="Booked Room"
+                  leftIcon={<FontIcon className="fa fa-bed" />}
+                  onTouchTap={this.userBookedRoomConsole}
+                />,
+                <ListItem
+                  key={6}
+                  primaryText="Sign Out"
+                  onTouchTap={this.logout}
+                  leftIcon={<FontIcon className="fa fa-sign-out" />}
+                />,
+              ]}              
             >
-              Booking
-            </ListItem>            
+            User Console
+            </ListItem>          
             <ListItem
               id="campus-item"
               primaryText="Campuses"
@@ -456,53 +486,29 @@ export default class Master extends Component {
               leftIcon={<FontIcon className="fa fa-graduation-cap" />}
               nestedItems = {[
                 <ListItem
-                  key={1}                
+                  key={1}
                   primaryText="IU"
-                  primaryTogglesNestedList={true}
-                  nestedItems = {[
-                    <ListItem
-                      key={1}
-                      primaryText="Home"
-                      href="/user/inti-iu"
-                    />
-                  ]}
+                  className="IU"
+                  href="/user/inti-iu"
                 />,
                 <ListItem
-                  key={2}                
+                  key={2}
                   primaryText="IICS"
-                  primaryTogglesNestedList={true}
-                  nestedItems = {[
-                    <ListItem
-                      key={1}
-                      primaryText="Home"
-                      href="/user/inti-iics"
-                    />
-                  ]}
+                  className="IICS"
+                  href="/user/inti-iics"
                 />,
                 <ListItem
-                  key={3}                
+                  key={3}
                   primaryText="IICKL"
-                  primaryTogglesNestedList={true}
-                  nestedItems = {[
-                    <ListItem
-                      key={1}
-                      primaryText="Home"
-                      href="/user/inti-iickl"
-                    />
-                  ]}
+                  className="IICKL"
+                  href="/user/inti-iickl"
                 />,
                 <ListItem
-                  key={4}                
+                  key={4}
                   primaryText="IICP"
-                  primaryTogglesNestedList={true}
-                  nestedItems = {[
-                    <ListItem
-                      key={1}
-                      primaryText="Home"
-                      href="/user/inti-iicp"
-                    />
-                  ]}
-                />                                                              
+                  className="IICP"
+                  href="/user/inti-iicp"
+                />                                           
               ]}
             />
             <ListItem

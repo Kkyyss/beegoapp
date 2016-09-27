@@ -156,6 +156,7 @@
     -khtml-transition: margin-left 0.5s;
     -o-transition: margin-left 0.5s;
     transition: margin-left 0.5s;
+    overflow-y: auto;
 }
 
 #footer {
@@ -285,7 +286,6 @@
     -moz-transition: all 0.30s ease-in-out;
     -ms-transition: all 0.30s ease-in-out;
     -o-transition: all 0.30s ease-in-out;    
-    float: right;
     outline: none;
     border: none;
     border-radius: 5px;  
@@ -301,12 +301,11 @@
     color: white; 
 }
 
-.deniedRequestButton {
+.deniedRequestButton, .cancelRequestButton {
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
     -ms-transition: all 0.30s ease-in-out;
     -o-transition: all 0.30s ease-in-out;    
-    float: right;
     outline: none;
     border: none;
     border-radius: 5px;  
@@ -317,7 +316,7 @@
     margin-left: 5px;
 }
 
-.deniedRequestButton:hover {
+.deniedRequestButton:hover, .cancelRequestButton:hover {
     background-color: #424242;
     color: white; 
 }

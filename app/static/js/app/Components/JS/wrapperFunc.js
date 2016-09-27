@@ -11,7 +11,9 @@ var ajax = $.ajax;
 var roomDataSource,
     requestDataSource,
     bookedDataSource,
-    usersDataSource;
+    usersDataSource,
+    userRequestDataSource,
+    userBookedDataSource;
 
 require('./pagination.min.js');
 
@@ -299,6 +301,56 @@ window.Wrapper = {
         }
     });
   },
+  PaginateUserRequestContent: function(ds) {
+    var container = $('#pagination-container');
+    var content = $('#pagination-content');
+    var searchBox = $('#search-box');
+
+    if (ds.length == 0) {
+      content.empty();
+      container.pagination('destroy');
+      $('#errMsg').text('No Results Found.');
+      return;
+    }
+    container.pagination({
+        dataSource: ds,
+        pageSize: 5,
+        // autoHidePrevious: true,
+        // autoHideNext: true,
+        threshold: 0.6,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        showGoInput: true,
+        showGoButton: true,
+        className: 'paginationjs-theme-green paginationjs-big',
+        formatGoInput: 'Go to <%= input %>',
+        callback: function(data, pagination) {
+          $('#errMsg').text('');
+          var html = userRequestListTemplate(data);
+          content.html(html);
+        },
+        afterRender: function() {
+          var cancelRequestBtn = $('.cancelRequestButton'),
+          viewRequestBtn = $('.viewRequestButton');
+
+          searchBox.unbind('input', SearchUserRequestQuery);
+          cancelRequestBtn.unbind('click', cancelRequest);
+          viewRequestBtn.unbind('click', viewRequest);
+
+          searchBox.bind('input', SearchUserRequestQuery);
+          cancelRequestBtn.bind('click', cancelRequest);
+          viewRequestBtn.bind('click', viewRequest);
+        },
+        afterPaging: function() {
+          var cancelRequestBtn = $('.cancelRequestButton'),
+          viewRequestBtn = $('.viewRequestButton');
+
+          cancelRequestBtn.on('click', cancelRequest);
+          viewRequestBtn.on('click', viewRequest);
+        }
+    });
+  },  
   SetRoomDataSource: function(ds) {
     roomDataSource = ds;
   },
@@ -310,6 +362,12 @@ window.Wrapper = {
   },
   SetUsersDataSource: function(ds) {
     usersDataSource = ds;
+  },
+  SetUserRequestDataSource: function(ds) {
+    userRequestDataSource = ds;
+  },
+  SetUserBookedDataSource: function(ds) {
+    userBookedDataSource = ds;
   },
   ClearContent: function() {
     var container = $('#pagination-container');
@@ -462,6 +520,34 @@ function userListTemplate(data) {
   });
 
   return html;
+}
+
+function userRequestListTemplate(data) {
+  var html = '';
+  $.each(data, function(index, item){
+    var Isprocess = (item.Status === 'Processing' || item.Status === 'Approved') ? '<button type="button" class="cancelRequestButton">Cancel</button>' : "";
+    html += '<div class="request-list-style">'+
+    '<span id="request-id" class="hide">' + item.Id + '</span>' +
+    '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('MMMM Do YYYY') + '</span>' +
+    '<span id="request-sm" class="hide">' + item.SessionMonth + '</span>' + 
+    '<span id="request-sy" class="hide">' + item.SessionYear + '</span>' +
+    '<span id="request-tp" class="hide">' + item.TypesOfRooms + '</span>' +
+    '<span id="request-s" class="paraStyle">' + item.Status + '</span>' +
+    '<span id="request-dmd" class="hide">' + moment(item.DicisionMadeDate).format('MMMM Do YYYY') + '</span>' +
+    '<span id="request-user-id" class="hide">' + item.User.Id + '</span>' +      
+    '<span id="request-user-name" class="hide">' + item.User.Name + '</span>' + 
+    '<span id="request-user-gender" class="hide">' + item.User.Gender + '</span>' +    
+    '<span id="request-user-email" class="hide">' + item.User.Email + '</span>' +    
+    '<span id="request-user-location" class="hide">' + item.User.Location + '</span>' +    
+    '<span id="request-user-contactno" class="hide">' + item.User.ContactNo + '</span>' +    
+    '<span id="request-user-avatar" class="hide">' + item.User.AvatarUrl + '</span>' +    
+    '<div class="rightAlignment">' +    
+    '<button type="button" class="viewRequestButton">View</button>' +
+    Isprocess +
+    '</div>' +
+    '</div>';
+  });
+  return html;  
 }
 
 var wrapFunc = window.Wrapper;
@@ -754,6 +840,32 @@ function SearchBookedQuery() {
   wrapFunc.PaginateBookedContent(result);
 }
 
+function SearchUserRequestQuery() {
+  console.log(userRequestDataSource);
+  var query = $('#search-box').val();
+  console.log(query.length);
+  if (query.length == 0) {
+    wrapFunc.PaginateUserRequestContent(userRequestDataSource);
+    return;
+  }
+  var options = {
+    caseSensitive: true,
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    keys: [
+      "Status"
+    ]
+  };
+  console.log(userRequestDataSource);
+  var fuse = new Fuse(userRequestDataSource, options);
+  var result = fuse.search(query);
+  console.log(result);
+  wrapFunc.PaginateUserRequestContent(result);
+}
+
 function removeBooked(e) {
   e.preventDefault();
 
@@ -953,6 +1065,67 @@ function updateUserView() {
       } else {
         usersDataSource = res.data;
         wrapFunc.PaginateUsersContent(usersDataSource);
+      } 
+      wrapFunc.LoadingSwitch(false);
+    }
+  });
+}
+
+function cancelRequest(e) {
+  e.preventDefault();
+  var userData = window.UserData;
+  var userState = {
+    requestId: $(this).parent().parent().children("#request-id").text(),
+    userId: userData.id,
+    status: "Cancelled"
+  };
+
+  ajax({
+    url: "/user/request",
+    method: "PUT",
+    cache: false,
+    data: JSON.stringify(userState),
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      wrapFunc.LoadingSwitch(false);
+      if (res.length != 0) {
+        wrapFunc.AlertStatus(
+          'Oops...',
+          res,
+          'error',
+          false,
+          false
+        );
+      } else {
+        updateUserReuqest();
+      }
+    }
+  });
+}
+
+function updateUserReuqest() {
+  var userData = window.UserData;
+
+  var userState = {
+    userId: userData.id
+  };
+  ajax({
+    url: "/api/user-request-list",
+    method: "POST",
+    cache: false,
+    data: JSON.stringify(userState),
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      if (res.error != null) {
+        wrapFunc.ClearContent();
+        $('#errMsg').text(res.error);
+      } else {
+        userRequestDataSource = res.data;
+        wrapFunc.PaginateUserRequestContent(userRequestDataSource);
       } 
       wrapFunc.LoadingSwitch(false);
     }

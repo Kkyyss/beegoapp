@@ -46,7 +46,7 @@ func initDB() {
 		20,
 	)
 	// register model here
-	orm.RegisterModel(new(models.User), new(models.Request), new(models.Room), new(models.Ip))
+	orm.RegisterModel(new(models.User), new(models.Request), new(models.RoomTypes), new(models.Room), new(models.Ip))
 
 	// Database alias.
 	name := "default"
@@ -72,6 +72,7 @@ func initDB() {
 	// 	HashPassword:  hpass,
 	// 	Activated:     true,
 	// 	IsAdmin:       true,
+	// 	FullPermission: true,
 	// }
 
 	// u.Insert()

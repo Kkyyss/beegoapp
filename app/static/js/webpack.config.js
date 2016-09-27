@@ -13,6 +13,8 @@ module.exports = {
      './app/Components/User/UserDropDownMenu.js',
      './app/Components/User/UserPage.js',
      './app/Components/User/UserAccountPage.js',
+     './app/Components/User/UserRequestConsolePage.js',
+     './app/Components/User/RoomStatusPage.js',
      './app/Components/Admin/RoomConsolePage.js',
      './app/Components/Admin/RequestConsolePage.js',
      './app/Components/Admin/BookedRoomConsolePage.js',

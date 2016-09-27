@@ -55,7 +55,7 @@ const styles = {
     marginBottom: 16,
   },
   underlineStyle: {
-    borderColor: '#00B0FF',
+    borderColor: '#1A237E',
   },
   underlineFocusStyle: {
     borderColor: 'transparent',
@@ -245,8 +245,9 @@ export default class AdminConsolePage extends Component {
                   dataSource={campusDataSource}
                   fullWidth={true}
                   maxSearchResults={5}
-                  underlineShow={false}
                   floatingLabelStyle={styles.floatingLabelStyle}
+                  underlineStyle={styles.underlineStyle}
+                  underlineFocusStyle={styles.underlineFocusStyle}                  
                 />
                 <br/>
                 <TextField
@@ -256,7 +257,8 @@ export default class AdminConsolePage extends Component {
                   type="text"
                   fullWidth={true}
                   floatingLabelFixed={true}
-                  underlineShow={false}
+                  underlineStyle={styles.underlineStyle}
+                  underlineFocusStyle={styles.underlineFocusStyle} 
                   floatingLabelStyle={styles.floatingLabelStyle}
                 />
                 <br/>
@@ -267,7 +269,8 @@ export default class AdminConsolePage extends Component {
                   type="text"
                   fullWidth={true}
                   floatingLabelFixed={true}
-                  underlineShow={false}
+                  underlineStyle={styles.underlineStyle}
+                  underlineFocusStyle={styles.underlineFocusStyle} 
                   floatingLabelStyle={styles.floatingLabelStyle}
                 />
                 <br/><br/>
