@@ -7,6 +7,7 @@ import TextField from 'material-ui/TextField';
 var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
+var userData;
 
 const styles = {
   cardSize: {
@@ -48,6 +49,12 @@ export default class BookedRoomConsolePage extends Component {
 
   componentDidMount() {
     var thisObj = this;
+    $.when().then(function() {
+      userData = window.UserData;
+      updateBookedList();
+    });
+
+
     $(window).resize(function() {
       $(window).trigger("window:resize");
     });
@@ -67,13 +74,16 @@ export default class BookedRoomConsolePage extends Component {
       $('#bg-overlay, #view-booked-box').css('display', 'none');
     });
 
-    updateBookedList();
-
     function updateBookedList() {
+      var userState = {
+        userCampus: userData.campus
+      };
+
       ajax({
         url: "/api/view-booked-list",
         method: "POST",
         cache: false,
+        data: JSON.stringify(userState),
         beforeSend: function() {
           wrapFunc.LoadingSwitch(true);
         },

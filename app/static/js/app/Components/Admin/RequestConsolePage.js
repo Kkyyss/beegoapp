@@ -12,6 +12,7 @@ import FontIcon from 'material-ui/FontIcon';
 var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
+var userData;
 
 const styles = {
   cardSize: {
@@ -103,6 +104,11 @@ export default class RequestConsolePage extends Component {
 
   componentDidMount() {
     var thisObj = this;
+    $.when().then(function() {
+      userData = window.UserData;
+      updateRequestList();
+    });
+
     $(window).resize(function() {
       $(window).trigger("window:resize");
     });
@@ -122,13 +128,16 @@ export default class RequestConsolePage extends Component {
       $('#bg-overlay, #view-request-box').css('display', 'none');
     });
 
-    updateRequestList();
-
     function updateRequestList() {
+      var userState = {
+        userCampus: userData.campus
+      };
+
       ajax({
         url: "/api/view-request-list",
         method: "POST",
         cache: false,
+        data: JSON.stringify(userState),
         beforeSend: function() {
           wrapFunc.LoadingSwitch(true);
         },

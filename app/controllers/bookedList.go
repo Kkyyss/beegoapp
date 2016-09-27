@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"encoding/json"
+
 	"github.com/astaxie/beego"
 
 	"akgo/app/models"
@@ -16,9 +18,20 @@ func (self *BookedListController) Post() {
 	var (
 		booked []*models.User
 		errMsg string
+		ob     interface{}
 	)
 
-	errMsg, booked = models.GetBookedList()
+	// roomId, _ := strconv.Atoi(self.GetString("jsoninfo"))
+	json.Unmarshal(self.Ctx.Input.RequestBody, &ob)
+	// userId, _ := strconv.Atoi(ob.(map[string]interface{})["userId"].(string))
+	// isAdmin, _ := strconv.ParseBool(ob.(map[string]interface{})["isAdmin"].(string))
+	user := models.User{
+		// Id:      userId,
+		Campus: ob.(map[string]interface{})["userCampus"].(string),
+		// IsAdmin: isAdmin,
+	}
+
+	errMsg, booked = user.GetBookedList()
 	if errMsg != "" {
 		resMap["error"] = errMsg
 	} else {

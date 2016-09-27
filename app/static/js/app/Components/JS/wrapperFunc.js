@@ -631,11 +631,16 @@ function updateRequestStatus(reqStatus, thisObj) {
 }
 
 function updateRequestView() {
-  console.log(requestDataSource);
+  var userData = window.UserData;
+
+  var userState = {
+    userCampus: userData.campus
+  };
   ajax({
     url: "/api/view-request-list",
     method: "POST",
     cache: false,
+    data: JSON.stringify(userState),
     beforeSend: function() {
       wrapFunc.LoadingSwitch(true);
     },
@@ -789,10 +794,17 @@ function viewBooked(e) {
 }
 
 function updateBookedView() {
+  var userData = window.UserData;
+
+  var userState = {
+    userCampus: userData.campus
+  };
+
   ajax({
     url: "/api/view-booked-list",
     method: "POST",
     cache: false,
+    data: JSON.stringify(userState),
     beforeSend: function() {
       wrapFunc.LoadingSwitch(true);
     },

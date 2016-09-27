@@ -1030,7 +1030,11 @@ func (u *User) GetUsersList() (errMsg string, users []*User) {
 	o := orm.NewOrm()
 	cond := orm.NewCondition()
 	c1 := cond.And("campus", u.Campus).Or("is_admin", true)
-	qs := o.QueryTable("users").SetCond(c1)
+	qs := o.QueryTable("users")
+
+	if u.Campus != "ALL" {
+		qs = qs.SetCond(c1)
+	}
 
 	n, _ := qs.Count()
 	beego.Debug(n)
@@ -1041,6 +1045,49 @@ func (u *User) GetUsersList() (errMsg string, users []*User) {
 	_, err := qs.All(&users)
 	if err != nil {
 		errMsg = "Oops...Something happened when find the users list."
+		return errMsg, nil
+	}
+	return
+}
+
+func (u *User) GetRequestList() (errMsg string, requests []*Request) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("request")
+
+	if u.Campus != "ALL" {
+		qs = qs.Filter("campus", u.Campus)
+	}
+
+	n, _ := qs.Count()
+	if n == 0 {
+		errMsg = "No Request Available."
+		return errMsg, nil
+	}
+	_, err := qs.RelatedSel().All(&requests)
+	if err != nil {
+		errMsg = "Oops...Something happened when find the request list."
+		return errMsg, nil
+	}
+	return
+}
+
+func (u *User) GetBookedList() (errMsg string, users []*User) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("users")
+	urObj := qs.RelatedSel("room").Filter("room_id__isnull", false)
+
+	if u.Campus != "ALL" {
+		qs = qs.Filter("campus", u.Campus)
+	}
+
+	n, _ := urObj.Count()
+	if n == 0 {
+		errMsg = "No Booked Room Available."
+		return errMsg, nil
+	}
+	_, err := urObj.All(&users)
+	if err != nil {
+		errMsg = "Oops...Something happened when find the booked list."
 		return errMsg, nil
 	}
 	return

@@ -92,7 +92,7 @@ export default class UserConsolePage extends Component {
 
   componentDidMount() {
     var thisObj = this;
-    $.when().then(function(x) {
+    $.when().then(function() {
       userData = window.UserData;
       if (userData.campus !== 'ALL') {
         var userCampus = userData.campus;
