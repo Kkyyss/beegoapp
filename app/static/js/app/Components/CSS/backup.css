@@ -125,14 +125,19 @@
         width: 96px !important;
         height: 32px !important;
     }
-    .add-room-style, .add-user-style, .edit-user-style {
+    .add-room-style, .add-user-style, .edit-user-style, .add-room-type-style {
         margin-left: 10% !important;
         width: 80% !important;
     }
     .content-padding {
         margin: 0 10% 0 10% !important;
     }
-    .room-list-style, .request-list-style, .booked-list-style, .user-list-style {
+    .room-list-style, 
+    .request-list-style, 
+    .booked-list-style, 
+    .user-list-style, 
+    .room-type-list-style,
+    .room-status-list-style  {
         font-size: 12px !important;
     }
 }
@@ -181,7 +186,9 @@
 .room-list-style, 
 .booked-list-style, 
 .request-list-style, 
-.user-list-style {
+.user-list-style,
+.room-type-list-style,
+.room-status-list-style {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -203,6 +210,12 @@
 
 .user-list-style:nth-child(even) {background: #B0BEC5}
 .user-list-style:nth-child(odd) {background: #B3E5FC}
+
+.room-type-list-style:nth-child(even) {background: #B0BEC5}
+.room-type-list-style:nth-child(odd) {background: #B3E5FC}
+
+.room-status-list-style:nth-child(even) {background: #B0BEC5}
+.room-status-list-style:nth-child(odd) {background: #B3E5FC}
 
 #pagination-container{
   display: flex;

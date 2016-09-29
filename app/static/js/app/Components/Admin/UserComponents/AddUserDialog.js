@@ -114,11 +114,16 @@ export default class AddUserDialog extends Component {
   getUserList() {
     var thisObj = this;
 
+    var userState = {
+      userCampus: userData.campus
+    };
+
     var searchBox = $('#search-box');
     ajax({
       url: "/api/view-users-list",
       method: "POST",
       cache: false,
+      data: JSON.stringify(userState),
       beforeSend: function() {
         wrapFunc.LoadingSwitch(true);
       },
@@ -171,9 +176,9 @@ export default class AddUserDialog extends Component {
     return (
       <div>
         <ToolbarGroup>
-          <RaisedButton 
+          <RaisedButton
             id="add-user-btn"
-            label="Add User" 
+            label="Add User"
             primary={true}
             icon={<FontIcon className="fa fa-user-plus" />}
             onTouchTap={this.handleOpen}
@@ -259,9 +264,9 @@ export default class AddUserDialog extends Component {
                 label="Admin"
                 defaultToggled={false}
                 style={styles.toggle}
-              />              
+              />
               </div>
-            </form>            
+            </form>
           </Dialog>
         </ToolbarGroup>
       </div>

@@ -90,6 +90,10 @@ export default class Master extends Component {
     this.redirectUrl(event, "/user/account");
   };
 
+  accessRoomStatus = (event) => {
+    this.redirectUrl(event, "/user/room-status");
+  }
+
   roomConsole = (event) => {
     this.redirectUrl(event, "/user/room-console");
   };
@@ -216,8 +220,8 @@ export default class Master extends Component {
         cache: false,
         success: function(res, ts, request) {       
           if (request.getResponseHeader('IsLogined') === 'FALSE') {
-            $('#sidebar-admin-console, #sidebar-user-item').next().remove();
-            $("#sidebar-admin-console, #sidebar-user-item, #booking-item, #sidebar-download, #user-btn, #sidebar-user-item, #campus-item").remove();
+            $('#sidebar-admin-console, #sidebar-user-item, #sidebar-room-item').next().remove();
+            $("#sidebar-admin-console, #sidebar-user-item, #sidebar-room-item, #booking-item, #sidebar-download, #user-btn, #sidebar-user-item, #campus-item").remove();
             // /login_register
             if (request.getResponseHeader('recap') === 'TRUE') {
               $('#log-recap').removeClass('hide').addClass('show');
@@ -399,34 +403,56 @@ export default class Master extends Component {
               initiallyOpen={true}
               leftIcon={<FontIcon className="fa fa-certificate" />}
               nestedItems = {[
-                <ListItem
+                <ListItem 
                   key={1}
+                  primaryText="Room Types"
+                  leftIcon={<FontIcon className="fa fa-th" />}
+                  href="/user/room-type"
+                />,
+                <ListItem
+                  key={2}
                   primaryText="Room"
                   leftIcon={<FontIcon className="fa fa-h-square" />}
                   onTouchTap={this.roomConsole}
                 />,
                 <ListItem
-                  key={2}
+                  key={3}
                   primaryText="Request"
                   leftIcon={<FontIcon className="fa fa-list-ul" />}
                   onTouchTap={this.requestConsole}
                 />,
                 <ListItem
-                  key={3}
+                  key={4}
                   primaryText="Booked Room"
                   leftIcon={<FontIcon className="fa fa-bed" />}
                   onTouchTap={this.bookedRoomConsole}
                 />,
                 <ListItem
-                  key={4}
+                  key={5}
                   primaryText="User"
                   leftIcon={<FontIcon className="fa fa-users" />}
                   onTouchTap={this.userConsole}
-                />                
+                />
               ]}
             >
               Admin Console
-            </ListItem>             
+            </ListItem>
+            <ListItem
+              id="sidebar-room-item"
+              primaryTogglesNestedList={true}
+              initiallyOpen={true}
+              leftIcon={<FontIcon className="fa fa-certificate" />}
+              nestedItems = {[
+                <ListItem
+                  key={1}
+                  primaryText="Status"
+                  onTouchTap={this.accessRoomStatus}
+                  leftIcon={<FontIcon className="fa fa-user" />}
+                />
+              ]}
+            >
+              Room
+            </ListItem>                         
             <ListItem
               id="sidebar-user-item"
               primaryTogglesNestedList={true}
@@ -445,13 +471,13 @@ export default class Master extends Component {
                   onTouchTap={this.accessUserAccount}
                   leftIcon={<FontIcon className="fa fa-user" />}
                 />,
-                <ListItem 
+                <ListItem
                   key={2}
                   primaryText="Room Status"
                   leftIcon={<FontIcon className="fa fa-pie-chart" />}
                   href="/user/room-status"
                 />,
-                <ListItem 
+                <ListItem
                   key={3}
                   primaryText="Booking Form"
                   leftIcon={<FontIcon className="fa fa-file-text" />}

@@ -1142,3 +1142,58 @@ type RoomTypes struct {
 	Campus       string
 	TypesOfRooms string
 }
+
+func (rt *RoomTypes) Insert() (err error) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("room_types")
+	i, err := qs.PrepareInsert()
+	if err != nil {
+		return err
+	}
+	defer i.Close()
+	_, err = i.Insert(rt)
+	return err
+}
+
+type RoomTypeResults struct {
+	Campus       string
+	TypesOfRooms string
+	Total        int
+	Available    int
+}
+
+func (u *User) GetRoomStatusList() (errMsg string, roomTypeResults []*RoomTypeResults) {
+	o := orm.NewOrm()
+	qry := "SELECT campus, types_of_rooms, COUNT(types_of_rooms) AS total, SUM(is_available) AS available FROM room GROUP BY types_of_rooms"
+	rs := o.Raw(qry)
+	if u.Campus != "ALL" {
+		rs = o.Raw(qry+" HAVING campus = ?", u.Campus)
+	}
+
+	n, _ := rs.QueryRows(&roomTypeResults)
+	beego.Debug(len(roomTypeResults))
+	if n == 0 {
+		errMsg = "No Room Type Available."
+		return errMsg, nil
+	}
+	return
+}
+
+func (u *User) GetRoomTypeList() (errMsg string, roomTypes []*RoomTypes) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("room_types")
+
+	num, _ := qs.Count()
+	if num == 0 {
+		errMsg = "No Room Type Available."
+		return errMsg, nil
+	}
+
+	_, err := qs.All(&roomTypes)
+	if err != nil {
+		beego.Debug(err)
+		errMsg = "Ooops...Something goes wrong when get the room type data."
+		return errMsg, nil
+	}
+	return
+}

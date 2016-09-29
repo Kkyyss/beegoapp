@@ -53,8 +53,7 @@ const iicsRoomTypes = [
 
 var campusDataSource = iuRoomTypes;
 
-export default class AddRoomDialog extends Component {
-
+export default class AddRoomTypeDialog extends Component {
   state = {
     open: false,
     value: "IU",
@@ -63,7 +62,7 @@ export default class AddRoomDialog extends Component {
   };
 
   handleChange = (event, index, value) => {
-    this.changeResource(value);
+    this.setState({value});
   };
 
   handleOpen = (e) => {
@@ -74,21 +73,6 @@ export default class AddRoomDialog extends Component {
     this.setState({open: false});
   };
 
-  changeResource(value) {
-    switch (value) {
-      case 'IU': 
-        campusDataSource = iuRoomTypes;
-        break;
-      case 'IICS':
-        campusDataSource = iicsRoomTypes;
-        break;
-      default:
-        campusDataSource = iuRoomTypes;
-    }
-    console.log($('#types-of-rooms'));
-    this.setState({value});
-  }
-
   handleSubmit = (e) => {
     e.preventDefault();
     var thisObj = this;
@@ -96,11 +80,11 @@ export default class AddRoomDialog extends Component {
       btnDisabled: true,
     });    
     $('#campus').val(this.state.value);
-    var addRoomForm = $('#add-room-form');
+    var addRoomTypeForm = $('#add-room-type-form');
     ajax({
-      url: "/user/room-console",
+      url: "/user/room-type-console",
       method: "POST",
-      data: addRoomForm.serialize(),
+      data: addRoomTypeForm.serialize(),
       cache: false,
       beforeSend: function() {
         wrapFunc.LoadingSwitch(true);
@@ -117,7 +101,7 @@ export default class AddRoomDialog extends Component {
           );
         } else {
           thisObj.setState({open: false});
-          thisObj.getRoomList();
+          thisObj.getRoomTypeList();
           wrapFunc.AlertStatus('Success', 'Room Added Successfully!', 'success', true, true);
         }
         thisObj.setState({
@@ -127,6 +111,34 @@ export default class AddRoomDialog extends Component {
       }
     });
   };
+
+  getRoomTypeList() {
+    var thisObj = this;
+
+    var userState = {
+      userCampus: userData.campus
+    };
+
+    var searchBox = $('#search-box');
+    ajax({
+      url: "/api/view-room-type-list",
+      method: "POST",
+      cache: false,
+      data: JSON.stringify(userState),
+      beforeSend: function() {
+        wrapFunc.LoadingSwitch(true);
+      },
+      success: function(res) {
+        wrapFunc.LoadingSwitch(false);
+        if (res.error != null) {
+          $('#errMsg').text(res.error);
+        } else {
+          wrapFunc.SetRoomTypeDataSource(res.data);
+          wrapFunc.PaginateRoomTypeContent(res.data);
+        }
+      }
+    });
+  }
 
   componentDidMount() {
     var thisObj = this;
@@ -138,29 +150,6 @@ export default class AddRoomDialog extends Component {
           value: userCampus,
           disabled: true,
         });
-      }
-    });
-  }
-
-  getRoomList() {
-    var thisObj = this;
-
-    var searchBox = $('#search-box');
-    ajax({
-      url: "/api/view-room-list",
-      method: "POST",
-      cache: false,
-      beforeSend: function() {
-        wrapFunc.LoadingSwitch(true);
-      },
-      success: function(res) {
-        wrapFunc.LoadingSwitch(false);
-        if (res.error != null) {
-          $('#errMsg').text(res.error);
-        } else {
-          wrapFunc.SetRoomDataSource(res.data);
-          wrapFunc.PaginateRoomContent(res.data);
-        }
       }
     });
   }
@@ -184,21 +173,21 @@ export default class AddRoomDialog extends Component {
     return (
       <ToolbarGroup>
         <RaisedButton 
-          id="add-room-btn"
-          label="Add Room" 
+          id="add-room-type-btn"
+          label="Add Room Type" 
           primary={true}
           icon={<FontIcon className="fa fa-plus" />}
           onTouchTap={this.handleOpen}
         />
         <Dialog
-          title="Add Room"
+          title="Add Room Type"
           actions={actions}
           modal={false}
           open={this.state.open}
           onRequestClose={this.handleClose}
           autoScrollBodyContent={true}
         >
-          <form id="add-room-form" style={styles.formStyle} className="add-room-style">
+          <form id="add-room-type-form" style={styles.formStyle} className="add-room-type-style">
             <div>Campus&nbsp;
               <DropDownMenu id="campusDropDown" value={this.state.value} onChange={this.handleChange} disabled={this.state.disabled}>
                 <MenuItem value={"IU"} primaryText="IU" />
@@ -208,46 +197,14 @@ export default class AddRoomDialog extends Component {
               </DropDownMenu>
               <input id="campus" name="campus" type="text" style={styles.hide} />
               <br/>
-              <AutoComplete
+              <TextField
                 id="types-of-rooms"
                 name="types-of-rooms"
                 floatingLabelText="Types of Rooms"
-                filter={AutoComplete.caseInsensitiveFilter}
-                openOnFocus={true}
-                dataSource={campusDataSource}
-                fullWidth={true}
-                maxSearchResults={5}
-              />
-              <br/>              
-              <TextField
-                id="room-no"
-                name="room-no"
-                floatingLabelText="Room No."
                 type="text"
-                fullWidth={true}
+                fullWidth={true}  
               />
-              <TextField
-                id="per-month-fee"
-                name="per-month-fee"
-                floatingLabelText="Per Month Fee (RM)"
-                type="text"
-                fullWidth={true}
-              />
-              <br/><br/>
-              <Toggle
-                id="twin"
-                name="twin"
-                label="Twin"
-                defaultToggled={false}
-                style={styles.toggle}
-              />
-              <Toggle
-                id="available"
-                name="available"
-                label="Available"
-                defaultToggled={true}
-                style={styles.toggle}
-              />
+              <br/>
             </div>
           </form>
         </Dialog>

@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Card, CardActions, CardTitle} from 'material-ui/Card';
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
+import AddRoomTypeDialog from "./RoomTypeComponents/AddRoomTypeDialog.js";
 
 var $ = window.Jquery;
 var ajax = $.ajax;
@@ -120,7 +121,7 @@ var iicsRoomTypes = {
 
 var campusDataSource;
 
-export default class RoomStatusPage extends Component {
+export default class RoomTypeConsolePage extends Component {
 
   componentDidMount() {
     var thisObj = this;
@@ -142,15 +143,13 @@ export default class RoomStatusPage extends Component {
       updateRoomStatusList();
     });
 
-
     function updateRoomStatusList() {
-      console.log(userData.id);
       var userState = {
         userCampus: userData.campus
       };
 
       ajax({
-        url: "/api/view-room-status-list",
+        url: "/api/view-room-type-list",
         method: "POST",
         cache: false,
         data: JSON.stringify(userState),
@@ -163,8 +162,8 @@ export default class RoomStatusPage extends Component {
             $('#errMsg').text(res.error);
           } else {
             console.log(res.data);
-            wrapFunc.SetRoomStatusDataSource(res.data);
-            wrapFunc.PaginateRoomStatusContent(res.data);
+            wrapFunc.SetRoomTypeDataSource(res.data);
+            wrapFunc.PaginateRoomTypeContent(res.data);
           }
         }
       });
@@ -176,8 +175,9 @@ export default class RoomStatusPage extends Component {
       <div id="card-wrapper">
         <Card id="card" style={styles.cardSize}>
           <div style={styles.toolBar}>
-            <ToolbarTitle text="Room Status" />
+            <ToolbarTitle text="Room Type Console" />
             <ToolbarSeparator />
+            <AddRoomTypeDialog />
             <span style={styles.wall}></span>
             <input 
               id="search-box"

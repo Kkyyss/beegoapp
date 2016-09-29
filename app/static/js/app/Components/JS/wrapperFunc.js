@@ -13,6 +13,8 @@ var roomDataSource,
     bookedDataSource,
     usersDataSource,
     userRequestDataSource,
+    roomTypeDataSource,
+    roomStatusDataSource,
     userBookedDataSource;
 
 require('./pagination.min.js');
@@ -350,6 +352,104 @@ window.Wrapper = {
           viewRequestBtn.on('click', viewRequest);
         }
     });
+  },
+  PaginateRoomTypeContent: function(ds) {
+    var container = $('#pagination-container');
+    var content = $('#pagination-content');
+    var searchBox = $('#search-box');
+
+    if (ds.length == 0) {
+      content.empty();
+      container.pagination('destroy');
+      $('#errMsg').text('No Results Found.');
+      return;
+    }
+    container.pagination({
+        dataSource: ds,
+        pageSize: 5,
+        // autoHidePrevious: true,
+        // autoHideNext: true,
+        threshold: 0.6,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        showGoInput: true,
+        showGoButton: true,
+        className: 'paginationjs-theme-green paginationjs-big',
+        formatGoInput: 'Go to <%= input %>',
+        callback: function(data, pagination) {
+          $('#errMsg').text('');
+          var html = roomTypeListTemplate(data);
+          content.html(html);
+        },
+        afterRender: function() {
+          var removeRoomTypeBtn = $('.removeRoomTypeButton');
+
+          // searchBox.unbind('input', SearchUserRequestQuery);
+          // cancelRequestBtn.unbind('click', cancelRequest);
+          // viewRequestBtn.unbind('click', viewRequest);
+
+          // searchBox.bind('input', SearchUserRequestQuery);
+          // cancelRequestBtn.bind('click', cancelRequest);
+          // viewRequestBtn.bind('click', viewRequest);
+        },
+        afterPaging: function() {
+          // var cancelRequestBtn = $('.cancelRequestButton'),
+          // viewRequestBtn = $('.viewRequestButton');
+
+          // cancelRequestBtn.on('click', cancelRequest);
+          // viewRequestBtn.on('click', viewRequest);
+        }
+    });
+  },
+  PaginateRoomStatusContent: function(ds) {
+    var container = $('#pagination-container');
+    var content = $('#pagination-content');
+    var searchBox = $('#search-box');
+
+    if (ds.length == 0) {
+      content.empty();
+      container.pagination('destroy');
+      $('#errMsg').text('No Results Found.');
+      return;
+    }
+    container.pagination({
+        dataSource: ds,
+        pageSize: 5,
+        // autoHidePrevious: true,
+        // autoHideNext: true,
+        threshold: 0.6,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        showGoInput: true,
+        showGoButton: true,
+        className: 'paginationjs-theme-green paginationjs-big',
+        formatGoInput: 'Go to <%= input %>',
+        callback: function(data, pagination) {
+          $('#errMsg').text('');
+          var html = roomStatusListTemplate(data);
+          content.html(html);
+        },
+        afterRender: function() {
+          var viewRoomStatusBtn = $('.viewRoomStatusButton');
+
+          searchBox.unbind('input', SearchRoomStatusRequestQuery);
+          // cancelRequestBtn.unbind('click', cancelRequest);
+          // viewRequestBtn.unbind('click', viewRequest);
+
+          searchBox.bind('input', SearchRoomStatusRequestQuery);
+          // cancelRequestBtn.bind('click', cancelRequest);
+          // viewRequestBtn.bind('click', viewRequest);
+        },
+        afterPaging: function() {
+          // var cancelRequestBtn = $('.cancelRequestButton'),
+          // viewRequestBtn = $('.viewRequestButton');
+
+          // cancelRequestBtn.on('click', cancelRequest);
+          // viewRequestBtn.on('click', viewRequest);
+        }
+    });
   },  
   SetRoomDataSource: function(ds) {
     roomDataSource = ds;
@@ -368,6 +468,12 @@ window.Wrapper = {
   },
   SetUserBookedDataSource: function(ds) {
     userBookedDataSource = ds;
+  },
+  SetRoomTypeDataSource: function(ds) {
+    roomTypeDataSource = ds;
+  },
+  SetRoomStatusDataSource: function(ds) {
+    roomStatusDataSource = ds;
   },
   ClearContent: function() {
     var container = $('#pagination-container');
@@ -433,24 +539,24 @@ function roomListTemplate(data) {
 function requestListTemplate(data) {
   var html = '';
   $.each(data, function(index, item){
-    var Isprocess = (item.Status === 'Processing') ? '<button type="button" class="deniedRequestButton">Denied</button>' + 
+    var Isprocess = (item.Status === 'Processing') ? '<button type="button" class="deniedRequestButton">Denied</button>' +
     '<button type="button" class="approveRequestButton">Approve</button>' : "";
     html += '<div class="request-list-style">'+
     '<span id="request-id" class="hide">' + item.Id + '</span>' +
     '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('MMMM Do YYYY') + '</span>' +
-    '<span id="request-sm" class="hide">' + item.SessionMonth + '</span>' + 
+    '<span id="request-sm" class="hide">' + item.SessionMonth + '</span>' +
     '<span id="request-sy" class="hide">' + item.SessionYear + '</span>' +
     '<span id="request-tp" class="hide">' + item.TypesOfRooms + '</span>' +
     '<span id="request-s" class="paraStyle">' + item.Status + '</span>' +
     '<span id="request-dmd" class="hide">' + moment(item.DicisionMadeDate).format('MMMM Do YYYY') + '</span>' +
-    '<span id="request-user-id" class="hide">' + item.User.Id + '</span>' +      
-    '<span id="request-user-name" class="paraStyle">' + item.User.Name + '</span>' + 
-    '<span id="request-user-gender" class="hide">' + item.User.Gender + '</span>' +    
-    '<span id="request-user-email" class="hide">' + item.User.Email + '</span>' +    
-    '<span id="request-user-location" class="hide">' + item.User.Location + '</span>' +    
-    '<span id="request-user-contactno" class="hide">' + item.User.ContactNo + '</span>' +    
-    '<span id="request-user-avatar" class="hide">' + item.User.AvatarUrl + '</span>' +    
-    '<div class="rightAlignment">' +    
+    '<span id="request-user-id" class="hide">' + item.User.Id + '</span>' +
+    '<span id="request-user-name" class="paraStyle">' + item.User.Name + '</span>' +
+    '<span id="request-user-gender" class="hide">' + item.User.Gender + '</span>' +
+    '<span id="request-user-email" class="hide">' + item.User.Email + '</span>' +
+    '<span id="request-user-location" class="hide">' + item.User.Location + '</span>' +
+    '<span id="request-user-contactno" class="hide">' + item.User.ContactNo + '</span>' +
+    '<span id="request-user-avatar" class="hide">' + item.User.AvatarUrl + '</span>' +
+    '<div class="rightAlignment">' +
     Isprocess +
     '<button type="button" class="viewRequestButton">View</button>' +
     '<button type="button" class="removeRequestButton">Remove</button>' +
@@ -471,7 +577,7 @@ function bookedListTemplate(data) {
     '<span id="booked-cp" class="paraStyle">' + item.Room.Campus + '</span>' +
     '<span id="booked-tor" class="paraStyle">' + item.Room.TypesOfRooms + '</span>' +
     '<span id="booked-rn" class="paraStyle">' + item.Room.RoomNo + '</span>' +
-    '<div class="rightAlignment">' +    
+    '<div class="rightAlignment">' +
     '<button type="button" class="viewBookedButton">View</button>' +
     '<button type="button" class="removeBookedButton">Remove</button>' +
     '</div>' +
@@ -548,6 +654,37 @@ function userRequestListTemplate(data) {
     '</div>';
   });
   return html;  
+}
+
+function roomTypeListTemplate(data) {
+  var html = '';
+  $.each(data, function(index, item){
+    html += '<div class="room-type-list-style">'+
+    '<span id="rt-campus" class="paraStyle">' + item.Campus + '</span>' +
+    '<span id="rt-tor" class="paraStyle">' + item.TypesOfRooms + '</span>' +
+    '<div class="rightAlignment">' +    
+    '<button type="button" class="removeRoomTypeButton">Remove</button>' +
+    '</div>' +    
+    '</div>';
+  });
+  return html;
+}
+
+function roomStatusListTemplate(data) {
+  var html = '';
+  $.each(data, function(index, item){
+    html += '<div class="room-status-list-style">'+
+    '<span id="rt-campus" class="paraStyle">' + item.Campus + '</span>' +
+    '<span id="rt-tor" class="paraStyle">' + item.TypesOfRooms + '</span>' +
+    '<span id="rt-total" class="hide">' + item.Total + '</span>' +
+    '<span id="rt-available" class="hide">' + item.Available + '</span>' +
+    '<span class="paraStyle">' + (item.Total - item.Available) + '/' +item.Total + '</span>' +
+    '<div class="rightAlignment">' +
+    '<button type="button" class="viewRoomStatusButtonButton">View</button>' +
+    '</div>' +    
+    '</div>';
+  });
+  return html;
 }
 
 var wrapFunc = window.Wrapper;
@@ -758,7 +895,7 @@ function viewRequest(e) {
   $('#view-s').val(thisObj.children("#request-s").text());
   var dmd = thisObj.children("#request-dmd").text();
   if (dmd === 'January 1st 0001') {
-    $('#view-dmd').val("");  
+    $('#view-dmd').val("");
   } else {
     $('#view-dmd').val(dmd);
   }
@@ -770,7 +907,7 @@ function SearchRoomQuery() {
   if (query.length == 0) {
     wrapFunc.PaginateRoomContent(roomDataSource);
     return;
-  }      
+  }
   var options = {
     caseSensitive: true,
     shouldSort: true,
@@ -841,7 +978,6 @@ function SearchBookedQuery() {
 }
 
 function SearchUserRequestQuery() {
-  console.log(userRequestDataSource);
   var query = $('#search-box').val();
   console.log(query.length);
   if (query.length == 0) {
@@ -1130,4 +1266,57 @@ function updateUserReuqest() {
       wrapFunc.LoadingSwitch(false);
     }
   });
+}
+
+function updateRoomTypeRequest() {
+  var userData = window.UserData;
+
+  var userState = {
+    userCampus: userData.campus
+  };
+  ajax({
+    url: "/api/view-rooom-type-list",
+    method: "POST",
+    cache: false,
+    data: JSON.stringify(userState),
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      if (res.error != null) {
+        wrapFunc.ClearContent();
+        $('#errMsg').text(res.error);
+      } else {
+        roomTypeDataSource = res.data;
+        wrapFunc.PaginateRoomTypeContent(roomTypeDataSource);
+      } 
+      wrapFunc.LoadingSwitch(false);
+    }
+  });
+}
+
+function SearchRoomStatusRequestQuery() {
+  console.log(roomStatusDataSource);
+  var query = $('#search-box').val();
+  console.log(query.length);
+  if (query.length == 0) {
+    wrapFunc.PaginateRoomStatusContent(roomStatusDataSource);
+    return;
+  }
+  var options = {
+    caseSensitive: true,
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    keys: [
+      "Campus"
+    ]
+  };
+  console.log(roomStatusDataSource);
+  var fuse = new Fuse(roomStatusDataSource, options);
+  var result = fuse.search(query);
+  console.log(result);
+  wrapFunc.PaginateRoomStatusContent(result);
 }
