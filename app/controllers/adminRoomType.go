@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"encoding/json"
+	"strconv"
+
 	"github.com/astaxie/beego"
 
 	"akgo/app/common"
@@ -63,6 +66,25 @@ func (self *AdminRoomTypeController) Post() {
 		beego.Debug(err)
 		errMsg = "Ooops...something goes wrong when insert room types."
 	}
+	self.Data["json"] = errMsg
+	self.ServeJSON()
+}
+
+func (self *AdminRoomTypeController) Delete() {
+	var errMsg string
+	var ob interface{}
+	// roomId, _ := strconv.Atoi(self.GetString("jsoninfo"))
+	json.Unmarshal(self.Ctx.Input.RequestBody, &ob)
+	roomTypeId, _ := strconv.Atoi(ob.(map[string]interface{})["roomTypeId"].(string))
+	roomType := models.RoomTypes{
+		Id: roomTypeId,
+	}
+
+	err := roomType.Remove()
+	if err != nil {
+		beego.Debug(err)
+	}
+
 	self.Data["json"] = errMsg
 	self.ServeJSON()
 }

@@ -94,7 +94,7 @@ export default class HomePage extends Component {
   render() {
     return (
       <div>
-        <div id="card-wrapper" className="home-page">
+        <div id="card-wrapper" className="wrapper-margin home-page">
           <Card id="card" style={styles.cardSize}>
             <div id="content" style={styles.contentStyle}>
               <div style={styles.textCenter}>

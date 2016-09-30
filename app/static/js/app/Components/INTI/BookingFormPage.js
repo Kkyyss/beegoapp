@@ -306,7 +306,7 @@ export default class BookingFormPage extends Component {
 
   render() {
     return (
-      <div id="card-wrapper" style={styles.cardWrapper}>
+      <div id="card-wrapper" style={styles.cardWrapper} className="wrapper-margin">
         <Card id="card" name="iu-card" style={styles.cardSize}>
           <div id="form-warning">
             <CardTitle title="Please complete user Profile" subtitle="Require complete the user profile..."/>

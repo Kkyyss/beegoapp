@@ -58,20 +58,21 @@ func GenerateJWT(userData map[string]interface{}) (tokenString string, err error
 	// t.Claims["iss"] = "admin"
 	claims := t.Claims.(jwt.MapClaims)
 	claims["user"] = map[string]interface{}{
-		"id":            userData["id"].(int),
-		"isAdmin":       userData["isAdmin"].(bool),
-		"activated":     userData["activated"].(bool),
-		"dateJoined":    userData["dateJoined"].(string),
-		"provider":      userData["provider"].(string),
-		"name":          userData["name"].(string),
-		"email":         userData["email"].(string),
-		"location":      userData["location"].(string),
-		"avatar":        userData["avatar"].(string),
-		"gender":        userData["gender"].(string),
-		"contactNo":     userData["contactNo"].(string),
-		"fillUpProfile": userData["fillUpProfile"].(bool),
-		"studentId":     userData["studentId"].(string),
-		"campus":        userData["campus"].(string),
+		"id":             userData["id"].(int),
+		"isAdmin":        userData["isAdmin"].(bool),
+		"activated":      userData["activated"].(bool),
+		"dateJoined":     userData["dateJoined"].(string),
+		"provider":       userData["provider"].(string),
+		"name":           userData["name"].(string),
+		"email":          userData["email"].(string),
+		"location":       userData["location"].(string),
+		"avatar":         userData["avatar"].(string),
+		"gender":         userData["gender"].(string),
+		"contactNo":      userData["contactNo"].(string),
+		"fillUpProfile":  userData["fillUpProfile"].(bool),
+		"studentId":      userData["studentId"].(string),
+		"campus":         userData["campus"].(string),
+		"fullPermission": userData["fullPermission"].(bool),
 	}
 
 	claims["exp"] = time.Now().Add(time.Hour * 12).Unix()

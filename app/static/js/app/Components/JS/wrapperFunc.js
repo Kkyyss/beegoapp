@@ -385,19 +385,19 @@ window.Wrapper = {
         afterRender: function() {
           var removeRoomTypeBtn = $('.removeRoomTypeButton');
 
-          // searchBox.unbind('input', SearchUserRequestQuery);
-          // cancelRequestBtn.unbind('click', cancelRequest);
+          searchBox.unbind('input', SearchRoomTypeQuery);
+          removeRoomTypeBtn.unbind('click', removeRoomType);
           // viewRequestBtn.unbind('click', viewRequest);
 
-          // searchBox.bind('input', SearchUserRequestQuery);
-          // cancelRequestBtn.bind('click', cancelRequest);
+          searchBox.bind('input', SearchRoomTypeQuery);
+          removeRoomTypeBtn.bind('click', removeRoomType);
           // viewRequestBtn.bind('click', viewRequest);
         },
         afterPaging: function() {
-          // var cancelRequestBtn = $('.cancelRequestButton'),
+          var removeRoomTypeBtn = $('.removeRoomTypeButton');
           // viewRequestBtn = $('.viewRequestButton');
 
-          // cancelRequestBtn.on('click', cancelRequest);
+          removeRoomTypeBtn.on('click', removeRoomType);
           // viewRequestBtn.on('click', viewRequest);
         }
     });
@@ -593,18 +593,49 @@ function userListTemplate(data) {
   var user_data = window.UserData;
   $.each(data, function(index, item){
     var buttons;
-    if (user_data.campus === 'ALL') {
-      buttons = (item.Campus !== 'ALL') ? '<button type="button" class="editUserButton">Edit</button>' +
-      '<button type="button" class="removeUserButton">Remove</button>' : '<button type="button" class="viewUserButton">View</button>';
-    } else {
-      buttons = (!item.IsAdmin) ? '<button type="button" class="editUserButton">Edit</button>' + 
-      '<button type="button" class="removeUserButton">Remove</button>' : '<button type="button" class="viewUserButton">View</button>';
+    switch (user_data.campus) {
+      case 'ALL':
+        if (user_data.fullPermission) {
+          switch (item.Campus) {
+            case 'ALL':
+              buttons = (!item.FullPermission) ? '<button type="button" class="editUserButton">Edit</button>' +
+              '<button type="button" class="removeUserButton">Remove</button>' : '<button type="button" class="viewUserButton">View</button>';
+              break;
+            default:
+              buttons = '<button type="button" class="editUserButton">Edit</button>' +
+              '<button type="button" class="removeUserButton">Remove</button>';
+              break;
+          }
+        } else {
+          buttons = (item.Campus !== 'ALL') ? '<button type="button" class="editUserButton">Edit</button>' +
+          '<button type="button" class="removeUserButton">Remove</button>' : '<button type="button" class="viewUserButton">View</button>';
+        }
+        break;
+      default:
+        if (user_data.fullPermission) {
+          switch (item.Campus) {
+            case user_data.campus:
+              buttons =  (!item.FullPermission) ? '<button type="button" class="editUserButton">Edit</button>' +
+              '<button type="button" class="removeUserButton">Remove</button>' : '<button type="button" class="viewUserButton">View</button>';
+              break;
+            default:
+              buttons = '<button type="button" class="viewUserButton">View</button>';
+              break;
+          }
+        } else {
+          buttons = (!item.IsAdmin) ? '<button type="button" class="editUserButton">Edit</button>' +
+          '<button type="button" class="removeUserButton">Remove</button>' : '<button type="button" class="viewUserButton">View</button>';
+        }
+      break;
     }
     var student_id = (item.StudentId.length != 0) ? '<span class="paraStyle">ID - </span><span id="u-student-id">' + item.StudentId + '</span>' : "";
 
     var activated = (item.Activated) ? "Activated" : "Inactivated";
     var profiled = (item.FillUpProfile) ? "Filled" : "Not yet";
     var isAdmin = (item.IsAdmin) ? "Admin" : "Student";
+    var fullPermission = (item.FullPermission) ? "Full" : "Normal";
+
+    var permission = (item.StudentId.length == 0) ? '<span class="paraStyle">Permission -</span><span id="u-fullPermission">' + fullPermission + '</span>' : "";
 
     html += '<div class="user-list-style">'+
     '<img src="'+ item.AvatarUrl +'" width="32x32" class="imgRound" />'+
@@ -619,6 +650,7 @@ function userListTemplate(data) {
     '<span class="paraStyle">Campus -</span><span id="u-campus">' + item.Campus + '</span>' +
     student_id +
     '<span class="paraStyle">Name -</span><span id="u-name">' + item.Name + '</span>' +
+    permission +
     '<div class="rightAlignment">' +
     buttons +
     '</div>' +
@@ -660,11 +692,12 @@ function roomTypeListTemplate(data) {
   var html = '';
   $.each(data, function(index, item){
     html += '<div class="room-type-list-style">'+
+    '<span id="rt-id" class="hide">' + item.Id + '</span>' +
     '<span id="rt-campus" class="paraStyle">' + item.Campus + '</span>' +
     '<span id="rt-tor" class="paraStyle">' + item.TypesOfRooms + '</span>' +
-    '<div class="rightAlignment">' +    
+    '<div class="rightAlignment">' +
     '<button type="button" class="removeRoomTypeButton">Remove</button>' +
-    '</div>' +    
+    '</div>' +
     '</div>';
   });
   return html;
@@ -1002,6 +1035,31 @@ function SearchUserRequestQuery() {
   wrapFunc.PaginateUserRequestContent(result);
 }
 
+function SearchRoomTypeQuery() {
+  var query = $('#search-box').val();
+  console.log(query.length);
+  if (query.length == 0) {
+    wrapFunc.PaginateRoomTypeContent(roomTypeDataSource);
+    return;
+  }
+  var options = {
+    caseSensitive: true,
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    keys: [
+      "Campus"
+    ]
+  };
+  console.log(roomTypeDataSource);
+  var fuse = new Fuse(roomTypeDataSource, options);
+  var result = fuse.search(query);
+  console.log(result);
+  wrapFunc.PaginateRoomTypeContent(result);
+}
+
 function removeBooked(e) {
   e.preventDefault();
 
@@ -1151,6 +1209,7 @@ function editUser(e) {
   var activated = thisObj.children("#u-activated").text();
   var profiled = thisObj.children("#u-profiled").text();
   var isAdmin = thisObj.children("#u-isAdmin").text();
+  var fullPermission = thisObj.children('#u-fullPermission').text();
   console.log(isAdmin);
   if (activated !== 'Activated' &&
       $('#edit-user-activated:checked').length != 0) {
@@ -1173,11 +1232,22 @@ function editUser(e) {
   if (isAdmin !== 'Admin' &&
       $('#edit-user-admin:checked').length != 0) {
     $('#edit-user-admin').click();
+
   }
   if (isAdmin === 'Admin' &&
       $('#edit-user-admin:checked').length == 0) {
     $('#edit-user-admin').click();
-  }  
+  }
+
+  if (fullPermission !== 'Full' &&
+      $('#edit-user-permission:checked').length != 0) {
+    $('#edit-user-permission').click();
+
+  }
+  if (fullPermission === 'Full' &&
+      $('#edit-user-permission:checked').length == 0) {
+    $('#edit-user-permission').click();
+  }
 }
 
 function updateUserView() {
@@ -1268,6 +1338,39 @@ function updateUserReuqest() {
   });
 }
 
+function removeRoomType(e) {
+  e.preventDefault();
+
+  var roomTypeState = {
+    roomTypeId: $(this).parent().parent().children("#rt-id").text(),
+  }
+  ajax({
+    url: "/user/room-type-console",
+    method: "DELETE",
+    data: JSON.stringify(roomTypeState),
+    dataType: 'json',
+    cache: false,
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      wrapFunc.LoadingSwitch(false);
+      if (res.length != 0) {
+        wrapFunc.AlertStatus(
+          'Oops...',
+          res,
+          'error',
+          false,
+          false
+        );
+      } else {
+        updateRoomTypeRequest();
+      }
+    }
+  });
+
+}
+
 function updateRoomTypeRequest() {
   var userData = window.UserData;
 
@@ -1275,7 +1378,7 @@ function updateRoomTypeRequest() {
     userCampus: userData.campus
   };
   ajax({
-    url: "/api/view-rooom-type-list",
+    url: "/api/view-room-type-list",
     method: "POST",
     cache: false,
     data: JSON.stringify(userState),

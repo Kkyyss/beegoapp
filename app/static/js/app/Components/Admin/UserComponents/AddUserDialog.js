@@ -111,6 +111,10 @@ export default class AddUserDialog extends Component {
     });    
   };
 
+  togglePermission = (e) => {
+    $('#user-permission').parent().toggleClass('hide');
+  };
+
   getUserList() {
     var thisObj = this;
 
@@ -264,6 +268,15 @@ export default class AddUserDialog extends Component {
                 label="Admin"
                 defaultToggled={false}
                 style={styles.toggle}
+                onToggle={this.togglePermission}
+              />
+              <Toggle
+                id="user-permission"
+                name="user-permission"
+                label="Full Permission"
+                defaultToggled={false}
+                style={styles.toggle}
+                className="hide"
               />
               </div>
             </form>

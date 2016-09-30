@@ -77,7 +77,7 @@ export default class UserPage extends Component {
   render() {
     return (
       <div>
-        <div id="card-wrapper" style={styles.cardWrapper}>
+        <div id="card-wrapper" style={styles.cardWrapper} className="wrapper-margin">
 
           <div style={styles.root}>
             <GridList

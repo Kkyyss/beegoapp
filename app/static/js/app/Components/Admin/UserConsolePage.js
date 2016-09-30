@@ -86,6 +86,10 @@ export default class UserConsolePage extends Component {
     this.changeCampus(value);
   };
 
+  togglePermission = (e) => {
+    $('#edit-user-permission').parent().toggleClass('hide');
+  };  
+
   changeCampus(value) {
     this.setState({value});
   }    
@@ -127,7 +131,7 @@ export default class UserConsolePage extends Component {
           }
         }
       });
-    }    
+    }
 
     var userContactNo = $('#edit-user-contact-no');
     userContactNo.intlTelInput({
@@ -300,6 +304,15 @@ export default class UserConsolePage extends Component {
               label="Admin"
               defaultToggled={false}
               style={styles.toggle}
+              onToggle={this.togglePermission}
+            />
+            <Toggle
+              id="edit-user-permission"
+              name="edit-user-permission"
+              label="Full Permission"
+              defaultToggled={false}
+              style={styles.toggle}
+              className="hide"
             />              
             </div>
           </form> 
@@ -321,7 +334,7 @@ export default class UserConsolePage extends Component {
             />
           </div>          
         </Paper>      
-        <div id="card-wrapper">
+        <div id="card-wrapper" className="wrapper-margin">
           <Card id="card" style={styles.cardSize}>
             <div style={styles.toolBar}>
               <ToolbarTitle text="User Console" />

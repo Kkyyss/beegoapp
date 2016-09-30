@@ -62,7 +62,7 @@ export default class IUPage extends Component {
   render() {
     return (
       <div>
-        <div id="card-wrapper" style={styles.cardWrapper}>
+        <div id="card-wrapper" style={styles.cardWrapper} className="wrapper-margin">
           <Card id="card" style={styles.cardSize}>
             <CardMedia
               overlay={

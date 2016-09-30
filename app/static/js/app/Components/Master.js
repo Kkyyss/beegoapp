@@ -9,6 +9,8 @@ import Paper from 'material-ui/Paper';
 import {redA700} from 'material-ui/styles/colors';
 import FontIcon from 'material-ui/FontIcon';
 import RaisedButton from 'material-ui/RaisedButton';
+import Divider from 'material-ui/Divider';
+import Subheader from 'material-ui/Subheader';
 
 require('./CSS/animate.css');
 require('./CSS/sweetalert2.min.css');
@@ -38,6 +40,9 @@ const styles = {
     marginLeft: '10%',
     fontSize: '30px',
     color: 'white',
+    cursor: 'pointer',
+  },
+  clickableItem: {
     cursor: 'pointer',
   },
   hide: {
@@ -72,7 +77,9 @@ export default class Master extends Component {
     this.handleToggle = this.handleToggle.bind(this);
     this.updateDimensions = this.updateDimensions.bind(this);
     this.state = {
-      open: false
+      open: false,
+      showMenuIcon: true,
+      appbarTitle: '',
     };
   }
 
@@ -220,8 +227,15 @@ export default class Master extends Component {
         cache: false,
         success: function(res, ts, request) {       
           if (request.getResponseHeader('IsLogined') === 'FALSE') {
-            $('#sidebar-admin-console, #sidebar-user-item, #sidebar-room-item').next().remove();
-            $("#sidebar-admin-console, #sidebar-user-item, #sidebar-room-item, #booking-item, #sidebar-download, #user-btn, #sidebar-user-item, #campus-item").remove();
+            thisObj.setState({
+              showMenuIcon: false,
+              appbarTitle: 'IHMS',
+            });
+            // $('#sidebar-admin-console, #sidebar-user-item, #sidebar-room-item').next().remove();
+            $(".left-drawer-scrollbar, #user-btn").remove();
+            $('#card-wrapper').removeClass('wrapper-margin');
+            $('#footer').removeClass('footer-margin');
+            // $(window).unbind('window:resize', this.updateDimensions);
             // /login_register
             if (request.getResponseHeader('recap') === 'TRUE') {
               $('#log-recap').removeClass('hide').addClass('show');
@@ -269,8 +283,9 @@ export default class Master extends Component {
               
             // }
             if (!isAdmin) {
-              $('#sidebar-admin-console').next().remove();
-              $("#sidebar-admin-console, #admin-console-btn").remove();
+              var sidebarAdmin = $('#sidebar-admin-console').parent();
+              sidebarAdmin.prev().remove();
+              sidebarAdmin.remove();
             }
             if (isUser === 'TRUE') {
               $('#account-item').remove();
@@ -384,26 +399,14 @@ export default class Master extends Component {
                 <a onTouchTap={this.accessHome} style={styles.link}>IHMS</a>
               </div>
             </Paper>
-            <ListItem
-              id="account-item"
-              primaryText="Account"
-              primaryTogglesNestedList={true}
-              leftIcon={<FontIcon className="fa fa-user" />}
-              nestedItems = {[
-                <ListItem
-                  key={1}
-                  onTouchTap={this.accessLoginRegister}                
-                  primaryText="Log In / Sign Up"
-                />,
-              ]}
-            />
+            <Subheader>Admin</Subheader>
             <ListItem
               id="sidebar-admin-console"
               primaryTogglesNestedList={true}
               initiallyOpen={true}
               leftIcon={<FontIcon className="fa fa-certificate" />}
               nestedItems = {[
-                <ListItem 
+                <ListItem
                   key={1}
                   primaryText="Room Types"
                   leftIcon={<FontIcon className="fa fa-th" />}
@@ -435,8 +438,10 @@ export default class Master extends Component {
                 />
               ]}
             >
-              Admin Console
+              Console
             </ListItem>
+            <Divider />
+            <Subheader>Room</Subheader>
             <ListItem
               id="sidebar-room-item"
               primaryTogglesNestedList={true}
@@ -451,8 +456,10 @@ export default class Master extends Component {
                 />
               ]}
             >
-              Room
-            </ListItem>                         
+              Console
+            </ListItem>      
+            <Divider />
+            <Subheader>User</Subheader>                               
             <ListItem
               id="sidebar-user-item"
               primaryTogglesNestedList={true}
@@ -473,38 +480,34 @@ export default class Master extends Component {
                 />,
                 <ListItem
                   key={2}
-                  primaryText="Room Status"
-                  leftIcon={<FontIcon className="fa fa-pie-chart" />}
-                  href="/user/room-status"
-                />,
-                <ListItem
-                  key={3}
                   primaryText="Booking Form"
                   leftIcon={<FontIcon className="fa fa-file-text" />}
                   href="/user/booking-form"
                 />,
                 <ListItem
-                  key={4}
+                  key={3}
                   primaryText="Request"
                   leftIcon={<FontIcon className="fa fa-list-ul" />}
                   onTouchTap={this.userRequestConsole}
                 />,
                 <ListItem
-                  key={5}
+                  key={4}
                   primaryText="Booked Room"
                   leftIcon={<FontIcon className="fa fa-bed" />}
                   onTouchTap={this.userBookedRoomConsole}
                 />,
                 <ListItem
-                  key={6}
+                  key={5}
                   primaryText="Sign Out"
                   onTouchTap={this.logout}
                   leftIcon={<FontIcon className="fa fa-sign-out" />}
                 />,
-              ]}              
+              ]}
             >
-            User Console
-            </ListItem>          
+             Console
+            </ListItem>
+            <Divider />
+            <Subheader>Campuses</Subheader>            
             <ListItem
               id="campus-item"
               primaryText="Campuses"
@@ -534,24 +537,32 @@ export default class Master extends Component {
                   primaryText="IICP"
                   className="IICP"
                   href="/user/inti-iicp"
-                />                                           
+                />
               ]}
             />
+            <Divider />
+            <Subheader>Resources</Subheader>            
             <ListItem
               id="sidebar-download"
               primaryTogglesNestedList={true}
               leftIcon={<FontIcon className="fa fa-download" />}
               nestedItems = {[
-                <ListItem 
+                <ListItem
                   key={1}
                   primaryText="Accommodation.7z"
                   onTouchTap={this.downloadAccommodation}
                 />
               ]}
             >Download
-            </ListItem>                       
-          </Drawer>        
+            </ListItem>
+          </Drawer>
           <AppBar
+            title={<span 
+              style={styles.clickableItem} 
+              onClick={this.accessHome}
+            >{this.state.appbarTitle}
+            </span>}
+            showMenuIconButton={this.state.showMenuIcon}
             onLeftIconButtonTouchTap={this.handleToggle}
             style={styles.header}
             iconElementRight={
@@ -559,19 +570,19 @@ export default class Master extends Component {
               <UserDropDownMenu />
                 <RaisedButton
                   id="reg-gplus"
-                  name="gplus"                  
-                  label="Login With Student Mail"
+                  name="gplus"
+                  label="Login"
                   fullWidth={true}
                   labelColor="white"
                   style={styles.button}
                   backgroundColor="#d34836"
                   icon={<FontIcon className="fa fa-google-plus-official whitify" />}
                 />
-              </div>            
+              </div>
             }
           />
           {this.props.children}
-          <Footer />          
+          <Footer />
           </div>
         </MuiThemeProvider>
     );

@@ -32,14 +32,14 @@ type (
 		ContactNo           string    `orm:"default(none)"`
 		ActivationToken     string    `orm:"null;size(156)"`
 		ForgotPasswordToken string    `orm:"null;size(156)"`
-		TotalPaid           float64
-		Activated           bool
-		DepositIsPaid       bool
-		IsAdmin             bool
-		FillUpProfile       bool
-		FullPermission      bool
-		Room                *Room      `orm:"null;rel(fk);"`
-		Request             []*Request `orm:"null;reverse(many);"`
+		// TotalPaid           float64
+		Activated bool
+		// DepositIsPaid       bool
+		IsAdmin        bool
+		FillUpProfile  bool
+		FullPermission bool
+		Room           *Room      `orm:"null;rel(fk);"`
+		Request        []*Request `orm:"null;reverse(many);"`
 	}
 
 	RecaptchaResponse struct {
@@ -573,6 +573,7 @@ func (u *User) GetUserDataMap() map[string]interface{} {
 	userData["fillUpProfile"] = u.FillUpProfile
 	userData["studentId"] = u.StudentId
 	userData["campus"] = u.Campus
+	userData["fullPermission"] = u.FullPermission
 	// userData["request"] = requests
 	return userData
 }
@@ -736,7 +737,8 @@ type Request struct {
 	SessionYear      string
 	Campus           string
 	TypesOfRooms     string
-	Status           string    `orm:"null"`
+	Status           string `orm:"null"`
+	Payment          float64
 	DicisionMadeDate time.Time `orm:"null;type(date)"`
 	User             *User     `orm:"rel(fk);"`
 }
@@ -1155,6 +1157,17 @@ func (rt *RoomTypes) Insert() (err error) {
 	return err
 }
 
+func (rt *RoomTypes) Remove() (err error) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("room_types").Filter("id", rt.Id)
+
+	_, err = qs.Delete()
+	if err != nil {
+		beego.Debug(err)
+	}
+	return
+}
+
 type RoomTypeResults struct {
 	Campus       string
 	TypesOfRooms string
@@ -1182,6 +1195,10 @@ func (u *User) GetRoomStatusList() (errMsg string, roomTypeResults []*RoomTypeRe
 func (u *User) GetRoomTypeList() (errMsg string, roomTypes []*RoomTypes) {
 	o := orm.NewOrm()
 	qs := o.QueryTable("room_types")
+
+	if u.Campus != "ALL" {
+		qs = qs.Filter("campus", u.Campus)
+	}
 
 	num, _ := qs.Count()
 	if num == 0 {

@@ -96,22 +96,8 @@ export default class AdminConsolePage extends Component {
   };
 
   handleChange = (event, index, value) => {
-    this.changeResource(value);
-  };
-
-  changeResource(value) {
-    switch (value) {
-      case 'IU': 
-        campusDataSource = iuRoomTypes;
-        break;
-      case 'IICS':
-        campusDataSource = iicsRoomTypes;
-        break;
-      default:
-        campusDataSource = iuRoomTypes;
-    }
     this.setState({value});
-  }  
+  };
 
   componentDidMount() {
     var thisObj = this;
@@ -308,7 +294,7 @@ export default class AdminConsolePage extends Component {
               />
             </div>
         </Paper>
-        <div id="card-wrapper">
+        <div id="card-wrapper" className="wrapper-margin">
           <Card id="card" style={styles.cardSize}>
             <div style={styles.toolBar}>
               <ToolbarTitle text="Room Console" />

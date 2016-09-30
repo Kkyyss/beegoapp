@@ -91,7 +91,7 @@ export default class Footer extends Component {
           ]}
         />        
       </Drawer>
-      <Paper id="footer" zDepth={1} style={styles.footer}>
+      <Paper id="footer" className="footer-margin" zDepth={1} style={styles.footer}>
         <div style={styles.center}>
           <IconButton
             touch={true}

@@ -105,7 +105,7 @@
     .tlt {
         font-size: 1.5em !important;
     }
-    #card-wrapper {
+    .wrapper-margin {
         margin-left: 0px !important;
         -webkit-transition: margin-left 0.5s;
         -moz-transition: margin-left 0.5s;
@@ -113,7 +113,7 @@
         -o-transition: margin-left 0.5s;
         transition: margin-left 0.5s;
     }
-    #footer {
+    .footer-margin {
         margin-left: 0px !important;
         -webkit-transition: margin-left 0.5s;
         -moz-transition: margin-left 0.5s;
@@ -155,22 +155,30 @@
 }
 
 #card-wrapper {
-    margin-left: 250px;
+    overflow-y: auto;
+}
+
+.wrapper-margin {
     -webkit-transition: margin-left 0.5s;
     -moz-transition: margin-left 0.5s;
     -khtml-transition: margin-left 0.5s;
     -o-transition: margin-left 0.5s;
     transition: margin-left 0.5s;
-    overflow-y: auto;
+    
+    margin-left: 250px;
 }
 
 #footer {
+     
+}
+
+.footer-margin {
     margin-left: 100px;
     -webkit-transition: margin-left 0.5s;
     -moz-transition: margin-left 0.5s;
     -khtml-transition: margin-left 0.5s;
     -o-transition: margin-left 0.5s;
-    transition: margin-left 0.5s;      
+    transition: margin-left 0.5s; 
 }
 
 #home-card-hero {
@@ -244,7 +252,8 @@
 .removeRoomButton, 
 .removeRequestButton, 
 .removeBookedButton,
-.removeUserButton {
+.removeUserButton,
+.removeRoomTypeButton {
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
     -ms-transition: all 0.30s ease-in-out;
@@ -261,7 +270,8 @@
 .removeRoomButton:hover, 
 .removeRequestButton:hover, 
 .removeBookedButton:hover,
-.removeUserButton:hover {
+.removeUserButton:hover,
+.removeRoomTypeButton:hover {
     background-color: #B71C1C;
     color: white;
 }
@@ -411,4 +421,8 @@
     position: absolute;
     right: 0;
     margin: 0 15px 0 5px;
+}
+
+.left-drawer-scrollbar {
+    overflow-x: hidden !important;
 }

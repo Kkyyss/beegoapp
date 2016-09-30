@@ -109,7 +109,7 @@ export default class BookedRoomConsolePage extends Component {
           <h1 style={styles.textCenter}>View Booked Room</h1>
           <hr/>
         </Paper>
-        <div id="card-wrapper">
+        <div id="card-wrapper" className="wrapper-margin">
           <Card id="card" style={styles.cardSize}>
             <div style={styles.toolBar}>
               <ToolbarTitle text="Booked Room Console" />

@@ -9,6 +9,9 @@ import TextField from 'material-ui/TextField';
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import Toggle from 'material-ui/Toggle';
 import AutoComplete from 'material-ui/AutoComplete';
+import Paper from 'material-ui/Paper';
+
+import RoomTypeDropdownList from '../RoomTypeDropdownList.js';
 
 import swal from 'sweetalert2';
 
@@ -16,6 +19,7 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var items = [];
 
 const styles = {
   hide: {
@@ -33,40 +37,54 @@ const styles = {
   },
 };
 
-const iuRoomTypes = [
-  'SR(NAC) RM430',
-  'SR(AC) RM730',
-  'TSR(NAC-1) RM330',
-  'TSR(NAC-2) RM410',
-  'TSR(AC) RM630',
-  'RAB(AC-1) RM1,110',
-  'RAB(AC-2) RM790',
-  'RAB(AC-3) RM710',
-  'RAB(AC-4) RM770',
-  'SP(AC-1) RM1,490',
-  'SP(AC-2) RM1,380',
-];
-
-const iicsRoomTypes = [
-  'Room A',
-];
-
-var campusDataSource = iuRoomTypes;
+// const iuRoomTypes = [
+//   'SR(NAC) RM430',
+//   'SR(AC) RM730',
+//   'TSR(NAC-1) RM330',
+//   'TSR(NAC-2) RM410',
+//   'TSR(AC) RM630',
+//   'RAB(AC-1) RM1,110',
+//   'RAB(AC-2) RM790',
+//   'RAB(AC-3) RM710',
+//   'RAB(AC-4) RM770',
+//   'SP(AC-1) RM1,490',
+//   'SP(AC-2) RM1,380',
+// ];
 
 export default class AddRoomDialog extends Component {
 
   state = {
     open: false,
-    value: "IU",
+    campusValue: "ALL",
+    roomTypeValue: "",
     disabled: false,
+    roomTypeDisabled: false,
     btnDisabled: false,
   };
 
-  handleChange = (event, index, value) => {
+  handleCampusChange = (event, index, value) => {
+    items = [];
     this.changeResource(value);
   };
 
+  handleRoomTypeChange = (event, index, value) => {
+    this.setState({
+      roomTypeValue: value,
+    });
+  }
+
   handleOpen = (e) => {
+    if (this.state.roomTypeDisabled) {
+      wrapFunc.AlertStatus(
+        "Oops...",
+        "Don't have room types.",
+        "error",
+        false,
+        false
+      );
+
+      return;
+    }
     this.setState({open: true});
   };
 
@@ -75,18 +93,22 @@ export default class AddRoomDialog extends Component {
   };
 
   changeResource(value) {
-    switch (value) {
-      case 'IU': 
-        campusDataSource = iuRoomTypes;
-        break;
-      case 'IICS':
-        campusDataSource = iicsRoomTypes;
-        break;
-      default:
-        campusDataSource = iuRoomTypes;
+    this.getRoomByCampusOnChange(value);
+    if (this.state.disabled) {
+      return;
     }
-    console.log($('#types-of-rooms'));
-    this.setState({value});
+    this.setState({
+      campusValue: value,
+    });
+  }
+
+  generateCampusItem(data) {
+    for (let i = 0; i < data.length; i++ ) {
+      items.push(<MenuItem value={data[i].TypesOfRooms} key={data[i].TypesOfRooms} primaryText={data[i].TypesOfRooms} />);
+    }
+    this.setState({
+      roomTypeValue: data[0].TypesOfRooms,
+    });
   }
 
   handleSubmit = (e) => {
@@ -95,7 +117,7 @@ export default class AddRoomDialog extends Component {
     thisObj.setState({
       btnDisabled: true,
     });    
-    $('#campus').val(this.state.value);
+    $('#campus').val(this.state.campusValue);
     var addRoomForm = $('#add-room-form');
     ajax({
       url: "/user/room-console",
@@ -132,10 +154,11 @@ export default class AddRoomDialog extends Component {
     var thisObj = this;
     $.when().then(function(x) {
       userData = window.UserData;
+      thisObj.getRoomTypeList();
       if (userData.campus !== 'ALL') {
         var userCampus = userData.campus;
         thisObj.setState({
-          value: userCampus,
+          campusValue: userCampus,
           disabled: true,
         });
       }
@@ -160,6 +183,56 @@ export default class AddRoomDialog extends Component {
         } else {
           wrapFunc.SetRoomDataSource(res.data);
           wrapFunc.PaginateRoomContent(res.data);
+        }
+      }
+    });
+  }
+
+  getRoomTypeList() {
+    var userState = {
+      userCampus: userData.campus
+    };
+
+    this.onAjaxRequest(userState);
+  }
+
+  getRoomByCampusOnChange(value) {
+    var campusState = {
+      userCampus: value
+    };
+
+    this.onAjaxRequest(campusState);
+  }
+
+  onAjaxRequest(us) {
+    var thisObj = this;
+    ajax({
+      url: "/api/view-room-type-list",
+      method: "POST",
+      cache: false,
+      data: JSON.stringify(us),
+      beforeSend: function() {
+        wrapFunc.LoadingSwitch(true);
+      },
+      success: function(res) {
+        wrapFunc.LoadingSwitch(false);
+        if (res.error != null) {
+          wrapFunc.AlertStatus(
+            "Oops...",
+            res.error,
+            "error",
+            false,
+            false
+          );
+          thisObj.setState({
+            roomTypeDisabled: true,
+          });
+        } else {
+          console.log(res.data);
+          thisObj.generateCampusItem(res.data);
+          thisObj.setState({
+            roomTypeDisabled: false,
+          });          
         }
       }
     });
@@ -200,24 +273,19 @@ export default class AddRoomDialog extends Component {
         >
           <form id="add-room-form" style={styles.formStyle} className="add-room-style">
             <div>Campus&nbsp;
-              <DropDownMenu id="campusDropDown" value={this.state.value} onChange={this.handleChange} disabled={this.state.disabled}>
+              <DropDownMenu maxHeight={250} id="campusDropDown" value={this.state.campusValue} onChange={this.handleCampusChange} disabled={this.state.disabled}>
+                <MenuItem value={"ALL"} primaryText="ALL" />
                 <MenuItem value={"IU"} primaryText="IU" />
                 <MenuItem value={"IICS"} primaryText="IICS" />
                 <MenuItem value={"IICKL"} primaryText="IICKL" />
                 <MenuItem value={"IICP"} primaryText="IICP" />
               </DropDownMenu>
               <input id="campus" name="campus" type="text" style={styles.hide} />
-              <br/>
-              <AutoComplete
-                id="types-of-rooms"
-                name="types-of-rooms"
-                floatingLabelText="Types of Rooms"
-                filter={AutoComplete.caseInsensitiveFilter}
-                openOnFocus={true}
-                dataSource={campusDataSource}
-                fullWidth={true}
-                maxSearchResults={5}
-              />
+              <br/><br/>
+              Types Of Rooms&nbsp;
+              <DropDownMenu maxHeight={250} id="roomTypesDropDown" value={this.state.roomTypeValue} onChange={this.handleRoomTypeChange} disabled={this.state.roomTypeDisabled}>
+                {items}
+              </DropDownMenu>
               <br/>              
               <TextField
                 id="room-no"

@@ -255,7 +255,7 @@ export default class RequestConsolePage extends Component {
           </div>
           <br/>
         </Paper>
-        <div id="card-wrapper">
+        <div id="card-wrapper" className="wrapper-margin">
           <Card id="card" style={styles.cardSize}>
             <div style={styles.toolBar}>
               <ToolbarTitle text="Request Console" />

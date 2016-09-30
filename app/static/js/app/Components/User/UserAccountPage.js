@@ -541,7 +541,7 @@ export default class UserAccountPage extends Component {
           <div style={styles.clear}></div>
         </div>
       </div>
-      <div id="card-wrapper" style={styles.cardWrapper}>
+      <div id="card-wrapper" style={styles.cardWrapper} className="wrapper-margin">
         <Card id="card" name="account-card" style={styles.cardSize}>
           <Tabs>
             <Tab
