@@ -32,6 +32,9 @@ const styles = {
   toggle: {
     marginBottom: 16,
   },
+  button: {
+    margin: '0 5px 0 5px',
+  },  
 };
 
 export default class AddUserDialog extends Component {
@@ -179,12 +182,11 @@ export default class AddUserDialog extends Component {
 
     return (
       <div>
-        <ToolbarGroup>
           <RaisedButton
             id="add-user-btn"
-            label="Add User"
             primary={true}
             icon={<FontIcon className="fa fa-user-plus" />}
+            style={styles.button}
             onTouchTap={this.handleOpen}
           />
           <Dialog
@@ -281,7 +283,6 @@ export default class AddUserDialog extends Component {
               </div>
             </form>
           </Dialog>
-        </ToolbarGroup>
       </div>
     );
   }

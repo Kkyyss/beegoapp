@@ -97,6 +97,7 @@ export default class UserDropDownMenu extends Component {
             id="user-avatar"
             src="/"
             size={24}
+            className="iconRound"
           />
         </IconButton>
         <Popover

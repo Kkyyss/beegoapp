@@ -664,19 +664,35 @@ func (ip *Ip) ResetTried() (err error) {
 }
 
 type Room struct {
-	Id           int
-	Campus       string
-	RoomNo       string
-	TypesOfRooms string
-	PerMonthFee  float64
-	Twin         bool
-	IsAvailable  bool
-	User         []*User `orm:"null;reverse(many);"`
+	Id             int
+	Campus         string
+	RoomNo         string
+	TypesOfRooms   string
+	RatesPerPerson float64
+	Deposit        float64
+	Twin           bool
+	IsAvailable    bool
+	User           []*User `orm:"null;reverse(many);"`
 }
 
 func (r *Room) InsertRoom() (err error) {
+	var rt RoomTypes
+
 	o := orm.NewOrm()
-	qs := o.QueryTable("room")
+	qs := o.QueryTable("room_types").Filter("campus", r.Campus).Filter("types_of_rooms", r.TypesOfRooms)
+
+	err = qs.One(&rt)
+	beego.Debug(rt)
+	if err != nil {
+		beego.Debug(err)
+	}
+
+	r.Deposit = rt.Deposit
+	r.Twin = rt.Twin
+	r.RatesPerPerson = rt.RatesPerPerson
+
+	qs = o.QueryTable("room")
+
 	i, err := qs.PrepareInsert()
 	if err != nil {
 		return err
@@ -693,9 +709,7 @@ func (r *Room) UpdateRoom() (err error) {
 		"campus":         r.Campus,
 		"room_no":        r.RoomNo,
 		"types_of_rooms": r.TypesOfRooms,
-		"per_month_fee":  r.PerMonthFee,
 		"is_available":   r.IsAvailable,
-		"twin":           r.Twin,
 	})
 	if err != nil {
 		beego.Debug("Not update")
@@ -1140,9 +1154,12 @@ func (u *User) GetUserRequestList() (errMsg string, requests []*Request) {
 }
 
 type RoomTypes struct {
-	Id           int
-	Campus       string
-	TypesOfRooms string
+	Id             int
+	Campus         string
+	TypesOfRooms   string
+	RatesPerPerson float64
+	Deposit        float64
+	Twin           bool
 }
 
 func (rt *RoomTypes) Insert() (err error) {

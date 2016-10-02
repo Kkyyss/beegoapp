@@ -10,7 +10,9 @@ import RaisedButton from 'material-ui/RaisedButton';
 import AutoComplete from 'material-ui/AutoComplete';
 
 var $ = window.Jquery;
+var ajax = $.ajax;
 var swal = window.SweetAlert;
+var wrapFunc = window.Wrapper;
 var userData;
 
 const styles = {
@@ -23,7 +25,6 @@ const styles = {
   },
   cardWrapper: {
     position: 'relative',
-    overflow: 'hidden',
     height: '100%',
     backgroundColor: '#FAFAFA',
   },
@@ -75,23 +76,9 @@ const sessionMonthDataSource = [
   "October",
 ];
 
-const iuRoomTypes = [
-  'SR(NAC) RM430',
-  'SR(AC) RM730',
-  'TSR(NAC-1) RM330',
-  'TSR(NAC-2) RM410',
-  'TSR(AC) RM630',
-  'RAB(AC-1) RM1,110',
-  'RAB(AC-2) RM790',
-  'RAB(AC-3) RM710',
-  'RAB(AC-4) RM770',
-  'SP(AC-1) RM1,490',
-  'SP(AC-2) RM1,380',
-];
+const iuRoomTypes = [];
 
-const iicsRoomTypes = [
-  'Room A',
-];
+const iicsRoomTypes = [];
 
 
 var campusDataSource = iuRoomTypes;
@@ -100,52 +87,30 @@ export default class BookingFormPage extends Component {
     value: "IU",
     disabled: false,
     btnDisabled: false,
+    roomTypeValue: "",
+    roomTypeDisabled: false,
   };
 
-  handleChange = (event, index, value) => {
-    this.changeResource(value);
+  handleRoomTypeChange = (event, index, value) => {
+    this.setState({
+      roomTypeValue: value,
+    });
   };
-
-  changeResource(value) {
-    switch (value) {
-      case 'IU': 
-        campusDataSource = iuRoomTypes;
-        break;
-      case 'IICS':
-        campusDataSource = iicsRoomTypes;
-        break;
-      default:
-        campusDataSource = iuRoomTypes;
-    }
-    this.setState({value});
-  }    
 
   componentDidMount() {
-    // $("#phone").intlTelInput({
-    //   initialCountry: "auto",
-    //   geoIpLookup: function(callback) {
-    //     $.get('http://ipinfo.io', function() {}, "jsonp").always(function(resp) {
-    //       var countryCode = (resp && resp.country) ? resp.country : "";
-    //       callback(countryCode);
-    //     });
-    //   },
-    //   utilsScript: "../static/js/utils.js" // just for formatting/placeholders etc
-    // });
     var thisObj = this;
     $.when().then(function(x) {
       userData = window.UserData;
+      thisObj.getRoomTypeList();
       if (userData.campus !== 'ALL') {
         var userCampus = userData.campus;
         thisObj.setState({
           value: userCampus,
           disabled: true,
         });
-        thisObj.changeResource(userCampus);
       }
     });
 
-    var ajax = $.ajax;
-    var wrapFunc = window.Wrapper;
     var reqeustForm = $('#request-form');
     var isValid = false;
     var submitRequstButton = $('#submit-request');
@@ -304,6 +269,58 @@ export default class BookingFormPage extends Component {
     }
   }
 
+  getRoomTypeList() {
+    var userState = {
+      userCampus: userData.campus
+    };
+
+    this.onAjaxRequest(userState);
+  }
+  onAjaxRequest(us) {
+    var thisObj = this;
+    ajax({
+      url: "/api/view-room-type-list",
+      method: "POST",
+      cache: false,
+      data: JSON.stringify(us),
+      beforeSend: function() {
+        wrapFunc.LoadingSwitch(true);
+      },
+      success: function(res) {
+        wrapFunc.LoadingSwitch(false);
+        if (res.error != null) {
+          wrapFunc.AlertStatus(
+            "Oops...",
+            res.error,
+            "error",
+            false,
+            false
+          );
+          thisObj.setState({
+            roomTypeDisabled: true,
+          });
+        } else {
+          console.log(res.data);
+          thisObj.getRoomTypes(res.data);
+          thisObj.setState({
+            roomTypeDisabled: false,
+          });
+        }
+      }
+    });
+  }
+
+  getRoomTypes(data) {
+    campusDataSource = [];
+    for (let i = 0; i < data.length; i++) {
+      campusDataSource.push(<MenuItem value={data[i].TypesOfRooms} key={data[i].TypesOfRooms} primaryText={data[i].TypesOfRooms} />);
+    }
+
+    this.setState({
+      roomTypeValue: data[0].TypesOfRooms,
+    });
+  }
+
   render() {
     return (
       <div id="card-wrapper" style={styles.cardWrapper} className="wrapper-margin">
@@ -325,7 +342,13 @@ export default class BookingFormPage extends Component {
                   <MenuItem value={"IICKL"} primaryText="IICKL" />
                   <MenuItem value={"IICP"} primaryText="IICP" />
                 </DropDownMenu>
-                <input id="campus" name="campus" type="text" style={styles.hide} />    
+                <input id="campus" name="campus" type="text" style={styles.hide} />
+                <br/><br/>
+                Types Of Rooms&nbsp;
+                <DropDownMenu maxHeight={250} id="roomTypesDropDown" value={this.state.roomTypeValue} onChange={this.handleRoomTypeChange} disabled={this.state.roomTypeDisabled}>
+                  {campusDataSource}
+                </DropDownMenu>
+                <br/>                 
                 <AutoComplete
                   id="types-of-rooms"
                   name="types-of-rooms"

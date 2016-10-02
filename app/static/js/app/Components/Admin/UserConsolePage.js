@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Card, CardActions, CardTitle} from 'material-ui/Card';
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
+import {List, ListItem} from 'material-ui/List';
 import AddUserDialog from "./UserComponents/AddUserDialog.js";
 import Paper from 'material-ui/Paper';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -10,12 +11,17 @@ import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
 import FontIcon from 'material-ui/FontIcon';
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
+import FlatButton from 'material-ui/FlatButton';
+import Dialog from 'material-ui/Dialog';
+import Checkbox from 'material-ui/Checkbox';
 import "intl-tel-input/build/css/intlTelInput.css";
 
 var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var options = [];
+var optionsIndex = [1];
 
 import intlTelInput from 'intl-tel-input';
 
@@ -35,16 +41,26 @@ const styles = {
     display: 'flex',
     flexWrap: 'wrap',
   },
+  toolBarItem: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    padding: '0 10px 0 10px',
+  },
+  balanceStyle: {
+    display: 'flex',
+    marginBottom: 15,
+  },
   inputStyle: {
     // border: 'none',
     fontSize: '20px',
     outline: 'none',
     border: 'none',
-    margin: '10px 0 10px 0',
+    margin: '0 1px 0 15px',
     padding: '0 10px 0 10px',
   },
   wall: {
-    marginLeft: '10px',
+    margin: '0 10px 0 10px',
   },
   contentStyle: {
     padding:'25px',
@@ -55,6 +71,10 @@ const styles = {
   },  
   textCenter: {
     textAlign: 'center',
+  },
+  title: {
+    textAlign: 'center',
+    padding: '10px 0 5px 0',
   },
   hide: {
     display: 'none',
@@ -71,7 +91,19 @@ const styles = {
   },
   raisedButton: {
     marginBottom: 16,
-  },  
+  },
+  button: {
+    margin: '0 5px 0 5px',
+  },
+  optionButton: {
+    marginRight: 15,
+  },
+  checkbox: {
+    marginBottom: 16,
+  },
+  optionContentStyle: {
+    padding: 20,
+  },
 };
 
 export default class UserConsolePage extends Component {
@@ -80,19 +112,120 @@ export default class UserConsolePage extends Component {
     value: "IU",
     disabled: false,
     btnDisabled: false,
+    refreshBtnDisabled: false,
+    optionDialogOpen: false,
+    optionsButton: false,
+    sortValue: "Campus",
   };
 
   handleChange = (event, index, value) => {
     this.changeCampus(value);
   };
 
+  handleSortTypeChange = (event, index, value) => {
+    this.setState({
+      sortValue: value,
+    });
+  };
+
   togglePermission = (e) => {
     $('#edit-user-permission').parent().toggleClass('hide');
-  };  
+  };
+
+  handleOptionDialogOpen = (e) => {
+    this.setState({
+      optionDialogOpen: true,
+    }, function() {
+      $.each(optionsIndex, function(index, value) {
+        if (value == 1) {
+          $($('#options-group').children()[index]).children().click();
+        }
+      });
+    });
+  };
+  handleOptionDialogClose = (e) => {
+    this.setState({
+      optionDialogOpen: false,
+    });
+  };
+
+  handleSearchOptionSubmit = (e) => {
+    this.setState({
+      optionsButton: true,
+    })
+    options = [];
+    optionsIndex = [];
+    if ($("#sr-id").is(":checked")) {
+      options.push("StudentId");
+      optionsIndex.push(1);
+    } else {
+      optionsIndex.push(0);
+    }
+
+    if ($("#sr-campus").is(":checked")) {
+      options.push("Campus");
+      optionsIndex.push(1);
+    } else {
+      optionsIndex.push(0);
+    }
+
+    if ($('#sr-permission').is(":checked")) {
+      options.push("FullPermission");
+      optionsIndex.push(1);
+    } else {
+      optionsIndex.push(0);
+    }
+
+    if ($('#sr-name').is(':checked')) {
+      options.push("Name");
+      optionsIndex.push(1);
+    } else {
+      optionsIndex.push(0);
+    }
+
+    if ($('#sr-location').is(':checked')) {
+      options.push("Location");
+      optionsIndex.push(1);
+    } else {
+      optionsIndex.push(0);
+    }
+
+    if ($('#sr-contactNo').is(':checked')) {
+      options.push("ContactNo");
+      optionsIndex.push(1);
+    } else {
+      optionsIndex.push(0);
+    }
+
+    wrapFunc.SetUpUserSearchOption(options);
+    this.setState({
+      optionDialogOpen: false,
+      optionsButton: false,
+    });    
+  };
+
+  refreshList = (e) => {
+    var thisObj = this;
+    thisObj.setState({
+      refreshBtnDisabled: true,
+    });
+    thisObj.updateUserList();
+    $.when().then(function() {
+      thisObj.setState({
+        refreshBtnDisabled: false,
+      });
+    });
+  }  
+
+  sortByCampus(a, b) {
+    var aCampus = a.Campus.toLowerCase();
+    var bCampus = b.Campus.toLowerCase();
+    return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
+  }
 
   changeCampus(value) {
     this.setState({value});
-  }    
+  }
 
   componentDidMount() {
     var thisObj = this;
@@ -105,33 +238,8 @@ export default class UserConsolePage extends Component {
           disabled: true,
         });
       }
-      console.log("Here");
-      updateUserList();
+      thisObj.updateUserList();
     });
-
-    function updateUserList() {
-      var userState = {
-        userCampus: userData.campus
-      };
-      ajax({
-        url: "/api/view-users-list",
-        method: "POST",
-        cache: false,
-        data: JSON.stringify(userState),
-        beforeSend: function() {
-          wrapFunc.LoadingSwitch(true);
-        },
-        success: function(res) {
-          wrapFunc.LoadingSwitch(false);
-          if (res.error != null) {
-            $('#errMsg').text(res.error);
-          } else {
-            wrapFunc.SetUsersDataSource(res.data);
-            wrapFunc.PaginateUsersContent(res.data);
-          }
-        }
-      });
-    }
 
     var userContactNo = $('#edit-user-contact-no');
     userContactNo.intlTelInput({
@@ -195,7 +303,7 @@ export default class UserConsolePage extends Component {
             );
           } else {
             $('#bg-overlay, #edit-user-box').css('display', 'none');
-            updateUserList();
+            thisObj.updateUserList();
             wrapFunc.AlertStatus(
               "Success",
               "Update successfully!",
@@ -212,7 +320,47 @@ export default class UserConsolePage extends Component {
     }
   }
 
+  updateUserList() {
+    var thisObj = this;
+    var userState = {
+      userCampus: userData.campus
+    };
+    ajax({
+      url: "/api/view-users-list",
+      method: "POST",
+      cache: false,
+      data: JSON.stringify(userState),
+      beforeSend: function() {
+        wrapFunc.LoadingSwitch(true);
+      },
+      success: function(res) {
+        wrapFunc.LoadingSwitch(false);
+        if (res.error != null) {
+          $('#errMsg').text(res.error);
+        } else {
+          res.data.sort(thisObj.sortByCampus);
+          wrapFunc.SetUsersDataSource(res.data);
+          wrapFunc.PaginateUsersContent(res.data);
+        }
+      }
+    });
+  }  
+
   render() {
+    const actions = [
+      <FlatButton
+        label="Cancel"
+        primary={true}
+        onTouchTap={this.handleOptionDialogClose}
+      />,
+      <FlatButton
+        label="OK"
+        primary={true}
+        onTouchTap={this.handleSearchOptionSubmit}
+        disabled={this.state.optionsButton}
+      />,
+    ];
+
     return (
       <div>
         <div id="bg-overlay"></div>
@@ -336,21 +484,85 @@ export default class UserConsolePage extends Component {
         </Paper>      
         <div id="card-wrapper" className="wrapper-margin">
           <Card id="card" style={styles.cardSize}>
-            <div style={styles.toolBar}>
-              <ToolbarTitle text="User Console" />
-              <ToolbarSeparator />
-              <AddUserDialog/>
-              <span style={styles.wall}></span>
+            <h1 style={styles.title}>User Console</h1>          
+            <div style={styles.balanceStyle}>
               <input 
                 id="search-box"
                 placeholder="Search"
                 style={styles.inputStyle}
-              />   
+              />
+              <RaisedButton
+                id="search-option"
+                primary={true}
+                style={styles.optionButton}
+                icon={<FontIcon className="fa fa-filter" />}
+                onTouchTap={this.handleOptionDialogOpen}
+              />
+              <Dialog
+                title="Search Options"
+                actions={actions}
+                modal={false}
+                open={this.state.optionDialogOpen}
+                onRequestClose={this.handleOptionDialogClose}
+                autoScrollBodyContent={true}
+              >
+              <div id="options-group" style={styles.optionContentStyle}>
+                <Checkbox
+                  label="Student Id"
+                  id="sr-id"
+                  style={styles.checkbox}
+                />
+                <Checkbox
+                  label="Campus"
+                  id="sr-campus"
+                  style={styles.checkbox}
+                />
+                <Checkbox
+                  label="Permission"
+                  id="sr-permission"
+                  style={styles.checkbox}
+                />
+                <Checkbox
+                  label="Name"
+                  id="sr-name"
+                  style={styles.checkbox}
+                />
+                <Checkbox
+                  label="Address"
+                  id="sr-location"
+                  style={styles.checkbox}
+                />
+                <Checkbox
+                  label="Contact No."
+                  id="sr-contactNo"
+                  style={styles.checkbox}
+                />
+                </div>
+              </Dialog>
             </div>
+              <div style={styles.toolBarItem}>
+                <RaisedButton
+                  id="refresh-list"
+                  secondary={true}
+                  style={styles.button}
+                  onTouchTap={this.refreshList}
+                  disabled={this.state.refreshBtnDisabled}
+                  className="toolbar-button"
+                  icon={<FontIcon className="fa fa-refresh" />}
+                />
+                <AddUserDialog/>
+                <div style={styles.wall}>
+                Sort By&nbsp;
+                <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
+                  <MenuItem value={"Campus"} primaryText="Campus" />
+                </DropDownMenu>
+                </div>
+              </div>
             <br/>
             <div style={styles.contentStyle}>
               <div id="errMsg" style={styles.textCenter}></div>
-              <div id="pagination-content"></div>
+              <div id="pagination-content">
+              </div>
               <br/>
               <div id="pagination-container"></div>
             </div>          

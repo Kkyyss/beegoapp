@@ -6,11 +6,12 @@ import Drawer from 'material-ui/Drawer';
 import {ListItem} from 'material-ui/List';
 import Avatar from 'material-ui/Avatar';
 import Paper from 'material-ui/Paper';
-import {redA700} from 'material-ui/styles/colors';
+import {yellow400} from 'material-ui/styles/colors';
 import FontIcon from 'material-ui/FontIcon';
 import RaisedButton from 'material-ui/RaisedButton';
 import Divider from 'material-ui/Divider';
 import Subheader from 'material-ui/Subheader';
+import FlatButton from 'material-ui/FlatButton';
 
 require('./CSS/animate.css');
 require('./CSS/sweetalert2.min.css');
@@ -39,11 +40,12 @@ const styles = {
     textDecoration: 'none',
     marginLeft: '10%',
     fontSize: '30px',
-    color: 'white',
+    color: 'black',
     cursor: 'pointer',
   },
   clickableItem: {
     cursor: 'pointer',
+    color: 'black',
   },
   hide: {
     display: 'none',
@@ -52,13 +54,13 @@ const styles = {
     top: '0px',
     left: '0px',
     position: 'fixed',
-    backgroundColor: redA700,
+    backgroundColor: yellow400,
   },
   sidebarTitle: {
     height: 64,
     width: 250,
     display: 'inline-block',
-    backgroundColor: redA700,
+    backgroundColor: yellow400,
   },
   balanceStyle: {
     display: 'flex',
@@ -66,7 +68,17 @@ const styles = {
   },
   buttonSize: {
     margin: '4px 15px 0 0',
-  },  
+  },
+  labelStyle: {
+    color: '#d34836',
+    // color: 'white',
+  },
+  button: {
+    margin: '5px 10px 0 0',
+  },
+  black: {
+    color: 'black !important',
+  },
 };
 
 let docked = false;
@@ -79,7 +91,6 @@ export default class Master extends Component {
     this.state = {
       open: false,
       showMenuIcon: true,
-      appbarTitle: '',
     };
   }
 
@@ -195,12 +206,6 @@ export default class Master extends Component {
 
     IsLogined(url_path)
 
-    // $('#card-wrapper').mCustomScrollbar({
-    //   autoHideScrollbar: true,
-    //   theme: "minimal-dark",
-    //   documentTouchScroll: true,
-    //   mouseWheel:{ preventDefault: true }
-    // });
     $('.left-drawer-scrollbar, #card-wrapper, .right-drawer-scrollbar').mousewheel(function(event, delta, deltaX, deltaY){
       event.preventDefault();
       if (delta < 0) $(this).scrollTop($(this).scrollTop() + 55);
@@ -229,13 +234,12 @@ export default class Master extends Component {
           if (request.getResponseHeader('IsLogined') === 'FALSE') {
             thisObj.setState({
               showMenuIcon: false,
-              appbarTitle: 'IHMS',
             });
-            // $('#sidebar-admin-console, #sidebar-user-item, #sidebar-room-item').next().remove();
+
             $(".left-drawer-scrollbar, #user-btn").remove();
             $('#card-wrapper').removeClass('wrapper-margin');
             $('#footer').removeClass('footer-margin');
-            // $(window).unbind('window:resize', this.updateDimensions);
+
             // /login_register
             if (request.getResponseHeader('recap') === 'TRUE') {
               $('#log-recap').removeClass('hide').addClass('show');
@@ -265,16 +269,30 @@ export default class Master extends Component {
             var fillUpProfile = userInfo.fillUpProfile;
             // /user
             switch (urlPath) {
-              case '/user/admin-console':
+              case '/user/admin-console': 
+              case '/user/user-console': 
+              case '/user/room-type':
+              case '/user/room-console':
+              case '/user/request-console':
+              case '/user/booked-room-console':
                 if (!isAdmin) {
                   $(location).prop('href', '/user');
                 }
                 break;
               case '/user/booking-form':
+                if (isAdmin) {
+                  $(location).prop('href', '/user');
+                }
                 if (!fillUpProfile) {
                   $('#form-content').remove();
                 } else {
                   $('#form-warning').remove();
+                }
+                break;
+              case '/user/request':
+              case '/user/booked-room':
+                if (isAdmin) {
+                  $(location).prop('href', '/user');
                 }
                 break;
               default: break;
@@ -286,11 +304,13 @@ export default class Master extends Component {
               var sidebarAdmin = $('#sidebar-admin-console').parent();
               sidebarAdmin.prev().remove();
               sidebarAdmin.remove();
+            } else {
+              $('#sidebar-user-item').parent().prev().remove();
+              $('#sidebar-user-item').parent().remove();
             }
             if (isUser === 'TRUE') {
-              $('#account-item').remove();
-              $('#reg-gplus').parent().remove();
-
+              $('#reg-gplus').remove();
+              $('#appbar-title').remove();
               // if (campus !== 'ALL') {
               //   var campusItem = $('#campus-item').next()
               //   var item = campusItem.find('.' + campus).detach();
@@ -298,7 +318,7 @@ export default class Master extends Component {
               // }
 
               document.title += ' ' + username;
-              $('#sidebar-user-avatar, #user-avatar, #menu-avatar').attr('src', avatarURL);
+              $('#sidebar-user-avatar, #sidebar-admin-avatar, #user-avatar, #menu-avatar').attr('src', avatarURL);
               // /user/account
               if (isAccount === 'TRUE') {
                 if (provider) {
@@ -348,23 +368,21 @@ export default class Master extends Component {
             $(this).remove();         
             $(".universe").removeClass('universe').addClass('animated fadeIn').one(animationEnd, function() {
               $(this).removeClass('animated fadeIn');
-              if (url_path.indexOf("/login_register") >= 0) {
-                var cookieValue = getLoginErrorCookieValue();
-                if (cookieValue.length != 0) {
-                  var ifrm=document.createElement('iframe');
-                  ifrm.setAttribute("src", "https://accounts.google.com/logout");
-                  ifrm.style.display = "none";
-                  document.body.appendChild(ifrm);
-                  ifrm.parentNode.removeChild(ifrm);
-                  thisObj.delete_cookie('_gothic_session');
-                  wrapFunc.AlertStatus(
-                    'Oopss...',
-                    cookieValue,
-                    'error',
-                    false,
-                    false
-                  );
-                }
+              var cookieValue = getLoginErrorCookieValue();
+              if (cookieValue.length != 0) {
+                var ifrm=document.createElement('iframe');
+                ifrm.setAttribute("src", "https://accounts.google.com/logout");
+                ifrm.style.display = "none";
+                document.body.appendChild(ifrm);
+                ifrm.parentNode.removeChild(ifrm);
+                thisObj.delete_cookie('_gothic_session');
+                wrapFunc.AlertStatus(
+                  'Oopss...',
+                  cookieValue,
+                  'error',
+                  false,
+                  false
+                );
                 thisObj.delete_cookie('LOGIN_ERROR');
               }
             });
@@ -396,7 +414,9 @@ export default class Master extends Component {
               zDepth={1}
             >
               <div style={styles.marginTopCover }>
-                <a onTouchTap={this.accessHome} style={styles.link}>IHMS</a>
+                <a onTouchTap={this.accessHome} style={styles.link}>
+                <img src="../static/img/logo.png" width="64x64" />IHMS
+                </a>
               </div>
             </Paper>
             <Subheader>Admin</Subheader>
@@ -404,59 +424,77 @@ export default class Master extends Component {
               id="sidebar-admin-console"
               primaryTogglesNestedList={true}
               initiallyOpen={true}
-              leftIcon={<FontIcon className="fa fa-certificate" />}
+              leftAvatar={
+                <Avatar
+                  id="sidebar-admin-avatar"
+                  src="/"
+                  size={36}
+                />
+              }
               nestedItems = {[
                 <ListItem
                   key={1}
+                  primaryText="Account"
+                  onTouchTap={this.accessUserAccount}
+                  leftIcon={<FontIcon className="fa fa-user" />}
+                />,
+                <ListItem
+                  key={2}
                   primaryText="Room Types"
                   leftIcon={<FontIcon className="fa fa-th" />}
                   href="/user/room-type"
                 />,
                 <ListItem
-                  key={2}
+                  key={3}
                   primaryText="Room"
                   leftIcon={<FontIcon className="fa fa-h-square" />}
                   onTouchTap={this.roomConsole}
                 />,
                 <ListItem
-                  key={3}
+                  key={4}
                   primaryText="Request"
                   leftIcon={<FontIcon className="fa fa-list-ul" />}
                   onTouchTap={this.requestConsole}
                 />,
                 <ListItem
-                  key={4}
+                  key={5}
                   primaryText="Booked Room"
                   leftIcon={<FontIcon className="fa fa-bed" />}
                   onTouchTap={this.bookedRoomConsole}
                 />,
                 <ListItem
-                  key={5}
+                  key={6}
                   primaryText="User"
                   leftIcon={<FontIcon className="fa fa-users" />}
                   onTouchTap={this.userConsole}
-                />
+                />,
+                <ListItem
+                  key={7}
+                  primaryText="Sign Out"
+                  onTouchTap={this.logout}
+                  leftIcon={<FontIcon className="fa fa-sign-out" />}
+                />,                
               ]}
             >
-              Console
+              Admin
             </ListItem>
             <Divider />
-            <Subheader>Room</Subheader>
+            <Subheader>Detail</Subheader>
             <ListItem
               id="sidebar-room-item"
               primaryTogglesNestedList={true}
               initiallyOpen={true}
-              leftIcon={<FontIcon className="fa fa-certificate" />}
+              leftIcon={<FontIcon className="fa fa-info" />}
               nestedItems = {[
                 <ListItem
                   key={1}
-                  primaryText="Status"
+                  primaryText="Room Status"
                   onTouchTap={this.accessRoomStatus}
-                  leftIcon={<FontIcon className="fa fa-user" />}
+                  leftIcon={<FontIcon className="fa fa-pie-chart" />}
                 />
               ]}
             >
-              Console
+              Detail
             </ListItem>      
             <Divider />
             <Subheader>User</Subheader>                               
@@ -504,7 +542,7 @@ export default class Master extends Component {
                 />,
               ]}
             >
-             Console
+             User
             </ListItem>
             <Divider />
             <Subheader>Campuses</Subheader>            
@@ -560,23 +598,25 @@ export default class Master extends Component {
             title={<span 
               style={styles.clickableItem} 
               onClick={this.accessHome}
-            >{this.state.appbarTitle}
+              id="appbar-title"
+            >
+            <img src="../static/img/logo.png" width="54x54" />
+            IHMS
             </span>}
             showMenuIconButton={this.state.showMenuIcon}
             onLeftIconButtonTouchTap={this.handleToggle}
+            iconClassNameLeft="fa fa-bars blackify"
             style={styles.header}
             iconElementRight={
               <div style={styles.balanceStyle}>
               <UserDropDownMenu />
-                <RaisedButton
+                <FlatButton
                   id="reg-gplus"
                   name="gplus"
                   label="Login"
-                  fullWidth={true}
-                  labelColor="white"
+                  labelStyle={styles.labelStyle}
                   style={styles.button}
-                  backgroundColor="#d34836"
-                  icon={<FontIcon className="fa fa-google-plus-official whitify" />}
+                  icon={<FontIcon className="fa fa-google-plus-official google-color" />}
                 />
               </div>
             }

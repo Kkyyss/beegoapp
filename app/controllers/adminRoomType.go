@@ -54,11 +54,25 @@ func (self *AdminRoomTypeController) Get() {
 }
 
 func (self *AdminRoomTypeController) Post() {
-	var errMsg string
+	var (
+		errMsg string
+		twin   bool
+	)
+
+	if self.GetString("twin") == "on" {
+		twin = true
+	}
+
+	deposit, _ := strconv.ParseFloat(self.GetString("deposit"), 64)
+
+	rpp, _ := strconv.ParseFloat(self.GetString("rates-per-person"), 64)
 
 	roomTypes := models.RoomTypes{
-		Campus:       self.GetString("campus"),
-		TypesOfRooms: self.GetString("types-of-rooms"),
+		Campus:         self.GetString("campus"),
+		TypesOfRooms:   self.GetString("types-of-rooms"),
+		Deposit:        deposit,
+		RatesPerPerson: rpp,
+		Twin:           twin,
 	}
 
 	err := roomTypes.Insert()

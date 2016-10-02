@@ -70,7 +70,7 @@ func (self *AuthProviderCallbackController) Get() {
 	beego.Debug(errMsg)
 	if errMsg != "" {
 		self.Ctx.SetCookie("LOGIN_ERROR", errMsg)
-		self.Redirect("/login_register", 302)
+		self.Redirect("/", 302)
 		return
 	}
 

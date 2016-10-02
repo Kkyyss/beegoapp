@@ -56,23 +56,17 @@ func (self *AdminRoomController) Get() {
 func (self *AdminRoomController) Post() {
 	var (
 		available bool
-		twin      bool
 		errMsg    string
 	)
 	if self.GetString("available") == "on" {
 		available = true
 	}
-	if self.GetString("twin") == "on" {
-		twin = true
-	}
-	permonthfee, _ := strconv.ParseFloat(self.GetString("per-month-fee"), 64)
+
 	beego.Debug(self.GetString("types-of-rooms"))
 	room := models.Room{
 		Campus:       self.GetString("campus"),
 		RoomNo:       self.GetString("room-no"),
 		TypesOfRooms: self.GetString("types-of-rooms"),
-		PerMonthFee:  permonthfee,
-		Twin:         twin,
 		IsAvailable:  available,
 	}
 
@@ -109,26 +103,19 @@ func (self *AdminRoomController) Put() {
 	var (
 		errMsg    string
 		available bool
-		twin      bool
 	)
 
-	if self.GetString("edit-twin") == "on" {
-		twin = true
-	}
 	if self.GetString("edit-available") == "on" {
 		available = true
 	}
 
 	roomId, _ := strconv.Atoi(self.GetString("edit-room-id"))
-	permonthfee, _ := strconv.ParseFloat(self.GetString("edit-per-month-fee"), 64)
 
 	room := models.Room{
 		Id:           roomId,
 		Campus:       self.GetString("edit-campus"),
 		RoomNo:       self.GetString("edit-room-no"),
 		TypesOfRooms: self.GetString("edit-types-of-rooms"),
-		PerMonthFee:  permonthfee,
-		Twin:         twin,
 		IsAvailable:  available,
 	}
 

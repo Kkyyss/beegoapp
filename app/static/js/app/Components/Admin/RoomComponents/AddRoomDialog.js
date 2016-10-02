@@ -118,6 +118,7 @@ export default class AddRoomDialog extends Component {
       btnDisabled: true,
     });    
     $('#campus').val(this.state.campusValue);
+    $('#types-of-rooms').val(this.state.roomTypeValue);
     var addRoomForm = $('#add-room-form');
     ajax({
       url: "/user/room-console",
@@ -168,10 +169,15 @@ export default class AddRoomDialog extends Component {
   getRoomList() {
     var thisObj = this;
 
+    var userState = {
+      userCampus: userData.campus,
+    };
+
     var searchBox = $('#search-box');
     ajax({
       url: "/api/view-room-list",
       method: "POST",
+      data: JSON.stringify(userState),
       cache: false,
       beforeSend: function() {
         wrapFunc.LoadingSwitch(true);
@@ -286,7 +292,8 @@ export default class AddRoomDialog extends Component {
               <DropDownMenu maxHeight={250} id="roomTypesDropDown" value={this.state.roomTypeValue} onChange={this.handleRoomTypeChange} disabled={this.state.roomTypeDisabled}>
                 {items}
               </DropDownMenu>
-              <br/>              
+              <input id="types-of-rooms" name="types-of-rooms" type="text" style={styles.hide} />
+              <br/>
               <TextField
                 id="room-no"
                 name="room-no"
@@ -294,21 +301,7 @@ export default class AddRoomDialog extends Component {
                 type="text"
                 fullWidth={true}
               />
-              <TextField
-                id="per-month-fee"
-                name="per-month-fee"
-                floatingLabelText="Per Month Fee (RM)"
-                type="text"
-                fullWidth={true}
-              />
               <br/><br/>
-              <Toggle
-                id="twin"
-                name="twin"
-                label="Twin"
-                defaultToggled={false}
-                style={styles.toggle}
-              />
               <Toggle
                 id="available"
                 name="available"

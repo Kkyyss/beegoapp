@@ -4,7 +4,7 @@ import IconButton from 'material-ui/IconButton';
 import Drawer from 'material-ui/Drawer';
 import AppBar from 'material-ui/AppBar';
 import {ListItem} from 'material-ui/List';
-import {redA700} from 'material-ui/styles/colors';
+import {grey900, yellow400} from 'material-ui/styles/colors';
 
 const styles = {
 	footer: {
@@ -12,7 +12,7 @@ const styles = {
 	  left:'0px',
 	  bottom:'0px',
  	  width: '100%',
-    backgroundColor: redA700,
+    backgroundColor: grey900,
 	},
 	center: {
 	  textAlign: 'center',
@@ -27,13 +27,14 @@ const styles = {
     textDecoration: 'none',
     marginLeft: '10%',
     fontSize: '30px',
-    color: 'white',
+    color: 'black',
+    cursor: 'default',
   },
   sidebarTitle: {
     height: 64,
     width: 250,
     display: 'inline-block',
-    backgroundColor: redA700,
+    backgroundColor: yellow400,
   },
 };
 

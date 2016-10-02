@@ -248,25 +248,6 @@ export default class AdminConsolePage extends Component {
                   floatingLabelStyle={styles.floatingLabelStyle}
                 />
                 <br/>
-                <TextField
-                  id="edit-per-month-fee"
-                  name="edit-per-month-fee"
-                  floatingLabelText="Per Month Fee (RM)"
-                  type="text"
-                  fullWidth={true}
-                  floatingLabelFixed={true}
-                  underlineStyle={styles.underlineStyle}
-                  underlineFocusStyle={styles.underlineFocusStyle} 
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />
-                <br/><br/>
-                <Toggle
-                  id="edit-twin"
-                  name="edit-twin"
-                  label="Twin"
-                  defaultToggled={false}
-                  style={styles.toggle}
-                /> 
                 <Toggle
                   id="edit-available"
                   name="edit-available"

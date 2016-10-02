@@ -205,6 +205,29 @@ export default class AddRoomTypeDialog extends Component {
                 fullWidth={true}  
               />
               <br/>
+              <TextField
+                id="deposit"
+                name="deposit"
+                floatingLabelText="Deposit"
+                type="text"
+                fullWidth={true}
+              />
+              <br/>
+              <TextField
+                id="rates-per-person"
+                name="rates-per-person"
+                floatingLabelText="Rates Per Person"
+                type="text"
+                fullWidth={true}
+              />
+              <br/><br/>
+              <Toggle
+                id="twin"
+                name="twin"
+                label="Twin"
+                defaultToggled={false}
+                style={styles.toggle}
+              />
             </div>
           </form>
         </Dialog>

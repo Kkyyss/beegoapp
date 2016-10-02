@@ -17,6 +17,13 @@ var roomDataSource,
     roomStatusDataSource,
     userBookedDataSource;
 
+var searchRoomOption = ["RoomNo"],
+searchRequestOption = ["Status"],
+searchBookedOption = ["RoomNo"],
+searchUserRequestOption = ["Status"],
+searchRoomTypeOption = ["Campus"],
+searchUserOption = ["StudentId"];    
+
 require('./pagination.min.js');
 
 window.Wrapper = {
@@ -484,6 +491,10 @@ window.Wrapper = {
   SetUpUser: function(ds) {
     window.UserData = ds;
   },
+  SetUpUserSearchOption: function(ds) {
+    searchUserOption = ds;
+    SearchUserQuery();
+  },
 }
 
 function setObjectCss(object, selector, value) {
@@ -626,7 +637,7 @@ function userListTemplate(data) {
           buttons = (!item.IsAdmin) ? '<button type="button" class="editUserButton">Edit</button>' +
           '<button type="button" class="removeUserButton">Remove</button>' : '<button type="button" class="viewUserButton">View</button>';
         }
-      break;
+        break;
     }
     var student_id = (item.StudentId.length != 0) ? '<span class="paraStyle">ID - </span><span id="u-student-id">' + item.StudentId + '</span>' : "";
 
@@ -948,9 +959,7 @@ function SearchRoomQuery() {
     location: 0,
     distance: 100,
     maxPatternLength: 32,
-    keys: [
-      "RoomNo"
-    ]
+    keys: searchRoomOption
   };
   console.log(roomDataSource);
   var fuse = new Fuse(roomDataSource, options);
@@ -974,9 +983,7 @@ function SearchRequestQuery() {
     location: 0,
     distance: 100,
     maxPatternLength: 32,
-    keys: [
-      "Status"
-    ]
+    keys: searchRequestOption
   };
   console.log(requestDataSource);
   var fuse = new Fuse(requestDataSource, options);
@@ -999,9 +1006,7 @@ function SearchBookedQuery() {
     location: 0,
     distance: 100,
     maxPatternLength: 32,
-    keys: [
-      "RoomNo"
-    ]
+    keys: searchBookedOption
   };
   console.log(bookedDataSource);
   var fuse = new Fuse(bookedDataSource, options);
@@ -1024,9 +1029,7 @@ function SearchUserRequestQuery() {
     location: 0,
     distance: 100,
     maxPatternLength: 32,
-    keys: [
-      "Status"
-    ]
+    keys: searchUserRequestOption
   };
   console.log(userRequestDataSource);
   var fuse = new Fuse(userRequestDataSource, options);
@@ -1049,15 +1052,37 @@ function SearchRoomTypeQuery() {
     location: 0,
     distance: 100,
     maxPatternLength: 32,
-    keys: [
-      "Campus"
-    ]
+    keys: searchRoomTypeOption
   };
   console.log(roomTypeDataSource);
   var fuse = new Fuse(roomTypeDataSource, options);
   var result = fuse.search(query);
   console.log(result);
   wrapFunc.PaginateRoomTypeContent(result);
+}
+
+function SearchUserQuery() {
+  console.log(usersDataSource);
+  var query = $('#search-box').val();
+  console.log(query.length);
+  if (query.length == 0) {
+    wrapFunc.PaginateUsersContent(usersDataSource);
+    return;
+  }
+  var options = {
+    caseSensitive: false,
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    keys: searchUserOption
+  };
+  console.log(usersDataSource);
+  var fuse = new Fuse(usersDataSource, options);
+  var result = fuse.search(query);
+  console.log(result);
+  wrapFunc.PaginateUsersContent(result);
 }
 
 function removeBooked(e) {
@@ -1125,32 +1150,6 @@ function updateBookedView() {
       wrapFunc.LoadingSwitch(false);
     }
   });
-}
-
-function SearchUserQuery() {
-  console.log(usersDataSource);
-  var query = $('#search-box').val();
-  console.log(query.length);
-  if (query.length == 0) {
-    wrapFunc.PaginateUsersContent(usersDataSource);
-    return;
-  }
-  var options = {
-    caseSensitive: true,
-    shouldSort: true,
-    threshold: 0.6,
-    location: 0,
-    distance: 100,
-    maxPatternLength: 32,
-    keys: [
-      "StudentId"
-    ]
-  };
-  console.log(usersDataSource);
-  var fuse = new Fuse(usersDataSource, options);
-  var result = fuse.search(query);
-  console.log(result);
-  wrapFunc.PaginateUsersContent(result);
 }
 
 function removeUser(e) {
