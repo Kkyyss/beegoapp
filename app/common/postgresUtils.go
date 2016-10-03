@@ -66,7 +66,7 @@ func initDB() {
 	// 	Email:         "ongkys1994@gmail.com",
 	// 	AvatarUrl:     "../static/upload/default/pikachu.png",
 	// 	Location:      "anything",
-	// 	ContactNo:     "01121314799",
+	// 	ContactNo:     "+601121314799",
 	// 	FillUpProfile: true,
 	// 	Gender:        "Male",
 	// 	HashPassword:  hpass,

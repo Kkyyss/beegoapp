@@ -267,6 +267,7 @@ export default class Master extends Component {
             var contactNo = userInfo.contactNo;
             var status = (activated) ? "Activated" : "Inactivated";
             var fillUpProfile = userInfo.fillUpProfile;
+            var balance = userInfo.balance;
             // /user
             switch (urlPath) {
               case '/user/admin-console': 
@@ -339,6 +340,7 @@ export default class Master extends Component {
                 $('#user-img').attr('src', avatarURL);
                 $('#status').text(status);
                 $('#user-provider').val(provider);
+                $('#user-balance').val(balance);
                 $('#user-campus').val(campus);
                 $('#reg-email').val(email);
                 $('#student-id').val(studentId);

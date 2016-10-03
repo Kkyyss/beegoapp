@@ -13,6 +13,7 @@ import FontIcon from 'material-ui/FontIcon';
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
+import Divider from 'material-ui/Divider';
 import Checkbox from 'material-ui/Checkbox';
 import "intl-tel-input/build/css/intlTelInput.css";
 
@@ -45,7 +46,7 @@ const styles = {
     display: 'flex',
     flexWrap: 'wrap',
     alignItems: 'center',
-    padding: '0 10px 0 10px',
+    padding: '0 15px 0 15px',
   },
   balanceStyle: {
     display: 'flex',
@@ -56,8 +57,8 @@ const styles = {
     fontSize: '20px',
     outline: 'none',
     border: 'none',
-    margin: '0 1px 0 15px',
-    padding: '0 10px 0 10px',
+    margin: '0 15px 0 15px',
+    padding: '15px 10px 15px 40px',
   },
   wall: {
     margin: '0 10px 0 10px',
@@ -491,56 +492,57 @@ export default class UserConsolePage extends Component {
                 placeholder="Search"
                 style={styles.inputStyle}
               />
-              <RaisedButton
-                id="search-option"
-                primary={true}
-                style={styles.optionButton}
-                icon={<FontIcon className="fa fa-filter" />}
-                onTouchTap={this.handleOptionDialogOpen}
-              />
-              <Dialog
-                title="Search Options"
-                actions={actions}
-                modal={false}
-                open={this.state.optionDialogOpen}
-                onRequestClose={this.handleOptionDialogClose}
-                autoScrollBodyContent={true}
-              >
-              <div id="options-group" style={styles.optionContentStyle}>
-                <Checkbox
-                  label="Student Id"
-                  id="sr-id"
-                  style={styles.checkbox}
-                />
-                <Checkbox
-                  label="Campus"
-                  id="sr-campus"
-                  style={styles.checkbox}
-                />
-                <Checkbox
-                  label="Permission"
-                  id="sr-permission"
-                  style={styles.checkbox}
-                />
-                <Checkbox
-                  label="Name"
-                  id="sr-name"
-                  style={styles.checkbox}
-                />
-                <Checkbox
-                  label="Address"
-                  id="sr-location"
-                  style={styles.checkbox}
-                />
-                <Checkbox
-                  label="Contact No."
-                  id="sr-contactNo"
-                  style={styles.checkbox}
-                />
-                </div>
-              </Dialog>
             </div>
+            <Divider/>
               <div style={styles.toolBarItem}>
+                <RaisedButton
+                  id="search-option"
+                  primary={true}
+                  style={styles.button}
+                  icon={<FontIcon className="fa fa-filter" />}
+                  onTouchTap={this.handleOptionDialogOpen}
+                />
+                <Dialog
+                  title="Search Options"
+                  actions={actions}
+                  modal={false}
+                  open={this.state.optionDialogOpen}
+                  onRequestClose={this.handleOptionDialogClose}
+                  autoScrollBodyContent={true}
+                >
+                <div id="options-group" style={styles.optionContentStyle}>
+                  <Checkbox
+                    label="Student Id"
+                    id="sr-id"
+                    style={styles.checkbox}
+                  />
+                  <Checkbox
+                    label="Campus"
+                    id="sr-campus"
+                    style={styles.checkbox}
+                  />
+                  <Checkbox
+                    label="Permission"
+                    id="sr-permission"
+                    style={styles.checkbox}
+                  />
+                  <Checkbox
+                    label="Name"
+                    id="sr-name"
+                    style={styles.checkbox}
+                  />
+                  <Checkbox
+                    label="Address"
+                    id="sr-location"
+                    style={styles.checkbox}
+                  />
+                  <Checkbox
+                    label="Contact No."
+                    id="sr-contactNo"
+                    style={styles.checkbox}
+                  />
+                  </div>
+                </Dialog>
                 <RaisedButton
                   id="refresh-list"
                   secondary={true}
@@ -558,7 +560,7 @@ export default class UserConsolePage extends Component {
                 </DropDownMenu>
                 </div>
               </div>
-            <br/>
+            <Divider/>
             <div style={styles.contentStyle}>
               <div id="errMsg" style={styles.textCenter}></div>
               <div id="pagination-content">

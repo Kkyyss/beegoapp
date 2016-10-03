@@ -32,9 +32,9 @@ type (
 		ContactNo           string    `orm:"default(none)"`
 		ActivationToken     string    `orm:"null;size(156)"`
 		ForgotPasswordToken string    `orm:"null;size(156)"`
-		// TotalPaid           float64
-		Activated bool
-		// DepositIsPaid       bool
+		Balance             float64
+		Activated           bool
+		// DepositIsPaid       bools
 		IsAdmin        bool
 		FillUpProfile  bool
 		FullPermission bool
@@ -574,6 +574,7 @@ func (u *User) GetUserDataMap() map[string]interface{} {
 	userData["studentId"] = u.StudentId
 	userData["campus"] = u.Campus
 	userData["fullPermission"] = u.FullPermission
+	userData["balance"] = u.Balance
 	// userData["request"] = requests
 	return userData
 }
@@ -753,6 +754,8 @@ type Request struct {
 	TypesOfRooms     string
 	Status           string `orm:"null"`
 	Payment          float64
+	Deposit          float64
+	RatesPerPerson   float64
 	DicisionMadeDate time.Time `orm:"null;type(date)"`
 	User             *User     `orm:"rel(fk);"`
 }
@@ -790,7 +793,21 @@ func (r *Request) UpdateStatus(userId int) (errMsg string) {
 	switch status {
 	case "Cancelled":
 		qs2 := o.QueryTable("users").Filter("id", userId)
+		qs3 := o.QueryTable("room")
 		urObj := qs2.RelatedSel("room").Filter("room_id__isnull", false)
+
+		// err = rObj.one(r)
+
+		// if err != nil {
+		// 	errMsg = "Oops...Something goes wrong when getting request data."
+		// 	beego.Debug(err)
+		// 	return
+		// }
+
+		// if r.Status == "Payment Made" {
+
+		// }
+
 		num, _ := urObj.Count()
 		if num != 0 {
 			var user User
@@ -804,8 +821,7 @@ func (r *Request) UpdateStatus(userId int) (errMsg string) {
 				beego.Debug(err)
 			}
 
-			qs2 = o.QueryTable("room")
-			rObj := qs2.Filter("id", user.Room.Id)
+			rObj := qs3.Filter("id", user.Room.Id)
 
 			_, err = rObj.Update(orm.Params{
 				"is_available": true,

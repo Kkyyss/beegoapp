@@ -59,6 +59,7 @@ const styles = {
     color: 'white',
     backgroundColor: 'black',
     padding: 10,
+    margin: 0,    
   },
   blockCenter: {
     display: 'flex',
@@ -123,6 +124,8 @@ export default class RequestConsolePage extends Component {
       var windowWidth = $(window).width();      
       viewRequestBox.width(windowWidth * 0.8);
       viewRequestBox.height(windowHeight * 0.8);
+      var dialogContentHeight = viewRequestBox.height() - 140;
+      $('.dialog-content').height(dialogContentHeight);        
     }
     $('#bg-overlay, #cancel-btn').on('click', function() {
       $('#bg-overlay, #view-request-box').css('display', 'none');
@@ -160,14 +163,11 @@ export default class RequestConsolePage extends Component {
       <div>
         <div id="bg-overlay"></div>
         <Paper id="view-request-box" zDepth={2}>
-          <button 
-            id="cancel-btn"
-            style={styles.cancelBtnStyle}
-            className="fa fa-times"
-          >
-          </button>          
-          <h1 style={styles.textCenter}>View Request</h1>
-          <h1 style={styles.bgColor}>User Details</h1>          
+          <div className="dialog-header">
+            <h1 style={styles.textCenter}>View Request</h1>
+          </div>
+          <div className="dialog-content">
+          <h1 style={styles.bgColor}>User Details</h1>   
           <div style={styles.blockContent}>
                 <TextField
                   id="view-user-name"
@@ -218,8 +218,9 @@ export default class RequestConsolePage extends Component {
                   floatingLabelStyle={styles.floatingLabelStyle}
                 />
             </div>
-            <h1 style={styles.bgColor}>Room Details</h1> 
-            <div style={styles.blockContent}>
+
+              <h1 style={styles.bgColor}>Room Details</h1> 
+              <div style={styles.blockContent}>
                 <TextField
                   id="view-rd"
                   floatingLabelText="Request Date"
@@ -252,7 +253,25 @@ export default class RequestConsolePage extends Component {
                   readOnly={true}
                   floatingLabelStyle={styles.floatingLabelStyle}
                 />
-          </div>
+                <TextField
+                  id="view-py"
+                  floatingLabelText="Payment(RM)"
+                  floatingLabelFixed={true}
+                  underlineShow={false}
+                  readOnly={true}
+                  floatingLabelStyle={styles.floatingLabelStyle}
+                />
+              </div>
+            </div>
+            <div className="dialog-footer">
+              <RaisedButton
+                id="cancel-btn"
+                label="Cancel"
+                secondary={true}
+                style={styles.rightAlign}
+              />
+              <div style={styles.clearFix}></div>
+            </div>
           <br/>
         </Paper>
         <div id="card-wrapper" className="wrapper-margin">

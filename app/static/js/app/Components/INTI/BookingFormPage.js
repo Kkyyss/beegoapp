@@ -76,12 +76,8 @@ const sessionMonthDataSource = [
   "October",
 ];
 
-const iuRoomTypes = [];
-
-const iicsRoomTypes = [];
-
-
-var campusDataSource = iuRoomTypes;
+var roomDataSource;
+var campusDataSource = [];
 export default class BookingFormPage extends Component {
   state = {
     value: "IU",
@@ -95,6 +91,7 @@ export default class BookingFormPage extends Component {
     this.setState({
       roomTypeValue: value,
     });
+    this.setPayment(roomDataSource, index);
   };
 
   componentDidMount() {
@@ -118,8 +115,7 @@ export default class BookingFormPage extends Component {
     wrapFunc.DisabledFormSubmitByEnterKeyDown(reqeustForm);
     function submitRequest(ev) {
       ev.preventDefault();
-      var finalValidation = validFunc(roomSelectedVrf()) &
-                validFunc(monthVrf()) &
+      var finalValidation = validFunc(monthVrf()) &
                 validFunc(yearVrf());
                
       if (!finalValidation) {
@@ -128,9 +124,11 @@ export default class BookingFormPage extends Component {
       thisObj.setState({
         btnDisabled: true,
       });
-      var campus = $('#campus');
-      campus.val(thisObj.state.value);
-
+      $('#campus').val(thisObj.state.value);
+      $('#types-of-rooms').val(thisObj.state.roomTypeValue);
+      $('#deposit').val($('#r-deposit').val());
+      $('#rates_per_person').val($('#r-rpp').val());
+      $('#payment').val($('#r-payment').val());
       ajax({
         url: "/user/booking-form",
         method : "POST",
@@ -224,42 +222,6 @@ export default class BookingFormPage extends Component {
       );
     }
 
-    var typesOfRooms = $('#types-of-rooms');
-    var torMsg = $('#torMsg');
-    typesOfRooms.on({
-      'input focusout': roomSelectedVrf,
-    })
-
-    function roomSelectedVrf() {
-
-      var plainText = typesOfRooms.val().trim();
-
-      isValid = wrapFunc.BasicValidation(
-        (plainText.length != 0),
-        torMsg,
-        "Please don't leave it empty.",
-        typesOfRooms
-      );
-      if (!isValid) {
-        return;
-      }      
-
-      isValid = wrapFunc.BasicValidation(
-        ($.inArray(plainText, campusDataSource) != -1),
-        torMsg,
-        "Invalid type of room.",
-        typesOfRooms
-      );
-      if (!isValid) {
-        return;
-      }
-      wrapFunc.MeetRequirement(
-        typesOfRooms, 
-        torMsg, 
-        "Please don't leave it empty."
-      );
-    }
-
     function validFunc(func) {
      func;
      if (isValid) {
@@ -301,6 +263,8 @@ export default class BookingFormPage extends Component {
           });
         } else {
           console.log(res.data);
+          roomDataSource = res.data;
+          thisObj.setPayment(roomDataSource, 0);
           thisObj.getRoomTypes(res.data);
           thisObj.setState({
             roomTypeDisabled: false,
@@ -308,6 +272,12 @@ export default class BookingFormPage extends Component {
         }
       }
     });
+  }
+
+  setPayment(data, index) {
+    $('#r-deposit').val(data[index].Deposit);
+    $('#r-rpp').val(data[index].RatesPerPerson);
+    $('#r-payment').val(data[index].Deposit + data[index].RatesPerPerson);
   }
 
   getRoomTypes(data) {
@@ -348,19 +318,9 @@ export default class BookingFormPage extends Component {
                 <DropDownMenu maxHeight={250} id="roomTypesDropDown" value={this.state.roomTypeValue} onChange={this.handleRoomTypeChange} disabled={this.state.roomTypeDisabled}>
                   {campusDataSource}
                 </DropDownMenu>
-                <br/>                 
-                <AutoComplete
-                  id="types-of-rooms"
-                  name="types-of-rooms"
-                  floatingLabelText="Types of Rooms"
-                  filter={AutoComplete.caseInsensitiveFilter}
-                  openOnFocus={true}
-                  dataSource={campusDataSource}
-                  fullWidth={true}
-                  maxSearchResults={5}
-                />
-                <div id="torMsg">Please don't leave it empty.</div>
-              </div>                  
+                <input id="types-of-rooms" name="types-of-rooms" type="text" style={styles.hide} />
+                <br/>
+              </div>
               <p style={styles.titleStyle}>SESSION</p>
               <div className="content-padding">
                 <AutoComplete
@@ -383,6 +343,42 @@ export default class BookingFormPage extends Component {
                   fullWidth={true}
                 />
                 <div id="yearMsg">Please don't leave it empty and not more than 4 digit.</div>
+              </div>
+              <p style={styles.titleStyle}>Payment</p>
+              <div className="content-padding">
+                <TextField
+                  floatingLabelText="Deposit"
+                  floatingLabelFixed={true}
+                  type="text"
+                  name="r-deposit"
+                  id="r-deposit"
+                  defaultValue={0}
+                  fullWidth={true}
+                  readOnly={true}
+                />
+                <input id="deposit" name="deposit" type="text" style={styles.hide} />
+                <TextField
+                  floatingLabelText="Rates Per Person"
+                  floatingLabelFixed={true}
+                  type="text"
+                  name="r-rpp"
+                  id="r-rpp"
+                  defaultValue={0}
+                  fullWidth={true}
+                  readOnly={true}
+                />
+                <input id="rates_per_person" name="rates_per_person" type="text" style={styles.hide} />              
+                <TextField
+                  floatingLabelText="Total"
+                  floatingLabelFixed={true}
+                  type="text"
+                  name="r-payment"
+                  id="r-payment"
+                  defaultValue={0}
+                  fullWidth={true}
+                  readOnly={true}
+                />
+                <input id="payment" name="payment" type="text" style={styles.hide} /> 
               </div>
               <RaisedButton 
                 label="GO!"

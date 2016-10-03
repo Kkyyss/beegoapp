@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Card, CardActions, CardTitle} from 'material-ui/Card';
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import Divider from 'material-ui/Divider';
+import Chip from 'material-ui/Chip';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -38,6 +39,9 @@ const styles = {
     margin: '10px 0 10px 0',
     padding: '0 10px 0 10px',
   },
+  textField: {
+    width: 'auto',
+  },
   wall: {
     marginLeft: '10px',
   },
@@ -59,12 +63,13 @@ const styles = {
     color: 'white',
     backgroundColor: 'black',
     padding: 10,
+    margin: 0,
   },
   blockCenter: {
     display: 'flex',
     flexWrap: 'wrap',
-    // alignItems: 'center',
-    // justifyContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
     // padding: '0 15px 0 15px',
   },
   blockContent: {
@@ -95,9 +100,15 @@ const styles = {
     color: '#1A237E',
     fontStyle: 'normal',
   },
-  // floatingLabelFocusStyle: {
-
-  // }
+  textLeft: {
+    textAlign: 'left',
+  },
+  textRight: {
+    textAlign: 'right',
+  },
+  bottomLine: {
+    borderBottom: '1px solid #a4a4a6',
+  },
 };
 
 export default class UserRequestConsolePage extends Component {
@@ -119,13 +130,18 @@ export default class UserRequestConsolePage extends Component {
 
     function viewRequestResize() {
       var windowHeight = $(window).height();
-      var viewRequestBox = $('#view-request-box'); 
+      var viewRequestBox = $('#view-request-box');
+      var paymentBox = $('#payment-box');
       var windowWidth = $(window).width();      
       viewRequestBox.width(windowWidth * 0.8);
       viewRequestBox.height(windowHeight * 0.8);
+      paymentBox.width(windowWidth * 0.8);
+      paymentBox.height(windowHeight * 0.8);
+      var dialogContentHeight = viewRequestBox.height() - 140;
+      $('.dialog-content').height(dialogContentHeight);
     }
     $('#bg-overlay, #cancel-btn').on('click', function() {
-      $('#bg-overlay, #view-request-box').css('display', 'none');
+      $('#bg-overlay, #view-request-box, #payment-box').css('display', 'none');
     });
 
     function updateRequestList() {
@@ -160,102 +176,194 @@ export default class UserRequestConsolePage extends Component {
     return (
       <div>
         <div id="bg-overlay"></div>
-        <Paper id="view-request-box" zDepth={2}>
-          <button 
-            id="cancel-btn"
-            style={styles.cancelBtnStyle}
-            className="fa fa-times"
-          >
-          </button>          
+        <div id="view-request-box">
+          <div className="dialog-header">
           <h1 style={styles.textCenter}>View Request</h1>
-          <h1 style={styles.bgColor}>User Details</h1>          
-          <div style={styles.blockContent}>
-                <TextField
-                  id="view-user-name"
-                  floatingLabelText="Full Name"
-                  floatingLabelFixed={true}
-                  underlineShow={false}
-                  readOnly={true}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />        
-                <TextField
-                  id="view-user-gender"
-                  floatingLabelText="Gender"
-                  floatingLabelFixed={true}
-                  underlineShow={false}
-                  readOnly={true}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />
-                <TextField
-                  id="view-user-contactno"
-                  floatingLabelText="Contact No."
-                  floatingLabelFixed={true}
-                  underlineShow={false}
-                  readOnly={true}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />           
-                <TextField
-                  id="view-user-location"
-                  floatingLabelText="Permanent Address"
-                  floatingLabelFixed={true}
-                  underlineShow={false}
-                  readOnly={true}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />
-                <TextField
-                  id="view-user-month"
-                  floatingLabelText="Session Month"
-                  floatingLabelFixed={true}
-                  underlineShow={false}
-                  readOnly={true}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />  
-                <TextField
-                  id="view-user-year"
-                  floatingLabelText="Session Year"
-                  floatingLabelFixed={true}
-                  underlineShow={false}
-                  readOnly={true}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />
-            </div>
-            <h1 style={styles.bgColor}>Room Details</h1> 
-            <div style={styles.blockContent}>
-                <TextField
-                  id="view-rd"
-                  floatingLabelText="Request Date"
-                  floatingLabelFixed={true}
-                  underlineShow={false}
-                  readOnly={true}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                /> 
-                <TextField
-                  id="view-tp"
-                  floatingLabelText="Types Of Rooms"
-                  floatingLabelFixed={true}
-                  underlineShow={false}
-                  readOnly={true}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />
-                <TextField
-                  id="view-s"
-                  floatingLabelText="Status"
-                  floatingLabelFixed={true}
-                  underlineShow={false}
-                  readOnly={true}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />
-                <TextField
-                  id="view-dmd"
-                  floatingLabelText="Decision Made On"
-                  floatingLabelFixed={true}
-                  underlineShow={false}
-                  readOnly={true}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />
           </div>
-          <br/>
-        </Paper>
+          <div className="dialog-content">
+            <h1 style={styles.bgColor}>User Details</h1>
+            <div style={styles.blockContent}>
+                  <TextField
+                    id="view-user-name"
+                    floatingLabelText="Full Name"
+                    floatingLabelFixed={true}
+                    underlineShow={false}
+                    readOnly={true}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                  />        
+                  <TextField
+                    id="view-user-gender"
+                    floatingLabelText="Gender"
+                    floatingLabelFixed={true}
+                    underlineShow={false}
+                    readOnly={true}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                  />
+                  <TextField
+                    id="view-user-contactno"
+                    floatingLabelText="Contact No."
+                    floatingLabelFixed={true}
+                    underlineShow={false}
+                    readOnly={true}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                  />           
+                  <TextField
+                    id="view-user-location"
+                    floatingLabelText="Permanent Address"
+                    floatingLabelFixed={true}
+                    underlineShow={false}
+                    readOnly={true}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                  />
+                  <TextField
+                    id="view-user-month"
+                    floatingLabelText="Session Month"
+                    floatingLabelFixed={true}
+                    underlineShow={false}
+                    readOnly={true}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                  />  
+                  <TextField
+                    id="view-user-year"
+                    floatingLabelText="Session Year"
+                    floatingLabelFixed={true}
+                    underlineShow={false}
+                    readOnly={true}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                  />
+              </div>
+              <h1 style={styles.bgColor}>Room Details</h1> 
+              <div style={styles.blockContent}>
+                  <TextField
+                    id="view-rd"
+                    floatingLabelText="Request Date"
+                    floatingLabelFixed={true}
+                    underlineShow={false}
+                    readOnly={true}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                  /> 
+                  <TextField
+                    id="view-tp"
+                    floatingLabelText="Types Of Rooms"
+                    floatingLabelFixed={true}
+                    underlineShow={false}
+                    readOnly={true}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                  />
+                  <TextField
+                    id="view-s"
+                    floatingLabelText="Status"
+                    floatingLabelFixed={true}
+                    underlineShow={false}
+                    readOnly={true}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                  />
+                  <TextField
+                    id="view-dmd"
+                    floatingLabelText="Decision Made On"
+                    floatingLabelFixed={true}
+                    underlineShow={false}
+                    readOnly={true}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                  />
+                  <TextField
+                    id="view-dp"
+                    floatingLabelText="Deposit(RM)"
+                    floatingLabelFixed={true}
+                    underlineShow={false}
+                    readOnly={true}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                  />
+                  <TextField
+                    id="view-rpp"
+                    floatingLabelText="Rates Per Person(RM)"
+                    floatingLabelFixed={true}
+                    underlineShow={false}
+                    readOnly={true}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                  />
+                  <TextField
+                    id="view-py"
+                    floatingLabelText="Payment(RM)"
+                    floatingLabelFixed={true}
+                    underlineShow={false}
+                    readOnly={true}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                  />                
+            </div>
+          </div>
+          <div className="dialog-footer">
+          <RaisedButton
+            id="cancel-btn"
+            label="Cancel"
+            secondary={true}
+            style={styles.rightAlign}
+          />
+          <div style={styles.clearFix}></div>
+          </div>
+        </div>
+        <div id="payment-box">
+          <div className="dialog-header">
+            <h1 style={styles.textCenter}>Payment</h1>
+          </div>
+          <div className="dialog-content">
+            <div className="table-hero">
+              <div className="tableWrapperPay">
+              <form id="payment-form">
+                <table className="tableBody">
+                  <tbody>
+                      <tr>
+                        <td>
+                          <TextField
+                            id="card-no"
+                            floatingLabelText="Card Number"
+                            style={styles.textField}
+                          />
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>
+              </form>
+              </div>
+              <div className="tableWrapperNap">
+                <table className="tableBody">
+                  <tbody>
+                  <tr>
+                    <td></td>
+                    <td style={styles.textLeft}>Deposit</td>
+                    <td style={styles.textRight}><span id="payment-dp"></span></td>
+                  </tr>
+                  <tr style={styles.bottomLine}>
+                    <td><FontIcon className="fa fa-plus" /></td>
+                    <td style={styles.textLeft} >Rates Per Person</td>
+                    <td style={styles.textRight}><span id="payment-rpp"></span></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td style={styles.textLeft} >Payment</td>
+                    <td style={styles.textRight}><span id="payment-amount"></span></td>
+                  </tr>
+                  <tr style={styles.bottomLine}>
+                    <td><FontIcon className="fa fa-plus" /></td>
+                    <td style={styles.textLeft} >Amount B/F</td>
+                    <td style={styles.textRight}><span id="user-balance"></span></td>
+                  </tr>
+                  <tr style={styles.bottomLine}>
+                    <td></td>
+                    <td style={styles.textLeft} >Net Amount Payable</td>
+                    <td style={styles.textRight}><span id="net-amount-payable"></span></td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div className="clearfix"></div>
+            <div style={styles.blockContent}>
+            </div>
+          </div>
+          <div className="dialog-footer">
+          </div>
+        </div>        
         <div id="card-wrapper" className="wrapper-margin">
           <Card id="card" style={styles.cardSize}>
             <div style={styles.toolBar}>

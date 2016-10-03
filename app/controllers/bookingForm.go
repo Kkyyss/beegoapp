@@ -61,6 +61,9 @@ func (self *BookingFormController) Post() {
 		user    models.User
 		err     error
 		userId  int
+		payment float64
+		deposit float64
+		ratespp float64
 	)
 
 	room = models.Room{
@@ -90,13 +93,20 @@ func (self *BookingFormController) Post() {
 		goto Response
 	}
 
+	deposit, _ = strconv.ParseFloat(self.GetString("deposit"), 64)
+	ratespp, _ = strconv.ParseFloat(self.GetString("rates_per_person"), 64)
+	payment, _ = strconv.ParseFloat(self.GetString("payment"), 64)
+
 	request = models.Request{
-		Campus:       self.GetString("campus"),
-		SessionMonth: self.GetString("session-month"),
-		SessionYear:  self.GetString("session-year"),
-		TypesOfRooms: self.GetString("types-of-rooms"),
-		Status:       "Processing",
-		User:         &user,
+		Campus:         self.GetString("campus"),
+		SessionMonth:   self.GetString("session-month"),
+		SessionYear:    self.GetString("session-year"),
+		TypesOfRooms:   self.GetString("types-of-rooms"),
+		Status:         "Processing",
+		Payment:        payment,
+		Deposit:        deposit,
+		RatesPerPerson: ratespp,
+		User:           &user,
 	}
 	beego.Debug(request)
 	err = request.InsertRequest()

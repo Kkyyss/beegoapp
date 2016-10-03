@@ -338,105 +338,6 @@ export default class UserAccountPage extends Component {
       );
     }
 
-    var rpBtn = $('#password-submit-btn');
-    var rpForm = $('form[name="password"]');
-    rpBtn.click(submitResetPassword);
-    wrapFunc.DisabledFormSubmitByEnterKeyDown(rpBtn);
-
-    function submitResetPassword(e) {
-      e.preventDefault();
-      var finalValidation = validFunc(rpOldPasswordVrf()) & 
-                            validFunc(rpNewPasswordVrf());
-               // & validFunc(phoneVrf());
-      if (!finalValidation) {
-        return false;
-      }
-
-      ajax({
-        url   : "/user/reset_password",
-        method  : "PUT",
-        data  : rpBtn.serialize(),
-        cache: false,
-        beforeSend: function() {
-          wrapFunc.LockScreen(rpBtn, rpBtn, true);
-        },
-        success: function(res) {
-          rpBtn[0].reset();
-          if (res == null) {
-            wrapFunc.LockScreen(rpBtn, rpBtn, false);
-            swal({
-              title: 'Success',
-                text: 
-                  "Your password has been updated successfully!",
-                type: 'success',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-            }).done();
-          } else {
-            wrapFunc.LockScreen(rpBtn, rpBtn, false);
-            wrapFunc.AlertStatus(
-              'Oops...',
-              res,
-              'warning',
-              false,
-              false
-            );
-            return;
-          }
-        }
-      });
-      return;
-    }
-
-    var rpNewPassword = $('input[name="new-password"]');
-    var newPwdMsg = $('#newPwdMsg');
-    rpNewPassword.bind({
-      "input focusout": rpNewPasswordVrf, 
-    });
-
-
-    function rpNewPasswordVrf() {
-      var plainText = rpNewPassword.val().trim(); 
-      isValid = wrapFunc.BasicValidation(
-        (plainText).match(/[\S]{8,}/g),
-        newPwdMsg,
-        "Use at least 8 characters (spacing is not counted).",
-        rpNewPassword
-      )
-      if (!isValid) {
-        return;
-      }
-      wrapFunc.MeetRequirement(
-        rpNewPassword, 
-        newPwdMsg, 
-        "Use at least 8 characters (spacing is not counted)."
-      );
-    }
-
-    var rpOldPassword = $('input[name="old-password"]');
-    var oldPwdMsg = $('#oldPwdMsg');
-    rpOldPassword.bind({
-      "input focusout": rpOldPasswordVrf, 
-    });
-
-    function rpOldPasswordVrf() {
-      var plainText = rpOldPassword.val().trim();
-      isValid = wrapFunc.BasicValidation(
-        plainText,
-        oldPwdMsg,
-        "Don't leave it empty.",
-        rpOldPassword
-      )
-      if (!isValid) {
-        return;
-      }
-      wrapFunc.MeetRequirement(
-        rpOldPassword, 
-        oldPwdMsg, 
-        "Don't leave it empty."
-      );
-    }
-
     var resendBtn = $('#resend-btn');
     resendBtn.on('click', resendActivationEmail);
 
@@ -596,6 +497,17 @@ export default class UserAccountPage extends Component {
                             readOnly={true}
                           />
                           <TextField
+                            floatingLabelText="Balance"
+                            floatingLabelFixed={true}
+                            fullWidth={true}
+                            id="user-balance"
+                            name="user-balance"
+                            type="text"
+                            readOnly={true}
+                            floatingLabelStyle={styles.floatingLabelStyle}
+                          />
+                          <br/>                          
+                          <TextField
                             floatingLabelText="Campus"
                             floatingLabelFixed={true}
                             fullWidth={true}
@@ -693,63 +605,6 @@ export default class UserAccountPage extends Component {
                       label="Go!"
                       id="account-submit-btn"
                     />            
-                  </CardActions>
-                </div>
-              </div>
-            </Tab>
-            <Tab
-              id="password-tab"
-              style={styles.tabStyle}
-              icon={<FontIcon className="fa fa-key" />}
-              label="Password" 
-            >
-              <div style={styles.root}>
-                <div className="card-content" style={styles.contentPadding}>
-                  <CardTitle title="Password" />
-                  <br/>
-                  <GridList
-                    cols={2}
-                    cellHeight={280}
-                  >
-                    <GridTile
-                      cols={2}
-                      rows={1}
-                    >
-                      <form name="password">
-                        <TextField
-                          style={styles.hide}
-                          id="password-email"
-                          name="password-email"
-                          type="email"
-                          readOnly={true}
-                        />                
-                        <TextField
-                          placeholder="Old Password"
-                          id="old-password"
-                          name="old-password"
-                          type="password"
-                          fullWidth={true}
-                        />
-                        <div id="oldPwdMsg">Don't leave it empty.</div>
-                        <TextField
-                          placeholder="New Password"
-                          id="new-password"
-                          name="new-password"
-                          type="password"
-                          fullWidth={true}
-                        />
-                        <div id="newPwdMsg">Use at least 8 characters (spacing is not counted).</div>
-                      </form>
-                    </GridTile>
-                  </GridList>
-                  <Divider />
-                  <CardActions>
-                    <RaisedButton
-                      primary={true}
-                      fullWidth={true}
-                      label="Go!"
-                      id="password-submit-btn"
-                    />
                   </CardActions>
                 </div>
               </div>

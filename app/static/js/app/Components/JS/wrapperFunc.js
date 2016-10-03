@@ -341,21 +341,26 @@ window.Wrapper = {
         },
         afterRender: function() {
           var cancelRequestBtn = $('.cancelRequestButton'),
+          paymentBtn = $('.paymentButton'),
           viewRequestBtn = $('.viewRequestButton');
 
           searchBox.unbind('input', SearchUserRequestQuery);
           cancelRequestBtn.unbind('click', cancelRequest);
+          paymentBtn.unbind('click', madePayment);
           viewRequestBtn.unbind('click', viewRequest);
 
           searchBox.bind('input', SearchUserRequestQuery);
           cancelRequestBtn.bind('click', cancelRequest);
+          paymentBtn.bind('click', madePayment);
           viewRequestBtn.bind('click', viewRequest);
         },
         afterPaging: function() {
           var cancelRequestBtn = $('.cancelRequestButton'),
+          paymentBtn = $('.paymentButton'),
           viewRequestBtn = $('.viewRequestButton');
 
           cancelRequestBtn.on('click', cancelRequest);
+          paymentBtn.on('click', madePayment);
           viewRequestBtn.on('click', viewRequest);
         }
     });
@@ -495,6 +500,9 @@ window.Wrapper = {
     searchUserOption = ds;
     SearchUserQuery();
   },
+  SetUpEditUser: function() {
+
+  },
 }
 
 function setObjectCss(object, selector, value) {
@@ -558,6 +566,9 @@ function requestListTemplate(data) {
     '<span id="request-sm" class="hide">' + item.SessionMonth + '</span>' +
     '<span id="request-sy" class="hide">' + item.SessionYear + '</span>' +
     '<span id="request-tp" class="hide">' + item.TypesOfRooms + '</span>' +
+    '<span id="request-dp" class="hide">' + item.Deposit + '</span>' +
+    '<span id="request-rpp" class="hide">' + item.RatesPerPerson + '</span>' +
+    '<span id="request-py" class="hide">' + item.Payment + '</span>' +
     '<span id="request-s" class="paraStyle">' + item.Status + '</span>' +
     '<span id="request-dmd" class="hide">' + moment(item.DicisionMadeDate).format('MMMM Do YYYY') + '</span>' +
     '<span id="request-user-id" class="hide">' + item.User.Id + '</span>' +
@@ -674,23 +685,29 @@ function userListTemplate(data) {
 function userRequestListTemplate(data) {
   var html = '';
   $.each(data, function(index, item){
-    var Isprocess = (item.Status === 'Processing' || item.Status === 'Approved') ? '<button type="button" class="cancelRequestButton">Cancel</button>' : "";
+    var Isprocess = (item.Status === 'Approved') ? '<button type="button" class="paymentButton">Payment</button>' : "";
+    Isprocess += (item.Status === 'Processing' || item.Status === 'Approved') ? '<button type="button" class="cancelRequestButton">Cancel</button>' : "";
     html += '<div class="request-list-style">'+
     '<span id="request-id" class="hide">' + item.Id + '</span>' +
     '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('MMMM Do YYYY') + '</span>' +
-    '<span id="request-sm" class="hide">' + item.SessionMonth + '</span>' + 
+    '<span id="request-sm" class="hide">' + item.SessionMonth + '</span>' +
     '<span id="request-sy" class="hide">' + item.SessionYear + '</span>' +
     '<span id="request-tp" class="hide">' + item.TypesOfRooms + '</span>' +
+    '<span id="request-dp" class="hide">' + item.Deposit + '</span>' +
+    '<span id="request-rpp" class="hide">' + item.RatesPerPerson + '</span>' +
+    '<span id="request-py" class="hide">' + item.Payment + '</span>' +
     '<span id="request-s" class="paraStyle">' + item.Status + '</span>' +
     '<span id="request-dmd" class="hide">' + moment(item.DicisionMadeDate).format('MMMM Do YYYY') + '</span>' +
-    '<span id="request-user-id" class="hide">' + item.User.Id + '</span>' +      
-    '<span id="request-user-name" class="hide">' + item.User.Name + '</span>' + 
-    '<span id="request-user-gender" class="hide">' + item.User.Gender + '</span>' +    
-    '<span id="request-user-email" class="hide">' + item.User.Email + '</span>' +    
-    '<span id="request-user-location" class="hide">' + item.User.Location + '</span>' +    
-    '<span id="request-user-contactno" class="hide">' + item.User.ContactNo + '</span>' +    
-    '<span id="request-user-avatar" class="hide">' + item.User.AvatarUrl + '</span>' +    
-    '<div class="rightAlignment">' +    
+    '<span id="request-user-id" class="hide">' + item.User.Id + '</span>' +
+    '<span id="request-user-name" class="hide">' + item.User.Name + '</span>' +
+    '<span id="request-user-balance" class="hide">' + item.User.Balance + '</span>' +
+    '<span id="request-user-gender" class="hide">' + item.User.Gender + '</span>' +
+    '<span id="request-user-email" class="hide">' + item.User.Email + '</span>' +
+    '<span id="request-user-location" class="hide">' + item.User.Location + '</span>' +
+    '<span id="request-user-contactno" class="hide">' + item.User.ContactNo + '</span>' +
+    '<span id="request-user-avatar" class="hide">' + item.User.AvatarUrl + '</span>' +
+    '<span id="request-nap" class="hide">' + (item.Payment - item.User.Balance) + '</span>' +
+    '<div class="rightAlignment">' +
     '<button type="button" class="viewRequestButton">View</button>' +
     Isprocess +
     '</div>' +
@@ -943,6 +960,9 @@ function viewRequest(e) {
   } else {
     $('#view-dmd').val(dmd);
   }
+  $('#view-dp').val(thisObj.children("#request-dp").text());
+  $('#view-rpp').val(thisObj.children("#request-rpp").text());
+  $('#view-py').val(thisObj.children("#request-py").text()); 
 }
 
 function SearchRoomQuery() {
@@ -1120,8 +1140,9 @@ function removeBooked(e) {
 
 function viewBooked(e) {
   e.preventDefault();
-
+  var thisObj = $(this).parent().parent();
   $('#bg-overlay, #view-booked-box').css('display', 'block');
+
 }
 
 function updateBookedView() {
@@ -1274,6 +1295,17 @@ function updateUserView() {
       wrapFunc.LoadingSwitch(false);
     }
   });
+}
+
+function madePayment(e) {
+  e.preventDefault();
+  var thisObj = $(this).parent().parent();
+  $('#bg-overlay, #payment-box').css('display', 'block');
+  $('#payment-dp').text(thisObj.children('#request-dp').text());
+  $('#payment-rpp').text(thisObj.children('#request-rpp').text());
+  $('#payment-amount').text(thisObj.children('#request-py').text());
+  $('#user-balance').text(thisObj.children('#request-user-balance').text());
+  $('#net-amount-payable').text(thisObj.children('#request-nap').text());
 }
 
 function cancelRequest(e) {

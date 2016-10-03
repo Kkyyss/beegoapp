@@ -55,7 +55,7 @@ export default class AddRoomDialog extends Component {
 
   state = {
     open: false,
-    campusValue: "ALL",
+    campusValue: "IU",
     roomTypeValue: "",
     disabled: false,
     roomTypeDisabled: false,
@@ -280,7 +280,6 @@ export default class AddRoomDialog extends Component {
           <form id="add-room-form" style={styles.formStyle} className="add-room-style">
             <div>Campus&nbsp;
               <DropDownMenu maxHeight={250} id="campusDropDown" value={this.state.campusValue} onChange={this.handleCampusChange} disabled={this.state.disabled}>
-                <MenuItem value={"ALL"} primaryText="ALL" />
                 <MenuItem value={"IU"} primaryText="IU" />
                 <MenuItem value={"IICS"} primaryText="IICS" />
                 <MenuItem value={"IICKL"} primaryText="IICKL" />

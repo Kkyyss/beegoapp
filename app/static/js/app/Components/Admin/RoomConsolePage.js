@@ -66,7 +66,16 @@ const styles = {
   floatingLabelStyle: {
     color: '#1A237E',
     fontStyle: 'normal',
-  },  
+  },
+  button: {
+    margin: '10px',
+  },
+  buttonRight: {
+    float: 'right',
+  },
+  clear: {
+    both: 'clear',
+  },
 };
 
 const iuRoomTypes = [
@@ -154,6 +163,9 @@ export default class AdminConsolePage extends Component {
       var windowWidth = $(window).width();
       editRoomBox.width(windowWidth * 0.8);
       editRoomBox.height(windowHeight * 0.8);
+      console.log(editRoomBox.height());
+      var dialogContentHeight = editRoomBox.height() - 140;
+      $('.dialog-content').height(dialogContentHeight);
     }
     $('#bg-overlay, #cancel-btn').on('click', function() {
       $('#bg-overlay, #edit-room-box').css('display', 'none');
@@ -205,9 +217,11 @@ export default class AdminConsolePage extends Component {
     return (
       <div>
         <div id="bg-overlay"></div>
-        <Paper id="edit-room-box" zDepth={2}>
-          <h1 style={styles.textCenter}>Edit Room</h1>
-          <hr/>
+        <div id="edit-room-box">
+          <div className="dialog-header">
+            <h1 style={styles.textCenter}>Edit Room</h1>
+          </div>      
+          <div className="dialog-content">
           <div className="edit-room-content">
             <form id="edit-room-form">
               <div>
@@ -258,23 +272,25 @@ export default class AdminConsolePage extends Component {
               </div>
             </form>
           </div>
-          <hr/>
-            <div className="edit-room-content">
+          </div>
+          <div className="dialog-footer">
+            <div style={styles.buttonRight}>
               <RaisedButton
                 id="cancel-btn"
                 label="Cancel"
-                fullWidth={true}
                 secondary={true}
-                style={styles.raisedButton}
+                style={styles.button}
               />
               <RaisedButton 
                 id="update-btn"
                 label="Update"
-                fullWidth={true}
                 primary={true}
+                style={styles.button}
               />
             </div>
-        </Paper>
+          </div>
+          <div style={styles.clear}></div>
+        </div>
         <div id="card-wrapper" className="wrapper-margin">
           <Card id="card" style={styles.cardSize}>
             <div style={styles.toolBar}>
