@@ -478,7 +478,7 @@ export default class Master extends Component {
               Admin
             </ListItem>     
             <Divider />
-            <Subheader>User</Subheader>                               
+            <Subheader>User</Subheader>
             <ListItem
               id="sidebar-user-item"
               primaryTogglesNestedList={true}

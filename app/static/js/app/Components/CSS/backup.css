@@ -180,8 +180,13 @@
         padding: 30px 15% 30px 15% !important;
     }
     td,th {
-        font-size: 16px !important;
+        font-size: 12px !important;
     }
+    .view-content-card {
+        width: 90% !important;
+        margin-left: 5% !important;
+        margin-right: 5% !important;
+    } 
 }
 
 #user-menu {
@@ -511,6 +516,13 @@
 .table-hero {
     width: 80%;
     margin-left: 10%;
+    margin-right: 10%;
+}
+
+.view-content-card {
+    width: 60%;
+    padding: 20px;
+    margin: 20px 20% 20px 20%;
 }
 
 .tableWrapperPay {

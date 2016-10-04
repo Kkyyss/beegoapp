@@ -19,7 +19,7 @@ var roomDataSource,
 
 var searchRoomOption = ["RoomNo"],
 searchRequestOption = ["Status"],
-searchBookedOption = ["RoomNo"],
+searchBookedOption = ["Room.RoomNo"],
 searchUserRequestOption = ["Status"],
 searchRoomTypeOption = ["Campus"],
 searchUserOption = ["StudentId"];    
@@ -508,6 +508,18 @@ window.Wrapper = {
     searchRoomOption = ds;
     SearchRoomQuery();
   },
+  SetUpRequestSearchOption: function(ds) {
+    searchRequestOption = ds;
+    SearchRequestQuery();
+  },
+  SetUpUserRequestSearchOption: function(ds) {
+    searchUserRequestOption = ds;
+    SearchUserRequestQuery();
+  },
+  SetUpBookedSearchOption: function(ds) {
+    searchBookedOption = ds;
+    SearchBookedQuery();
+  },
   SetUpEditUser: function() {
 
   },
@@ -580,6 +592,7 @@ function requestListTemplate(data) {
     '<span id="request-dmd" class="hide">' + moment(item.DicisionMadeDate).format('MMMM Do YYYY') + '</span>' +
     '<span id="request-user-id" class="hide">' + item.User.Id + '</span>' +
     '<span id="request-user-name" class="paraStyle">' + item.User.Name + '</span>' +
+    '<span id="request-user-si" class="paraStyle">' + item.User.StudentId + '</span>' +
     '<span id="request-user-gender" class="hide">' + item.User.Gender + '</span>' +
     '<span id="request-user-email" class="hide">' + item.User.Email + '</span>' +
     '<span id="request-user-location" class="hide">' + item.User.Location + '</span>' +
@@ -706,6 +719,7 @@ function userRequestListTemplate(data) {
     '<span id="request-dmd" class="hide">' + moment(item.DicisionMadeDate).format('MMMM Do YYYY') + '</span>' +
     '<span id="request-user-id" class="hide">' + item.User.Id + '</span>' +
     '<span id="request-user-name" class="hide">' + item.User.Name + '</span>' +
+    '<span id="request-user-si" class="paraStyle">' + item.User.StudentId + '</span>' +
     '<span id="request-user-balance" class="hide">' + item.User.Balance + '</span>' +
     '<span id="request-user-gender" class="hide">' + item.User.Gender + '</span>' +
     '<span id="request-user-email" class="hide">' + item.User.Email + '</span>' +
@@ -941,6 +955,7 @@ function viewRequest(e) {
   var thisObj = $(this).parent().parent();
   $('#bg-overlay, #view-request-box').css('display', 'block');
   $('#view-user-name').val(thisObj.children("#request-user-name").text());
+  $('#view-user-si').val(thisObj.children("#request-user-si").text());
   $('#view-user-gender').val(thisObj.children("#request-user-gender").text());
   $('#view-user-contactno').val(thisObj.children("#request-user-contactno").text());
   $('#view-user-location').val(thisObj.children("#request-user-location").text());
@@ -991,7 +1006,7 @@ function SearchRequestQuery() {
     return;
   }
   var options = {
-    caseSensitive: true,
+    caseSensitive: false,
     shouldSort: true,
     threshold: 0.6,
     location: 0,
@@ -1014,7 +1029,7 @@ function SearchBookedQuery() {
     return;
   }      
   var options = {
-    caseSensitive: true,
+    caseSensitive: false,
     shouldSort: true,
     threshold: 0.6,
     location: 0,
@@ -1037,7 +1052,7 @@ function SearchUserRequestQuery() {
     return;
   }
   var options = {
-    caseSensitive: true,
+    caseSensitive: false,
     shouldSort: true,
     threshold: 0.6,
     location: 0,
@@ -1137,6 +1152,13 @@ function viewBooked(e) {
   var thisObj = $(this).parent().parent();
   $('#bg-overlay, #view-booked-box').css('display', 'block');
 
+  $('#view-booked-name').text(thisObj.children("#booked-name").text());
+  $('#view-booked-si').text(thisObj.children('#booked-student-id').text());
+    // '<span id="booked-name" class="paraStyle">' + item.Name + '</span>' +
+    // '<span id="booked-student-id" class="hide">' + item.StudentId + '</span>' +
+    // '<span id="booked-cp" class="paraStyle">' + item.Room.Campus + '</span>' +
+    // '<span id="booked-tor" class="paraStyle">' + item.Room.TypesOfRooms + '</span>' +
+    // '<span id="booked-rn" class="paraStyle">' + item.Room.RoomNo + '</span>' +
 }
 
 function updateBookedView() {
