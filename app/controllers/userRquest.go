@@ -54,6 +54,27 @@ func (self *UserRequestController) Get() {
 	self.TplName = "index.tpl"
 }
 
+func (self *UserRequestController) Post() {
+	var errMsg string
+
+	userId, _ := strconv.Atoi(self.GetString("usr-id"))
+	requestId, _ := strconv.Atoi(self.GetString("req-id"))
+	request := models.Request{
+		Id:     requestId,
+		Status: "Paid Off",
+	}
+
+	errMsg = request.UpdateStatus(userId)
+
+	if errMsg != "" {
+		self.Data["json"] = errMsg
+		self.ServeJSON()
+	}
+
+	self.Data["json"] = errMsg
+	self.ServeJSON()
+}
+
 func (self *UserRequestController) Put() {
 	var errMsg string
 	var ob interface{}

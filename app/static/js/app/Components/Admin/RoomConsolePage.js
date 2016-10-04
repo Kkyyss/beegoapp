@@ -6,10 +6,15 @@ import MenuItem from 'material-ui/MenuItem';
 import FontIcon from 'material-ui/FontIcon';
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import AddRoomDialog from "./RoomComponents/AddRoomDialog.js";
+import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
 import AutoComplete from 'material-ui/AutoComplete';
 import Toggle from 'material-ui/Toggle';
 import Paper from 'material-ui/Paper';
+import IconButton from 'material-ui/IconButton';
+import FlatButton from 'material-ui/FlatButton';
+import Divider from 'material-ui/Divider';
+import Checkbox from 'material-ui/Checkbox';
 
 require('../CSS/pagination.css');
 
@@ -17,6 +22,9 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var items = [];
+var options = [];
+var optionsIndex = [1];
 
 const styles = {
   cardSize: {
@@ -28,22 +36,8 @@ const styles = {
   contentStyle: {
     padding:'25px',
   },
-  toolBar: {
-    backgroundColor: '#E1BEE7',
-    paddingLeft: '10px',
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
   textCenter: {
     textAlign: 'center',
-  },
-  inputStyle: {
-    // border: 'none',
-    fontSize: '20px',
-    outline: 'none',
-    border: 'none',
-    margin: '10px 0 10px 0',
-    padding: '0 10px 0 10px',
   },
   inputFieldStyle: {
     width: 'auto',
@@ -67,14 +61,52 @@ const styles = {
     color: '#1A237E',
     fontStyle: 'normal',
   },
-  button: {
-    margin: '10px',
-  },
   buttonRight: {
     float: 'right',
   },
   clear: {
     both: 'clear',
+  },
+  balanceStyle: {
+    display: 'flex',
+    marginBottom: 15,
+  },
+  inputStyle: {
+    // border: 'none',
+    fontSize: '20px',
+    outline: 'none',
+    border: 'none',
+    margin: '0 15px 0 15px',
+    padding: '15px 10px 15px 40px',
+  },
+  toolBarItem: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    padding: '0 15px 0 15px',
+  },
+  optionContentStyle: {
+    padding: 20,
+  },
+  checkbox: {
+    marginBottom: 16,
+  },
+  button: {
+    margin: '0 5px 0 5px',
+  },
+  title: {
+    textAlign: 'center',
+    padding: '10px 0 5px 0',
+  },  
+  wall: {
+    marginLeft: '10px',
+  },
+  rightAlign: {
+    float: 'right',      
+    margin: 10,
+  },
+  textRight: {
+    textAlign: 'right',
   },
 };
 
@@ -96,17 +128,192 @@ const iicsRoomTypes = [
   'Room A',
 ];
 
-var campusDataSource = iuRoomTypes;
+var campusDataSource = [];
 
 export default class AdminConsolePage extends Component {
   state = {
     value: "IU",
     disabled: false,
+    editUpdate: false,
+    refreshBtnDisabled: false,
+    optionDialogOpen: false,
+    optionsButton: false,
+    sortValue: "Campus",
+    roomTypeValue: "",
+    roomTypeDisabled: false, 
   };
 
-  handleChange = (event, index, value) => {
-    this.setState({value});
+  handleCampusChange = (event, index, value) => {
+    items = [];
+    this.changeResource(value);
   };
+
+  handleRoomTypeChange = (event, index, value) => {
+    this.setState({
+      roomTypeValue: value,
+    });
+  };
+
+  changeResource(value) {
+    this.getRoomByCampusOnChange(value);
+    if (this.state.disabled) {
+      return;
+    }
+    this.setState({
+      campusValue: value,
+    });
+  } 
+
+  getRoomByCampusOnChange(value) {
+    var campusState = {
+      userCampus: value
+    };
+
+    this.onAjaxRequest(campusState);
+  }
+
+  getRoomTypeList() {
+    var userState = {
+      userCampus: userData.campus
+    };
+
+    this.onAjaxRequest(userState);
+  }  
+
+  onAjaxRequest(us) {
+    var thisObj = this;
+    ajax({
+      url: "/api/view-room-type-list",
+      method: "POST",
+      cache: false,
+      data: JSON.stringify(us),
+      beforeSend: function() {
+        wrapFunc.LoadingSwitch(true);
+      },
+      success: function(res) {
+        wrapFunc.LoadingSwitch(false);
+        if (res.error != null) {
+          wrapFunc.AlertStatus(
+            "Oops...",
+            res.error,
+            "error",
+            false,
+            false
+          );
+          thisObj.setState({
+            roomTypeDisabled: true,
+          });
+        } else {
+          console.log(res.data);
+          thisObj.generateCampusItem(res.data);
+          thisObj.setState({
+            roomTypeDisabled: false,
+          });          
+        }
+      }
+    });
+  }
+
+  generateCampusItem(data) {
+    console.log(data);
+    for (let i = 0; i < data.length; i++ ) {
+      items.push(<MenuItem value={data[i].TypesOfRooms} key={data[i].TypesOfRooms} primaryText={data[i].TypesOfRooms} />);
+    }
+    this.setState({
+      roomTypeValue: data[0].TypesOfRooms,
+    });
+  }   
+
+  handleSortTypeChange = (event, index, value) => {
+    this.setState({
+      sortValue: value,
+    });
+  };
+
+  handleOptionDialogOpen = (e) => {
+    this.setState({
+      optionDialogOpen: true,
+    }, function() {
+      $.each(optionsIndex, function(index, value) {
+        if (value == 1) {
+          $($('#options-group').children()[index]).children().click();
+        }
+      });
+    });
+  };
+  handleOptionDialogClose = (e) => {
+    this.setState({
+      optionDialogOpen: false,
+    });
+  };
+
+  handleSearchOptionSubmit = (e) => {
+    this.setState({
+      optionsButton: true,
+    })
+    options = [];
+    optionsIndex = [];
+
+    if ($("#cr-no").is(":checked")) {
+      options.push("RoomNo");
+      optionsIndex.push(1);
+    } else {
+      optionsIndex.push(0);
+    } 
+
+    if ($("#cr-cp").is(":checked")) {
+      options.push("Campus");
+      optionsIndex.push(1);
+    } else {
+      optionsIndex.push(0);
+    }
+
+    if ($("#cr-tor").is(":checked")) {
+      options.push("TypesOfRooms");
+      optionsIndex.push(1);
+    } else {
+      optionsIndex.push(0);
+    }
+
+    if ($('#cr-dp').is(":checked")) {
+      options.push("Deposit");
+      optionsIndex.push(1);
+    } else {
+      optionsIndex.push(0);
+    }
+
+    if ($('#cr-rpp').is(':checked')) {
+      options.push("RatesPerPerson");
+      optionsIndex.push(1);
+    } else {
+      optionsIndex.push(0);
+    }
+
+    wrapFunc.SetUpRoomSearchOption(options);
+    this.setState({
+      optionDialogOpen: false,
+      optionsButton: false,
+    });    
+  };
+
+  refreshList = (e) => {
+    var thisObj = this;
+    thisObj.setState({
+      refreshBtnDisabled: true,
+    });
+    thisObj.updateRoomList();
+    $.when().then(function() {
+      thisObj.setState({
+        refreshBtnDisabled: false,
+      });
+    });
+  };
+
+  sortByCampus(a, b) {
+    var aCampus = a.Campus.toLowerCase();
+    var bCampus = b.Campus.toLowerCase();
+    return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
+  }
 
   componentDidMount() {
     var thisObj = this;
@@ -118,36 +325,12 @@ export default class AdminConsolePage extends Component {
           value: userCampus,
           disabled: true,
         });
-        thisObj.changeResource(userCampus);
       }
-
-      updateRoomList();
-    }); 
-
-    function updateRoomList() {
-      console.log(userData.campus);
-      var userState = {
-        userCampus: userData.campus,
-      };        
-      ajax({
-        url: "/api/view-room-list",
-        method: "POST",
-        cache: false,
-        data: JSON.stringify(userState),
-        beforeSend: function() {
-          wrapFunc.LoadingSwitch(true);
-        },
-        success: function(res) {
-          wrapFunc.LoadingSwitch(false);
-          if (res.error != null) {
-            $('#errMsg').text(res.error);
-          } else {
-            wrapFunc.SetRoomDataSource(res.data);
-            wrapFunc.PaginateRoomContent(res.data);           
-          }
-        }
+      thisObj.updateRoomList();
+      $.when().then(function() {
+        thisObj.getRoomTypeList();
       });
-    }
+    }); 
 
     $(window).resize(function() {
       $(window).trigger("window:resize");
@@ -168,6 +351,7 @@ export default class AdminConsolePage extends Component {
       $('.dialog-content').height(dialogContentHeight);
     }
     $('#bg-overlay, #cancel-btn').on('click', function() {
+      clearEditForm();
       $('#bg-overlay, #edit-room-box').css('display', 'none');
     });
 
@@ -175,9 +359,13 @@ export default class AdminConsolePage extends Component {
 
     function updateRoom(e) {
       e.preventDefault();
+      thisObj.setState({
+        editUpdate: true,
+      });
       var editRoomForm = $('#edit-room-form');
       var editCampus = $('#edit-campus');
       editCampus.val(thisObj.state.value);
+      $('#edit-types-of-rooms').val(thisObj.state.roomTypeValue);
       ajax({
         url: "/user/room-console",
         method: "PUT",
@@ -199,7 +387,8 @@ export default class AdminConsolePage extends Component {
             );
           } else {
             $('#bg-overlay, #edit-room-box').css('display', 'none');
-            updateRoomList();
+            clearEditForm();
+            thisObj.updateRoomList();
             wrapFunc.AlertStatus(
               "Success",
               "Update successfully!",
@@ -208,12 +397,62 @@ export default class AdminConsolePage extends Component {
               true
             );
           }
+          thisObj.setState({
+            editUpdate: false,
+          });
         }
       });
     }
+
+    function clearEditForm() {
+      console.log(items);
+      if (!$('#edit-available').is(":checked")) {
+        $('#edit-available').click();
+      }
+      $('#edit-room-no').val('');
+    }
   }
 
+  updateRoomList() {
+    console.log(userData.campus);
+    var userState = {
+      userCampus: userData.campus,
+    };        
+    ajax({
+      url: "/api/view-room-list",
+      method: "POST",
+      cache: false,
+      data: JSON.stringify(userState),
+      beforeSend: function() {
+        wrapFunc.LoadingSwitch(true);
+      },
+      success: function(res) {
+        wrapFunc.LoadingSwitch(false);
+        if (res.error != null) {
+          $('#errMsg').text(res.error);
+        } else {
+          wrapFunc.SetRoomDataSource(res.data);
+          wrapFunc.PaginateRoomContent(res.data);           
+        }
+      }
+    });
+  }  
+
   render() {
+    const actions = [
+      <FlatButton
+        label="Cancel"
+        primary={true}
+        onTouchTap={this.handleOptionDialogClose}
+      />,
+      <FlatButton
+        label="OK"
+        primary={true}
+        onTouchTap={this.handleSearchOptionSubmit}
+        disabled={this.state.optionsButton}
+      />,
+    ];
+
     return (
       <div>
         <div id="bg-overlay"></div>
@@ -222,88 +461,164 @@ export default class AdminConsolePage extends Component {
             <h1 style={styles.textCenter}>Edit Room</h1>
           </div>      
           <div className="dialog-content">
-          <div className="edit-room-content">
-            <form id="edit-room-form">
-              <div>
-                <input id="edit-room-id" name="edit-room-id" style={styles.hide} />
-                Campus&nbsp;
-                <DropDownMenu id="edit-campusDropDown" name="edit-campusDropDown" value={this.state.value} onChange={this.handleChange} disabled={this.state.disabled}>
-                  <MenuItem value={"IU"} primaryText="IU" />
-                  <MenuItem value={"IICS"} primaryText="IICS" />
-                  <MenuItem value={"IICKL"} primaryText="IICKL" />
-                  <MenuItem value={"IICP"} primaryText="IICP" />
-                </DropDownMenu>
-                <input id="edit-campus" name="edit-campus" type="text" style={styles.hide} />
-                <br/>
-                <AutoComplete
-                  id="edit-types-of-rooms"
-                  name="edit-types-of-rooms"
-                  floatingLabelText="Types of Rooms"
-                  floatingLabelFixed={true}
-                  filter={AutoComplete.caseInsensitiveFilter}
-                  openOnFocus={true}
-                  dataSource={campusDataSource}
-                  fullWidth={true}
-                  maxSearchResults={5}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                  underlineStyle={styles.underlineStyle}
-                  underlineFocusStyle={styles.underlineFocusStyle}                  
-                />
-                <br/>
-                <TextField
-                  id="edit-room-no"
-                  name="edit-room-no"
-                  floatingLabelText="Room No."
-                  type="text"
-                  fullWidth={true}
-                  floatingLabelFixed={true}
-                  underlineStyle={styles.underlineStyle}
-                  underlineFocusStyle={styles.underlineFocusStyle} 
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />
-                <br/>
-                <Toggle
-                  id="edit-available"
-                  name="edit-available"
-                  label="Available"
-                  defaultToggled={true}
-                  style={styles.toggle}
-                />              
+            <div className="table-hero">
+              <div className="current-wrapper">
+                <table className="tableBody">
+                  <tbody>
+                    <tr>
+                      <td>Campus</td>
+                      <td style={styles.textRight}><span id="current-campus"></span></td>
+                    </tr>
+                    <tr>
+                      <td>Types</td>
+                      <td style={styles.textRight}><span id="current-tor"></span></td>
+                    </tr>
+                    <tr>
+                      <td>Number</td>
+                      <td style={styles.textRight}><span id="current-no"></span></td>
+                    </tr>
+                    <tr>
+                      <td>Available</td>
+                      <td style={styles.textRight}><span id="current-av"></span></td>
+                    </tr>                                        
+                  </tbody>
+                </table>
               </div>
-            </form>
-          </div>
+              <div className="edit-form-wrapper">
+                <form id="edit-room-form">
+                  <div>
+                    <input id="edit-room-id" name="edit-room-id" style={styles.hide} />
+                    Campus&nbsp;
+                    <DropDownMenu id="edit-campusDropDown" name="edit-campusDropDown" value={this.state.value} onChange={this.handleCampusChange} disabled={this.state.disabled}>
+                      <MenuItem value={"IU"} primaryText="IU" />
+                      <MenuItem value={"IICS"} primaryText="IICS" />
+                      <MenuItem value={"IICKL"} primaryText="IICKL" />
+                      <MenuItem value={"IICP"} primaryText="IICP" />
+                    </DropDownMenu>
+                    <input id="edit-campus" name="edit-campus" type="text" style={styles.hide} />
+                    <br/><br/>
+                    Types&nbsp;
+                    <DropDownMenu maxHeight={250} id="editRoomTypesDropDown" value={this.state.roomTypeValue} onChange={this.handleRoomTypeChange} disabled={this.state.roomTypeDisabled}>
+                      {items}
+                    </DropDownMenu>
+                    <input id="edit-types-of-rooms" name="edit-types-of-rooms" type="text" style={styles.hide} />
+                    <br/>
+                    <TextField
+                      id="edit-room-no"
+                      name="edit-room-no"
+                      floatingLabelText="Room No."
+                      type="text"
+                      fullWidth={true}
+                      floatingLabelFixed={true}
+                      underlineStyle={styles.underlineStyle}
+                      underlineFocusStyle={styles.underlineFocusStyle} 
+                      floatingLabelStyle={styles.floatingLabelStyle}
+                    />
+                    <br/><br/>
+                    <Toggle
+                      id="edit-available"
+                      name="edit-available"
+                      label="Available"
+                      defaultToggled={true}
+                      style={styles.toggle}
+                    />              
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
           <div className="dialog-footer">
-            <div style={styles.buttonRight}>
-              <RaisedButton
-                id="cancel-btn"
-                label="Cancel"
-                secondary={true}
-                style={styles.button}
-              />
               <RaisedButton 
                 id="update-btn"
                 label="Update"
                 primary={true}
-                style={styles.button}
+                style={styles.rightAlign}
+                disabled={this.state.editUpdate}
               />
-            </div>
+              <RaisedButton
+                id="cancel-btn"
+                label="Cancel"
+                secondary={true}
+                style={styles.rightAlign}
+              />
           </div>
           <div style={styles.clear}></div>
         </div>
         <div id="card-wrapper" className="wrapper-margin">
           <Card id="card" style={styles.cardSize}>
-            <div style={styles.toolBar}>
-              <ToolbarTitle text="Room Console" />
-              <ToolbarSeparator />
-              <AddRoomDialog/>
-              <input 
-                id="search-box"
-                placeholder="Search"
-                style={styles.inputStyle}
+           <h1 style={styles.title}>Room Console</h1>
+          <div style={styles.balanceStyle}>
+            <input
+              id="search-box"
+              placeholder="Search"
+              style={styles.inputStyle}
+            />
+          </div>
+          <Divider/>
+          <div style={styles.toolBarItem}>
+            <IconButton
+              id="search-option"
+              style={styles.button}
+              iconClassName="fa fa-filter"
+              onTouchTap={this.handleOptionDialogOpen}
+              tooltip="Filter"
+              touch={true}
+            />
+            <Dialog
+              title="Search Options"
+              actions={actions}
+              modal={false}
+              open={this.state.optionDialogOpen}
+              onRequestClose={this.handleOptionDialogClose}
+              autoScrollBodyContent={true}
+            >
+            <div id="options-group" style={styles.optionContentStyle}>      
+              <Checkbox
+                label="Room Number"
+                id="cr-no"
+                style={styles.checkbox}
+              />                    
+              <Checkbox
+                label="Campus"
+                id="cr-cp"
+                style={styles.checkbox}
               />
-            </div>
-            <br/>
+              <Checkbox
+                label="Types Of Rooms"
+                id="cr-tor"
+                style={styles.checkbox}
+              />
+              <Checkbox
+                label="Deposit"
+                id="cr-dp"
+                style={styles.checkbox}
+              />
+              <Checkbox
+                label="Rates Per Person"
+                id="cr-rpp"
+                style={styles.checkbox}
+              />
+              </div>
+            </Dialog>
+                <IconButton
+                  id="refresh-list"
+                  style={styles.button}
+                  onTouchTap={this.refreshList}
+                  disabled={this.state.refreshBtnDisabled}
+                  iconClassName="fa fa-refresh"
+                  tooltip="Refresh"
+                  touch={true}
+                />          
+          <AddRoomDialog/>
+                <div style={styles.wall}>
+                Sort By&nbsp;
+                <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
+                  <MenuItem value={"Campus"} primaryText="Campus" />
+                </DropDownMenu>
+                </div>
+              </div>
+          <Divider/>
+          <br/>
             <div style={styles.contentStyle}>
               <div id="errMsg" style={styles.textCenter}></div>
               <div id="pagination-content"></div>

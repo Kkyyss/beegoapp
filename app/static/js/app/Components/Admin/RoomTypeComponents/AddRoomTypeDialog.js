@@ -9,6 +9,7 @@ import TextField from 'material-ui/TextField';
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import Toggle from 'material-ui/Toggle';
 import AutoComplete from 'material-ui/AutoComplete';
+import IconButton from 'material-ui/IconButton';
 
 import swal from 'sweetalert2';
 
@@ -31,6 +32,9 @@ const styles = {
   toggle: {
     marginBottom: 16,
   },
+  button: {
+    margin: '0 5px 0 5px',
+  },  
 };
 
 const iuRoomTypes = [
@@ -171,13 +175,14 @@ export default class AddRoomTypeDialog extends Component {
     ];
 
     return (
-      <ToolbarGroup>
-        <RaisedButton 
+      <div>
+        <IconButton 
           id="add-room-type-btn"
-          label="Add Room Type" 
-          primary={true}
-          icon={<FontIcon className="fa fa-plus" />}
+          iconClassName="fa fa-plus"
+          style={styles.button}
           onTouchTap={this.handleOpen}
+          tooltip="Add"
+          touch={true}
         />
         <Dialog
           title="Add Room Type"
@@ -231,7 +236,7 @@ export default class AddRoomTypeDialog extends Component {
             </div>
           </form>
         </Dialog>
-      </ToolbarGroup>
+      </div>
     );
   }
 }

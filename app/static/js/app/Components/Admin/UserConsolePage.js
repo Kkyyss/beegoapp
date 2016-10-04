@@ -105,6 +105,10 @@ const styles = {
   optionContentStyle: {
     padding: 20,
   },
+  rightAlign: {
+    float: 'right',      
+    margin: 10,
+  },  
 };
 
 export default class UserConsolePage extends Component {
@@ -269,6 +273,8 @@ export default class UserConsolePage extends Component {
       var windowWidth = $(window).width();      
       editUserBox.width(windowWidth * 0.6);
       editUserBox.height(windowHeight * 0.8);
+      var dialogContentHeight = editUserBox.height() - 140;
+      $('.dialog-content').height(dialogContentHeight);
     }
     $('#bg-overlay, #cancel-btn').on('click', function() {
       $('#bg-overlay, #edit-user-box').css('display', 'none');
@@ -365,9 +371,11 @@ export default class UserConsolePage extends Component {
     return (
       <div>
         <div id="bg-overlay"></div>
-        <Paper id="edit-user-box" zDepth={2}>
-          <h1 style={styles.textCenter}>Edit User</h1>
-          <hr/>
+        <div id="edit-user-box">
+          <div className="dialog-header">
+            <h1 style={styles.textCenter}>Edit User</h1>
+          </div>
+          <div className="dialog-content">
           <form id="edit-user-form" style={styles.formStyle} className="edit-user-style">
             <input id="edit-user-id" name="edit-user-id" type="text" style={styles.hide} />
             <div>Campus&nbsp;
@@ -464,30 +472,28 @@ export default class UserConsolePage extends Component {
               className="hide"
             />              
             </div>
-          </form> 
-
-          <hr/>
-          <div className="edit-user-content">
+          </form>
+          </div>
+          <div className="dialog-footer">
+            <RaisedButton
+              id="update-btn"
+              label="Update"
+              primary={true}
+              style={styles.rightAlign}
+            />
             <RaisedButton
               id="cancel-btn"
               label="Cancel"
-              fullWidth={true}
               secondary={true}
-              style={styles.raisedButton}
+              style={styles.rightAlign}
             />
-            <RaisedButton 
-              id="update-btn"
-              label="Update"
-              fullWidth={true}
-              primary={true}
-            />
-          </div>          
-        </Paper>      
+          </div>
+        </div>
         <div id="card-wrapper" className="wrapper-margin">
           <Card id="card" style={styles.cardSize}>
-            <h1 style={styles.title}>User Console</h1>          
+            <h1 style={styles.title}>User Console</h1>
             <div style={styles.balanceStyle}>
-              <input 
+              <input
                 id="search-box"
                 placeholder="Search"
                 style={styles.inputStyle}

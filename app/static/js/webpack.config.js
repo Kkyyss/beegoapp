@@ -8,8 +8,6 @@ module.exports = {
      "./app/Components/Footer.js",     
      "./app/Components/Home/HomePage.js",
      "./app/Components/LoginRegister/LoginRegisterPage.js",
-     "./app/Components/ForgotPassword/ForgotPasswordPage.js",
-     "./app/Components/ResetPassword/ResetPasswordPage.js",
      './app/Components/User/UserDropDownMenu.js',
      './app/Components/User/UserPage.js',
      './app/Components/User/UserAccountPage.js',

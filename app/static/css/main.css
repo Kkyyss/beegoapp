@@ -114,15 +114,14 @@ input[name="reg-username"], input[name="user-name"] {
   background-repeat: no-repeat;
   background-position: right 10px center;  
 }
-
-input[name="reg-password"], 
+ 
 input[name="log-password"], 
 input[name="user-password"],
-input[name="old-password"],
-input[name="new-password"] {
+input[name="card-no"],
+input[name="card-cvv"] {
   background-image: url(/static/img/ic_lock_black_24dp.png);
   background-repeat: no-repeat;
-  background-position: right 10px center;  
+  background-position: right 10px center;
 }
 
 #userMsg, 
@@ -137,7 +136,8 @@ input[name="new-password"] {
 #permanentAddressMsg,
 #monthMsg,
 #yearMsg,
-#torMsg {
+#torMsg,
+#ssdMsg {
   font-size: 12px;
   line-height: 12px;
   color: #BDBDBD;  

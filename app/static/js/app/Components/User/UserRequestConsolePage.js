@@ -8,10 +8,12 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import FontIcon from 'material-ui/FontIcon';
+import DatePicker from 'material-ui/DatePicker';
 
 
 var $ = window.Jquery;
 var ajax = $.ajax;
+var moment = window.Moment;
 var wrapFunc = window.Wrapper;
 var userData;
 
@@ -109,15 +111,52 @@ const styles = {
   bottomLine: {
     borderBottom: '1px solid #a4a4a6',
   },
+  textGray: {
+    color: '#939598',
+  },
+  dateAlign: {
+    verticalAlign:'bottom',
+  },
+  button: {
+    margin: 10,
+  },
+  hide: {
+    display: 'none',
+  },
 };
 
+function disableDays(date) {
+  return date.getDay() >= 0 && date.getDay() <= 6;
+}
+
+function formatDate(date) {
+  return moment(date).format('YYYY-MM');
+}
+
 export default class UserRequestConsolePage extends Component {
+  constructor(props) {
+    super(props);
+
+    const minDate = new Date();
+    const maxDate = new Date();
+    minDate.setFullYear(minDate.getFullYear());
+    minDate.setHours(0, 0, 0, 0);
+    maxDate.setFullYear(maxDate.getFullYear() + 1);
+    maxDate.setHours(0, 0, 0, 0);
+
+    this.state = {
+      minDate: minDate,
+      maxDate: maxDate,
+      disabled: false,
+    };
+  }
 
   componentDidMount() {
     var thisObj = this;
     $.when().then(function() {
       userData = window.UserData;
       updateRequestList();
+      $('#payment-submit').on('click', madePayment);
     });
 
     $(window).resize(function() {
@@ -140,9 +179,47 @@ export default class UserRequestConsolePage extends Component {
       var dialogContentHeight = viewRequestBox.height() - 140;
       $('.dialog-content').height(dialogContentHeight);
     }
-    $('#bg-overlay, #cancel-btn').on('click', function() {
+    $('#bg-overlay, #cancel-btn, #payment-cancel').on('click', function() {
       $('#bg-overlay, #view-request-box, #payment-box').css('display', 'none');
     });
+
+    
+
+    function madePayment() {
+      thisObj.setState({
+        disabled: true,
+      });
+
+      var paymentForm = $('#payment-form');
+      $('#nap').val($('net-amount-payable').text());
+      ajax({
+        url: "/user/request",
+        method: "POST",
+        cache: false,
+        data: paymentForm.serialize(),
+        beforeSend: function() {
+          wrapFunc.LoadingSwitch(true);
+        },
+        success: function(res) {
+          wrapFunc.LoadingSwitch(false);
+          if (res.length != 0) {
+            wrapFunc.AlertStatus(
+              'Oops...',
+              res,
+              'error',
+              false,
+              false
+            );
+          } else {
+            $('#bg-overlay, #payment-box').css('display', 'none');
+            updateRequestList();
+          }
+          thisObj.setState({
+            disabled: false,
+          });          
+        }        
+      });
+    }
 
     function updateRequestList() {
       console.log(userData.id);
@@ -216,16 +293,8 @@ export default class UserRequestConsolePage extends Component {
                     floatingLabelStyle={styles.floatingLabelStyle}
                   />
                   <TextField
-                    id="view-user-month"
-                    floatingLabelText="Session Month"
-                    floatingLabelFixed={true}
-                    underlineShow={false}
-                    readOnly={true}
-                    floatingLabelStyle={styles.floatingLabelStyle}
-                  />  
-                  <TextField
-                    id="view-user-year"
-                    floatingLabelText="Session Year"
+                    id="view-user-session"
+                    floatingLabelText="Session"
                     floatingLabelFixed={true}
                     underlineShow={false}
                     readOnly={true}
@@ -289,7 +358,7 @@ export default class UserRequestConsolePage extends Component {
                     underlineShow={false}
                     readOnly={true}
                     floatingLabelStyle={styles.floatingLabelStyle}
-                  />                
+                  />
             </div>
           </div>
           <div className="dialog-footer">
@@ -311,15 +380,65 @@ export default class UserRequestConsolePage extends Component {
               <div className="tableWrapperPay">
               <form id="payment-form">
                 <table className="tableBody">
+                  <input id="req-id" name="req-id" type="text" style={styles.hide} />
+                  <input id="usr-id" name="usr-id" type="text" style={styles.hide} />
+                  <input id="nap" name="nap" type="text" style={styles.hide} />
                   <tbody>
                       <tr>
-                        <td>
+                        <td colSpan="2" style={styles.textCenter}>
+                          <span style={styles.textGray}>Pay with Credit Card</span>
+                          &nbsp;&nbsp;&nbsp;<img src="../static/img/credit-cards.png" width="128x128" />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={styles.textLeft}>
                           <TextField
                             id="card-no"
+                            name="card-no"
                             floatingLabelText="Card Number"
                             style={styles.textField}
                           />
                         </td>
+                        <td style={styles.textRight}>
+                          <TextField
+                            id="card-name"
+                            name="card-name"
+                            floatingLabelText="Name On Card"
+                            style={styles.textField}
+                          />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={styles.dateAlign}>
+                          <DatePicker 
+                            id="card-exp"
+                            name="card-exp"
+                            hintText="Expire Date" 
+                            formatDate={formatDate}
+                            mode="landscape"
+                            minDate={this.state.minDate}
+                            maxDate={this.state.maxDate}
+                          />
+                        </td>
+                        <td style={styles.textRight}>
+                          <TextField
+                            id="card-cvv"
+                            name="card-cvv"
+                            floatingLabelText="CVV"
+                            style={styles.textField}
+                          />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colSpan="2" style={styles.textCenter}>
+                          <RaisedButton 
+                            id="payment-submit"
+                            label="Go"
+                            primary={true}
+                            fullWidth={true}
+                            disabled={this.state.disabled}
+                          />
+                        </td>                        
                       </tr>
                     </tbody>
                 </table>
@@ -334,7 +453,7 @@ export default class UserRequestConsolePage extends Component {
                     <td style={styles.textRight}><span id="payment-dp"></span></td>
                   </tr>
                   <tr style={styles.bottomLine}>
-                    <td><FontIcon className="fa fa-plus" /></td>
+                    <td style={styles.textLeft}><FontIcon className="fa fa-plus" /></td>
                     <td style={styles.textLeft} >Rates Per Person</td>
                     <td style={styles.textRight}><span id="payment-rpp"></span></td>
                   </tr>
@@ -344,7 +463,7 @@ export default class UserRequestConsolePage extends Component {
                     <td style={styles.textRight}><span id="payment-amount"></span></td>
                   </tr>
                   <tr style={styles.bottomLine}>
-                    <td><FontIcon className="fa fa-plus" /></td>
+                    <td style={styles.textLeft}><FontIcon className="fa fa-plus" /></td>
                     <td style={styles.textLeft} >Amount B/F</td>
                     <td style={styles.textRight}><span id="user-balance"></span></td>
                   </tr>
@@ -362,6 +481,14 @@ export default class UserRequestConsolePage extends Component {
             </div>
           </div>
           <div className="dialog-footer">
+            <div style={styles.rightAlign}>
+              <RaisedButton 
+                id="payment-cancel"
+                label="Cancel"
+                secondary={true}
+              />
+            </div>
+            <div style={styles.clearFix}></div>
           </div>
         </div>        
         <div id="card-wrapper" className="wrapper-margin">

@@ -55,8 +55,7 @@ const styles = {
     backgroundColor: '#FAFAFA',
   },
   contentPadding: {
-    paddingLeft: '20%',
-    paddingRight: '20%',
+    padding: '20px 20% 0 20%',
   },
   imgSize: {
     height: '128px',
@@ -85,8 +84,21 @@ const styles = {
     justifyContent: 'center',
   },
   chipStyle: {
-    padding: '12px',
+    padding: '6px',
+    margin: 5,
   },
+  adminStatusStyle: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+  },  
+  adminChipStyle: {
+    color: 'white',
+    padding: '6px',
+    margin: 5,
+  }, 
   locationStyle: {
     width: 'auto',
   },
@@ -106,6 +118,9 @@ export default class UserAccountPage extends Component {
     super(props);
 
     this._openFileDialog = this._openFileDialog.bind(this);
+    this.state = {
+      chipBgColor: "",
+    };
   }
 
   _openFileDialog = () => {
@@ -114,12 +129,20 @@ export default class UserAccountPage extends Component {
   };
 
   componentDidMount() {
+    var thisObj = this;
     $.when().then(function(x) {
       userData = window.UserData;
       console.log(userData);
       if (userData.isAdmin) {
         $('#student-id').parent().next().remove();
         $('#student-id').parent().remove();
+        thisObj.setState({
+          chipBgColor: "#D50000",
+        });
+      } else {
+        thisObj.setState({
+          chipBgColor: "#304FFE",
+        });
       }
     });
 
@@ -338,41 +361,6 @@ export default class UserAccountPage extends Component {
       );
     }
 
-    var resendBtn = $('#resend-btn');
-    resendBtn.on('click', resendActivationEmail);
-
-    function resendActivationEmail() {
-      ajax({
-        url: "/resend_activation_mail",
-        method : "POST",
-        data : acForm.serialize(),
-        cache: false,
-        beforeSend: function() {
-          resendBtn.prop("disabled", true)
-                    .children()
-                    .children()
-                    .next()
-                    .attr('class', 'fa fa-refresh fa-spin fa-lg fa-fw text-info');
-        },
-        success: function(res) {
-          if (res) {
-            wrapFunc.AlertStatus(
-              'Oops...',
-              res,
-              'warning',
-              false,
-              false
-            );
-          }
-          resendBtn.prop("disabled", false)
-                    .children()
-                    .children()
-                    .next()      
-                    .attr('class', 'fa fa-paper-plane fa-lg text-info');
-        }
-      });
-    }
-
     var userUploadImg = $('#user-upload-img');
 
     userUploadImg.on('change', imageValidator);
@@ -449,12 +437,11 @@ export default class UserAccountPage extends Component {
               id="account-tab"
               style={styles.tabStyle}
               icon={<FontIcon className="fa fa-user" />}
-              label="Account" 
+              label="Account"
             >
               <div >
                 <div className="card-content" style={styles.contentPadding}>
                   <form name="account" encType="multipart/form-data">
-                    <CardTitle title="Account" />
                     <div style={styles.textCenter}><i>Joined on <span id="joined-date"></span></i></div>
                     <br/>
                     <div style={styles.textCenter}>
@@ -483,11 +470,8 @@ export default class UserAccountPage extends Component {
                     </div>
                           <br/><br/>
                           <div style={styles.statusStyle}>
+                            <Chip backgroundColor={this.state.chipBgColor} style={styles.adminChipStyle} id="user-type" ></Chip>
                             <Chip style={styles.chipStyle} id="status"></Chip>
-                            <IconButton
-                              iconClassName="fa fa-paper-plane fa-lg text-info"
-                              id="resend-btn"
-                            />
                           </div>
                           <TextField
                             style={styles.hide}
@@ -496,17 +480,6 @@ export default class UserAccountPage extends Component {
                             type="hidden"
                             readOnly={true}
                           />
-                          <TextField
-                            floatingLabelText="Balance"
-                            floatingLabelFixed={true}
-                            fullWidth={true}
-                            id="user-balance"
-                            name="user-balance"
-                            type="text"
-                            readOnly={true}
-                            floatingLabelStyle={styles.floatingLabelStyle}
-                          />
-                          <br/>                          
                           <TextField
                             floatingLabelText="Campus"
                             floatingLabelFixed={true}
@@ -517,7 +490,7 @@ export default class UserAccountPage extends Component {
                             readOnly={true}
                             floatingLabelStyle={styles.floatingLabelStyle}
                           />
-                          <br/>                          
+                          <br/>
                           <TextField
                             floatingLabelText="Email"
                             floatingLabelFixed={true}
@@ -537,9 +510,9 @@ export default class UserAccountPage extends Component {
                             name="student-id"
                             type="text"
                             readOnly={true}
-                            floatingLabelStyle={styles.floatingLabelStyle}                       
+                            floatingLabelStyle={styles.floatingLabelStyle}
                           />
-                          <br/>                          
+                          <br/>
                           <TextField
                             floatingLabelText="Full Name"
                             floatingLabelFixed={true}
@@ -575,10 +548,10 @@ export default class UserAccountPage extends Component {
                           />
                           <br/><br/>
                           <div id="contactMsg">Please don't leave it empty.</div>
-                          <div>                    
+                          <div>
                             <TextField
                               id="user-location"
-                              name="user-location"                        
+                              name="user-location"
                               floatingLabelText="Permanent Address"
                               floatingLabelFixed={true}
                               style={styles.locationStyle}
@@ -588,7 +561,7 @@ export default class UserAccountPage extends Component {
                             <IconButton
                               id="location-btn"
                               name="location-btn"
-                              iconClassName="fa fa-map-marker" 
+                              iconClassName="fa fa-map-marker"
                               tooltip="Map"
                               tooltipPosition="top-center"
                             />

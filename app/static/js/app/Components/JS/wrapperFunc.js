@@ -500,6 +500,14 @@ window.Wrapper = {
     searchUserOption = ds;
     SearchUserQuery();
   },
+  SetUpRoomTypeSearchOption: function(ds) {
+    searchRoomTypeOption = ds;
+    SearchRoomTypeQuery();
+  },
+  SetUpRoomSearchOption: function(ds) {
+    searchRoomOption = ds;
+    SearchRoomQuery();
+  },
   SetUpEditUser: function() {
 
   },
@@ -563,8 +571,7 @@ function requestListTemplate(data) {
     html += '<div class="request-list-style">'+
     '<span id="request-id" class="hide">' + item.Id + '</span>' +
     '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('MMMM Do YYYY') + '</span>' +
-    '<span id="request-sm" class="hide">' + item.SessionMonth + '</span>' +
-    '<span id="request-sy" class="hide">' + item.SessionYear + '</span>' +
+    '<span id="request-ss" class="hide">' + item.Session + '</span>' +
     '<span id="request-tp" class="hide">' + item.TypesOfRooms + '</span>' +
     '<span id="request-dp" class="hide">' + item.Deposit + '</span>' +
     '<span id="request-rpp" class="hide">' + item.RatesPerPerson + '</span>' +
@@ -686,12 +693,11 @@ function userRequestListTemplate(data) {
   var html = '';
   $.each(data, function(index, item){
     var Isprocess = (item.Status === 'Approved') ? '<button type="button" class="paymentButton">Payment</button>' : "";
-    Isprocess += (item.Status === 'Processing' || item.Status === 'Approved') ? '<button type="button" class="cancelRequestButton">Cancel</button>' : "";
+    Isprocess += (item.Status === 'Processing' || item.Status === 'Approved' || item.Status === 'Paid Off') ? '<button type="button" class="cancelRequestButton">Cancel</button>' : "";
     html += '<div class="request-list-style">'+
     '<span id="request-id" class="hide">' + item.Id + '</span>' +
     '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('MMMM Do YYYY') + '</span>' +
-    '<span id="request-sm" class="hide">' + item.SessionMonth + '</span>' +
-    '<span id="request-sy" class="hide">' + item.SessionYear + '</span>' +
+    '<span id="request-ss" class="hide">' + item.Session + '</span>' +
     '<span id="request-tp" class="hide">' + item.TypesOfRooms + '</span>' +
     '<span id="request-dp" class="hide">' + item.Deposit + '</span>' +
     '<span id="request-rpp" class="hide">' + item.RatesPerPerson + '</span>' +
@@ -723,6 +729,8 @@ function roomTypeListTemplate(data) {
     '<span id="rt-id" class="hide">' + item.Id + '</span>' +
     '<span id="rt-campus" class="paraStyle">' + item.Campus + '</span>' +
     '<span id="rt-tor" class="paraStyle">' + item.TypesOfRooms + '</span>' +
+    '<span id="rt-dp" class="paraStyle">' + item.Deposit + '</span>' +
+    '<span id="rt-rpp" class="paraStyle">' + item.RatesPerPerson + '</span>' +
     '<div class="rightAlignment">' +
     '<button type="button" class="removeRoomTypeButton">Remove</button>' +
     '</div>' +
@@ -786,29 +794,16 @@ function editRoom(e) {
   var thisObj = $(this).parent().parent();
   $('#bg-overlay, #edit-room-box').css('display', 'block');
   $('#edit-room-id').val(thisObj.children("#room-id").text());
-  $('#edit-campusDropDown').val(thisObj.children("#room-cp").text());
-  $('#edit-types-of-rooms').val(thisObj.children("#room-tp").text());
-  $('#edit-room-no').val(thisObj.children("#room-no").text());
-  $('#edit-per-month-fee').val(thisObj.children("#room-pmf").text());
-  var twin = thisObj.children("#room-t").text();
-  var available = thisObj.children("#room-a").text(); 
-  if (twin !== 'Twin' &&
-      $('#edit-twin:checked').length != 0) {
-    $('#edit-twin').click();
+  $('#current-campus').text(thisObj.children("#room-cp").text());
+  $('#current-tor').text(thisObj.children("#room-tp").text());
+  $('#current-no').text(thisObj.children("#room-no").text());
+  var available = thisObj.children("#room-a").text();
+  if (available === 'Available') {
+    $('#current-av').text("Yes");
+  } else {
+    $('#current-av').text("No");
   }
-  if (twin === 'Twin' &&
-      $('#edit-twin:checked').length == 0) {
-    $('#edit-twin').click();    
-  }
-  if (available !== 'Available' &&
-      $('#edit-available:checked').length != 0) {
-    console.log("Yes");
-    $('#edit-available').click();
-  } 
-  if (available === 'Available' &&
-      $('#edit-available:checked').length == 0) {
-    $('#edit-available').click();
-  }
+    
 }
 
 function updateRoomView() {
@@ -949,8 +944,7 @@ function viewRequest(e) {
   $('#view-user-gender').val(thisObj.children("#request-user-gender").text());
   $('#view-user-contactno').val(thisObj.children("#request-user-contactno").text());
   $('#view-user-location').val(thisObj.children("#request-user-location").text());
-  $('#view-user-month').val(thisObj.children("#request-sm").text());
-  $('#view-user-year').val(thisObj.children("#request-sy").text());
+  $('#view-user-session').val(thisObj.children("#request-ss").text());
   $('#view-rd').val(thisObj.children("#request-rd").text());
   $('#view-tp').val(thisObj.children("#request-tp").text());
   $('#view-s').val(thisObj.children("#request-s").text());
@@ -973,7 +967,7 @@ function SearchRoomQuery() {
     return;
   }
   var options = {
-    caseSensitive: true,
+    caseSensitive: false,
     shouldSort: true,
     threshold: 0.6,
     location: 0,
@@ -1066,7 +1060,7 @@ function SearchRoomTypeQuery() {
     return;
   }
   var options = {
-    caseSensitive: true,
+    caseSensitive: false,
     shouldSort: true,
     threshold: 0.6,
     location: 0,
@@ -1301,6 +1295,8 @@ function madePayment(e) {
   e.preventDefault();
   var thisObj = $(this).parent().parent();
   $('#bg-overlay, #payment-box').css('display', 'block');
+  $('#req-id').val(thisObj.children('#request-id').text());
+  $('#usr-id').val(thisObj.children('#request-user-id').text());
   $('#payment-dp').text(thisObj.children('#request-dp').text());
   $('#payment-rpp').text(thisObj.children('#request-rpp').text());
   $('#payment-amount').text(thisObj.children('#request-py').text());

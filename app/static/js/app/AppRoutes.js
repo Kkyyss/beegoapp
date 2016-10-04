@@ -10,10 +10,6 @@ import HomePage from './Components/Home/HomePage'
 
 import LoginRegisterPage from './Components/LoginRegister/LoginRegisterPage';
 
-import ForgotPasswordPage from './Components/ForgotPassword/ForgotPasswordPage';
-
-import ResetPasswordPage from './Components/ResetPassword/ResetPasswordPage';
-
 import UserPage from './Components/User/UserPage';
 import UserAccountPage from './Components/User/UserAccountPage';
 import UserRequestConsolePage from './Components/User/UserRequestConsolePage';
@@ -40,8 +36,6 @@ const AppRoutes = (
   <Route path="/" component={Master}>
   	<IndexRoute component={HomePage} />
   	<Route path="login_register" component={LoginRegisterPage} />
-  	<Route path="forgot_password" component={ForgotPasswordPage} />
-    <Route path="reset_password/:token" component={ResetPasswordPage} />
     <Route path="user" component={UserPage} />
     <Route path="user/inti-iu" component={IUPage}/>
     <Route path="user/inti-iics" component={IICSPage}/>

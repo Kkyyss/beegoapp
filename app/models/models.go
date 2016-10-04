@@ -61,49 +61,6 @@ func (u *User) TableIndex() [][]string {
 	}
 }
 
-// multiple fields unique key
-// func (u *User) TableUnique() [][]string {
-// 	return [][]string{
-// 		[]string{"Username"},
-// 	}
-// }
-
-// Form verification
-func (u *User) IsValid() map[string]string {
-	o := orm.NewOrm()
-	resMap := make(map[string]string)
-	valid := validation.Validation{}
-
-	qs := o.QueryTable("users")
-
-	// Name
-	if v := valid.Required(u.Name, "name").Message("Name is required"); !v.Ok {
-		resMap[v.Error.Key] = v.Error.Message
-	} else if v := valid.Match(u.Name, regexp.MustCompile(`^[a-zA-Z\s]{1,}$`), "name").Message("Please enter a valid name"); !v.Ok {
-		resMap[v.Error.Key] = v.Error.Message
-	}
-
-	// Email
-	if v := valid.Required(u.Email, "email").Message("Email is required"); !v.Ok {
-		resMap[v.Error.Key] = v.Error.Message
-	} else if v := valid.Match(u.Email, regexp.MustCompile(`^.+@.+$`), "email").Message("Invalid Email"); !v.Ok {
-		resMap[v.Error.Key] = v.Error.Message
-	}
-	num, _ := qs.Filter("email", u.Email).Filter("provider", u.Provider).Count()
-	if num > 0 {
-		resMap["email"] = "Email already Exist"
-	}
-
-	// Password
-	if v := valid.Required(u.Password, "password").Message("Password is required"); !v.Ok {
-		resMap[v.Error.Key] = v.Error.Message
-	} else if v := valid.Match(u.Password, regexp.MustCompile(`[\w]{8,}$`), "password").Message("Invalid Password"); !v.Ok {
-		resMap[v.Error.Key] = v.Error.Message
-	}
-
-	return resMap
-}
-
 func (u *User) IsValidEmail() (errMsg string) {
 	valid := validation.Validation{}
 	if v := valid.Required(u.Email, "email").Message("Email is required"); !v.Ok {
@@ -553,11 +510,6 @@ func (u *User) UpdateAccount() string {
 
 func (u *User) GetUserDataMap() map[string]interface{} {
 	userData := make(map[string]interface{})
-	// var requests []*Request
-
-	// beego.Debug(users[0])
-
-	// requests, _ = u.GetUserRequest()
 
 	userData["id"] = u.Id
 	userData["isAdmin"] = u.IsAdmin
@@ -574,8 +526,6 @@ func (u *User) GetUserDataMap() map[string]interface{} {
 	userData["studentId"] = u.StudentId
 	userData["campus"] = u.Campus
 	userData["fullPermission"] = u.FullPermission
-	userData["balance"] = u.Balance
-	// userData["request"] = requests
 	return userData
 }
 
@@ -748,8 +698,7 @@ func (r *Room) Available() (errMsg string) {
 type Request struct {
 	Id               int
 	DateRequest      time.Time `orm:"auto_now_add;type(date)"`
-	SessionMonth     string
-	SessionYear      string
+	Session          string
 	Campus           string
 	TypesOfRooms     string
 	Status           string `orm:"null"`
@@ -814,7 +763,8 @@ func (r *Request) UpdateStatus(userId int) (errMsg string) {
 			err = urObj.One(&user)
 
 			_, err = qs2.Update(orm.Params{
-				"room": nil,
+				"balance": 0,
+				"room":    nil,
 			})
 
 			if err != nil {
@@ -882,6 +832,29 @@ func (r *Request) UpdateStatus(userId int) (errMsg string) {
 			beego.Debug(err)
 			return
 		}
+	case "Paid Off":
+
+		uObj := o.QueryTable("users").Filter("id", userId)
+
+		_, err = uObj.Update(orm.Params{
+			"balance": 0,
+		})
+
+		if err != nil {
+			errMsg = "Opss...Something goes wrong when update user balance."
+			beego.Debug(err)
+			return
+		}
+
+		_, err = rObj.Update(orm.Params{
+			"status": status,
+		})
+		if err != nil {
+			errMsg = "Oopss...Something goes wrong when udpate PAID OFF status."
+			beego.Debug(err)
+			return
+		}
+
 	default:
 		errMsg = "Uncaught case: Neither Denied nor Approved."
 		return
@@ -921,8 +894,9 @@ func (u *User) GetRequestStatus() (errMsg string) {
 
 func (u *User) BookedRoom(room *Room) (errMsg string) {
 	var (
-		err error
-		num int64
+		err  error
+		num  int64
+		user User
 	)
 
 	o := orm.NewOrm()
@@ -940,8 +914,15 @@ func (u *User) BookedRoom(room *Room) (errMsg string) {
 		room.IsAvailable = false
 	}
 
+	err = uObj.One(&user)
+	if err != nil {
+		errMsg = "Something happened!"
+		beego.Debug(err)
+	}
+
 	_, err = uObj.Update(orm.Params{
-		"room": room.Id,
+		"balance": 0,
+		"room":    room.Id,
 	})
 
 	if err != nil {

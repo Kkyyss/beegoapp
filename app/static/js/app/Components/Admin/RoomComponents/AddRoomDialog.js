@@ -6,10 +6,8 @@ import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
 import FontIcon from 'material-ui/FontIcon';
 import TextField from 'material-ui/TextField';
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import Toggle from 'material-ui/Toggle';
-import AutoComplete from 'material-ui/AutoComplete';
-import Paper from 'material-ui/Paper';
+import IconButton from 'material-ui/IconButton';
 
 import RoomTypeDropdownList from '../RoomTypeDropdownList.js';
 
@@ -35,21 +33,10 @@ const styles = {
   toggle: {
     marginBottom: 16,
   },
+  button: {
+    margin: '0 5px 0 5px',
+  },  
 };
-
-// const iuRoomTypes = [
-//   'SR(NAC) RM430',
-//   'SR(AC) RM730',
-//   'TSR(NAC-1) RM330',
-//   'TSR(NAC-2) RM410',
-//   'TSR(AC) RM630',
-//   'RAB(AC-1) RM1,110',
-//   'RAB(AC-2) RM790',
-//   'RAB(AC-3) RM710',
-//   'RAB(AC-4) RM770',
-//   'SP(AC-1) RM1,490',
-//   'SP(AC-2) RM1,380',
-// ];
 
 export default class AddRoomDialog extends Component {
 
@@ -71,7 +58,7 @@ export default class AddRoomDialog extends Component {
     this.setState({
       roomTypeValue: value,
     });
-  }
+  };
 
   handleOpen = (e) => {
     if (this.state.roomTypeDisabled) {
@@ -261,13 +248,14 @@ export default class AddRoomDialog extends Component {
     ];
 
     return (
-      <ToolbarGroup>
-        <RaisedButton 
+      <div>
+        <IconButton
           id="add-room-btn"
-          label="Add Room" 
-          primary={true}
-          icon={<FontIcon className="fa fa-plus" />}
+          iconClassName="fa fa-plus"
+          style={styles.button}
           onTouchTap={this.handleOpen}
+          tooltip="Add"
+          touch={true}
         />
         <Dialog
           title="Add Room"
@@ -311,7 +299,7 @@ export default class AddRoomDialog extends Component {
             </div>
           </form>
         </Dialog>
-      </ToolbarGroup>
+      </div>
     );
   }
 }

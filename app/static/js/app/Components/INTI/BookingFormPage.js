@@ -8,9 +8,11 @@ import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import RaisedButton from 'material-ui/RaisedButton';
 import AutoComplete from 'material-ui/AutoComplete';
+import DatePicker from 'material-ui/DatePicker';
 
 var $ = window.Jquery;
 var ajax = $.ajax;
+var moment = window.Moment;
 var swal = window.SweetAlert;
 var wrapFunc = window.Wrapper;
 var userData;
@@ -63,29 +65,38 @@ const styles = {
   },
 };
 
-const sessionMonthDataSource = [
-  "January",
-  "February",
-  "March",
-  "Apirl",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-];
-
 var roomDataSource;
 var campusDataSource = [];
+
+function disableMonths(date) {
+  return date.getMonth() >= 10 && date.getMonth() <= 11;
+}
+
+function formatDate(date) {
+  return moment(date).format('YYYY MMMM');
+}
+
 export default class BookingFormPage extends Component {
-  state = {
-    value: "IU",
-    disabled: false,
-    btnDisabled: false,
-    roomTypeValue: "",
-    roomTypeDisabled: false,
-  };
+  constructor(props) {
+    super(props);
+
+    const minDate = new Date();
+    const maxDate = new Date();
+    minDate.setFullYear(minDate.getFullYear());
+    minDate.setHours(0, 0, 0, 0);
+    maxDate.setFullYear(maxDate.getFullYear() + 1);
+    maxDate.setHours(0, 0, 0, 0);
+
+    this.state = {
+      minDate: minDate,
+      maxDate: maxDate,
+      value: "IU",
+      disabled: false,
+      btnDisabled: false,
+      roomTypeValue: "",
+      roomTypeDisabled: false,      
+    };
+  }
 
   handleRoomTypeChange = (event, index, value) => {
     this.setState({
@@ -115,8 +126,8 @@ export default class BookingFormPage extends Component {
     wrapFunc.DisabledFormSubmitByEnterKeyDown(reqeustForm);
     function submitRequest(ev) {
       ev.preventDefault();
-      var finalValidation = validFunc(monthVrf()) &
-                validFunc(yearVrf());
+
+      var finalValidation = validFunc(vrfSession());
                
       if (!finalValidation) {
         return false;
@@ -125,6 +136,7 @@ export default class BookingFormPage extends Component {
         btnDisabled: true,
       });
       $('#campus').val(thisObj.state.value);
+      console.log(thisObj.state.roomTypeValue);
       $('#types-of-rooms').val(thisObj.state.roomTypeValue);
       $('#deposit').val($('#r-deposit').val());
       $('#rates_per_person').val($('#r-rpp').val());
@@ -165,60 +177,24 @@ export default class BookingFormPage extends Component {
       });
     }
 
-    var sessMonth = $('#session-month');
-    var monthMsg = $('#monthMsg');
-    sessMonth.on({
-      'input focusout': monthVrf,
-    });
-
-    function monthVrf() {
-      var plainText = sessMonth.val().trim();
+    var sessionDate = $('#session-date');
+    var ssdMsg = $('#ssdMsg');
+    sessionDate.on('focusout', vrfSession);
+    function vrfSession() {
+      var plainText = sessionDate.val().trim();
       isValid = wrapFunc.BasicValidation(
         (plainText.length != 0),
-        monthMsg,
+        ssdMsg,
         "Please don't leave it empty.",
-        sessMonth
+        sessionDate
       );
       if (!isValid) {
         return;
       }
-      isValid = wrapFunc.BasicValidation(
-        ($.inArray(plainText, sessionMonthDataSource) != -1),
-        monthMsg,
-        "Invalid session month.",
-        sessMonth
-      );
-      if (!isValid) {
-        return;
-      }      
       wrapFunc.MeetRequirement(
-        sessMonth, 
-        monthMsg, 
+        sessionDate, 
+        ssdMsg, 
         "Please don't leave it empty."
-      );      
-    }
-
-    var sessYear = $('#session-year');
-    var yearMsg = $('#yearMsg');
-    sessYear.on({
-      'input focusout': yearVrf,
-    });
-
-    function yearVrf() {
-      var plainText = sessYear.val().trim();
-      isValid = wrapFunc.BasicValidation(
-        (plainText).match(/^[0-9]{4}$/),
-        yearMsg,
-        "Please don't leave it empty and not more than 4 digit.",
-        sessYear
-      );
-      if (!isValid) {
-        return;
-      }
-      wrapFunc.MeetRequirement(
-        sessYear, 
-        yearMsg, 
-        "Please don't leave it empty and not more than 4 digit."
       );
     }
 
@@ -323,26 +299,17 @@ export default class BookingFormPage extends Component {
               </div>
               <p style={styles.titleStyle}>SESSION</p>
               <div className="content-padding">
-                <AutoComplete
-                  id="session-month"
-                  name="session-month"
-                  floatingLabelText="Month"
-                  filter={AutoComplete.caseInsensitiveFilter}
-                  openOnFocus={true}
-                  dataSource={sessionMonthDataSource}
-                  fullWidth={true}
-                  maxSearchResults={4}
+                <DatePicker 
+                  id="session-date"
+                  name="session-date"
+                  hintText="Session Date" 
+                  formatDate={formatDate}
+                  mode="landscape"
+                  minDate={this.state.minDate}
+                  maxDate={this.state.maxDate}
+                  shouldDisableDate={disableMonths}
                 />
-                <div id="monthMsg">Please don't leave it empty.</div>
-                <br/>
-                <TextField
-                  floatingLabelText="Year"
-                  type="text"
-                  name="session-year"
-                  id="session-year"
-                  fullWidth={true}
-                />
-                <div id="yearMsg">Please don't leave it empty and not more than 4 digit.</div>
+                <div id="ssdMsg">Please don't leave it empty.</div>
               </div>
               <p style={styles.titleStyle}>Payment</p>
               <div className="content-padding">

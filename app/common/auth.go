@@ -73,7 +73,6 @@ func GenerateJWT(userData map[string]interface{}) (tokenString string, err error
 		"studentId":      userData["studentId"].(string),
 		"campus":         userData["campus"].(string),
 		"fullPermission": userData["fullPermission"].(bool),
-		"balance":        userData["balance"].(float64),
 	}
 
 	claims["exp"] = time.Now().Add(time.Hour * 12).Unix()

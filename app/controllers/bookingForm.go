@@ -99,8 +99,7 @@ func (self *BookingFormController) Post() {
 
 	request = models.Request{
 		Campus:         self.GetString("campus"),
-		SessionMonth:   self.GetString("session-month"),
-		SessionYear:    self.GetString("session-year"),
+		Session:        self.GetString("session-date"),
 		TypesOfRooms:   self.GetString("types-of-rooms"),
 		Status:         "Processing",
 		Payment:        payment,

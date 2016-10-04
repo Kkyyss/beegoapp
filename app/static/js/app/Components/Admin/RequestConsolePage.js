@@ -202,16 +202,8 @@ export default class RequestConsolePage extends Component {
                   floatingLabelStyle={styles.floatingLabelStyle}
                 />
                 <TextField
-                  id="view-user-month"
-                  floatingLabelText="Session Month"
-                  floatingLabelFixed={true}
-                  underlineShow={false}
-                  readOnly={true}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />  
-                <TextField
-                  id="view-user-year"
-                  floatingLabelText="Session Year"
+                  id="view-user-session"
+                  floatingLabelText="Session"
                   floatingLabelFixed={true}
                   underlineShow={false}
                   readOnly={true}

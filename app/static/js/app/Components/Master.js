@@ -266,8 +266,8 @@ export default class Master extends Component {
             var gender = userInfo.gender;
             var contactNo = userInfo.contactNo;
             var status = (activated) ? "Activated" : "Inactivated";
+            var userType = (isAdmin) ? "Admin" : "Student";
             var fillUpProfile = userInfo.fillUpProfile;
-            var balance = userInfo.balance;
             // /user
             switch (urlPath) {
               case '/user/admin-console': 
@@ -322,25 +322,22 @@ export default class Master extends Component {
               $('#sidebar-user-avatar, #sidebar-admin-avatar, #user-avatar, #menu-avatar').attr('src', avatarURL);
               // /user/account
               if (isAccount === 'TRUE') {
-                if (provider) {
-                  $('#password-tab').remove();
-                  $('#account-tab')
-                  .css('width', '100%')
-                  .parent()
-                  .next()
-                  .children()
-                  .css('width', '100%');
-                } else {
-                  $('#password-email').val(email);
-                }
-                if (activated) {
-                  $('#resend-btn').remove();
-                }
+                // if (provider) {
+                //   $('#password-tab').remove();
+                //   $('#account-tab')
+                //   .css('width', '100%')
+                //   .parent()
+                //   .next()
+                //   .children()
+                //   .css('width', '100%');
+                // } else {
+                // $('#password-email').val(email);
+                // }
+                $('#user-type').text(userType);
                 $('#joined-date').text(moment(dateJoined).format('MMMM Do YYYY'));
                 $('#user-img').attr('src', avatarURL);
                 $('#status').text(status);
                 $('#user-provider').val(provider);
-                $('#user-balance').val(balance);
                 $('#user-campus').val(campus);
                 $('#reg-email').val(email);
                 $('#student-id').val(studentId);
@@ -479,25 +476,7 @@ export default class Master extends Component {
               ]}
             >
               Admin
-            </ListItem>
-            <Divider />
-            <Subheader>Detail</Subheader>
-            <ListItem
-              id="sidebar-room-item"
-              primaryTogglesNestedList={true}
-              initiallyOpen={true}
-              leftIcon={<FontIcon className="fa fa-info" />}
-              nestedItems = {[
-                <ListItem
-                  key={1}
-                  primaryText="Room Status"
-                  onTouchTap={this.accessRoomStatus}
-                  leftIcon={<FontIcon className="fa fa-pie-chart" />}
-                />
-              ]}
-            >
-              Detail
-            </ListItem>      
+            </ListItem>     
             <Divider />
             <Subheader>User</Subheader>                               
             <ListItem
@@ -546,6 +525,24 @@ export default class Master extends Component {
             >
              User
             </ListItem>
+            <Divider />
+            <Subheader>Detail</Subheader>
+            <ListItem
+              id="sidebar-room-item"
+              primaryTogglesNestedList={true}
+              initiallyOpen={true}
+              leftIcon={<FontIcon className="fa fa-info" />}
+              nestedItems = {[
+                <ListItem
+                  key={1}
+                  primaryText="Room Status"
+                  onTouchTap={this.accessRoomStatus}
+                  leftIcon={<FontIcon className="fa fa-pie-chart" />}
+                />
+              ]}
+            >
+              Detail
+            </ListItem>             
             <Divider />
             <Subheader>Campuses</Subheader>            
             <ListItem
