@@ -161,13 +161,13 @@ export default class BookingFormPage extends Component {
             );
           } else {
             swal({
-              title: 'Yeahhh...',
+              title: 'Success',
               text: 'Your request has been submitted successfully.',
               type: 'success',
               allowOutsideClick: false,
               allowEscapeKey: false
             }).then(function() {
-              $(location).prop('href', '/');
+              $(location).prop('href', '/user/request');
             });
           }
           thisObj.setState({
@@ -270,8 +270,9 @@ export default class BookingFormPage extends Component {
   render() {
     return (
       <div id="card-wrapper" style={styles.cardWrapper} className="wrapper-margin">
+
         <Card id="card" name="iu-card" style={styles.cardSize}>
-          <div id="form-warning">
+          <div id="form-warning-profile">
             <CardTitle title="Please complete user Profile" subtitle="Require complete the user profile..."/>
             <a href="/user/account">Complete User Profile</a>
           </div>

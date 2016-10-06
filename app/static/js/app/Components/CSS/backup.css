@@ -33,7 +33,8 @@
 #edit-room-box, 
 #view-request-box, 
 #view-booked-box,
-#edit-user-box {
+#edit-user-box,
+#view-user-box {
     /*padding: 15px;*/
     background:#FFFFFF;
 
@@ -127,6 +128,14 @@
     height: 500px;
 }
 
+@media (max-width: 467px) {
+    .table-hero {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
 @media (max-width: 767px) {
     .title {
         font-size: 2em !important;
@@ -159,6 +168,7 @@
     }
     .add-room-style, .add-user-style, .edit-user-style, .add-room-type-style {
         margin-left: 10% !important;
+        margin-right: 10% !important;
         width: 80% !important;
     }
     .content-padding {
@@ -179,6 +189,17 @@
         width: 70% !important;
         padding: 30px 15% 30px 15% !important;
     }
+
+    .half-wrapper {
+        width: 80% !important;
+        padding: 30px 10% 30px 10% !important;
+    }
+    .edit-user-content {
+        width: 70% !important; 
+    }
+    .half-content {
+        width: 90% !important;
+    }
     td,th {
         font-size: 12px !important;
     }
@@ -186,7 +207,10 @@
         width: 90% !important;
         margin-left: 5% !important;
         margin-right: 5% !important;
-    } 
+    }
+    h1 {
+        font-size: 14px !important;
+    }
 }
 
 #user-menu {
@@ -519,10 +543,15 @@
     margin-right: 10%;
 }
 
+.centerTable { 
+    width: 100%;
+    margin: 0px auto;
+}
+
 .view-content-card {
-    width: 60%;
+    width: 50%;
     padding: 20px;
-    margin: 20px 20% 20px 20%;
+    margin: 20px 25% 20px 25%;
 }
 
 .tableWrapperPay {
@@ -562,6 +591,15 @@
     float: left;
 }
 
+.half-wrapper {
+    width: 45%;
+    background-color: white;
+    margin: 10px;
+    padding: 20px;
+    box-shadow: rgb(136, 136, 136) 0px 2px 5px;
+    float: left;    
+}
+
 table {
    border-collapse: collapse;
 }
@@ -578,4 +616,28 @@ td,th {
 
 table, td, th {
 
+}
+
+.edit-user-content {
+    padding: 20px;
+    background-color: white;
+    box-shadow: rgb(136, 136, 136) 0px 2px 5px;    
+    margin: 20px 0 20px 0;
+    width: 50%;
+}
+
+.half-content {
+    width: 47.5%;
+    float: left;
+    margin: 10px;
+    padding: 20px;
+}
+
+.two-tb {
+    width: 50%;
+}
+
+.two-wrapper {
+    padding: 20px;
+    margin: 10px;
 }

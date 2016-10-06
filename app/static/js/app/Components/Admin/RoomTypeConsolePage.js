@@ -1,13 +1,10 @@
 import React, {Component} from 'react';
-import {Card, CardActions, CardTitle} from 'material-ui/Card';
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
+import {Card} from 'material-ui/Card';
 import Divider from 'material-ui/Divider';
-import RaisedButton from 'material-ui/RaisedButton';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import Dialog from 'material-ui/Dialog';
 import Checkbox from 'material-ui/Checkbox';
-import FontIcon from 'material-ui/FontIcon';
 import FlatButton from 'material-ui/FlatButton';
 import IconButton from 'material-ui/IconButton';
 import AddRoomTypeDialog from "./RoomTypeComponents/AddRoomTypeDialog.js";
@@ -29,12 +26,6 @@ const styles = {
   contentStyle: {
     padding:'25px',
   },
-  toolBar: {
-    backgroundColor: '#E1BEE7',
-    paddingLeft: '10px',
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
   wall: {
     marginLeft: '10px',
   },
@@ -44,40 +35,6 @@ const styles = {
   title: {
     textAlign: 'center',
     padding: '10px 0 5px 0',
-  },
-  root: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-  },
-  viewContentStyle: {
-    padding: '0 15% 0 15%',
-  },
-  bgColor: {
-    color: 'white',
-    backgroundColor: 'black',
-    padding: 10,
-  },
-  blockCenter: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    // alignItems: 'center',
-    // justifyContent: 'center',
-    // padding: '0 15px 0 15px',
-  },
-  blockContent: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    // alignItems: 'center',
-    // justifyContent: 'center',
-    padding: '0 15px 0 15px',
-  },  
-  rightAlign: {
-    float: 'right',      
-    margin: 10,
-  },
-  clearFix: {
-    both: 'clear',
   },
   cancelBtnStyle: {
     width: '100%',
@@ -89,16 +46,11 @@ const styles = {
     cursor: 'pointer',
     color: 'white',
   },
-  floatingLabelStyle: {
-    color: '#1A237E',
-    fontStyle: 'normal',
-  },
   balanceStyle: {
     display: 'flex',
     marginBottom: 15,
   },
   inputStyle: {
-    // border: 'none',
     fontSize: '20px',
     outline: 'none',
     border: 'none',
@@ -143,15 +95,6 @@ var iuRoomTypes = {
     ],
 };
 
-var iicsRoomTypes = {
-    Campus: "IICS",
-    TypesOfRooms: [
-      'Room A',
-    ]
-};
-
-var campusDataSource;
-
 export default class RoomTypeConsolePage extends Component {
   state = {
     refreshBtnDisabled: false,
@@ -161,6 +104,7 @@ export default class RoomTypeConsolePage extends Component {
   };
 
   handleSortTypeChange = (event, index, value) => {
+    this.setSelectedValue(value);
     this.setState({
       sortValue: value,
     });
@@ -203,25 +147,22 @@ export default class RoomTypeConsolePage extends Component {
       optionsIndex.push(0);
     }
 
-    if ($('#crt-dp').is(":checked")) {
-      options.push("Deposit");
-      optionsIndex.push(1);
-    } else {
-      optionsIndex.push(0);
-    }
-
-    if ($('#crt-rpp').is(':checked')) {
-      options.push("RatesPerPerson");
-      optionsIndex.push(1);
-    } else {
-      optionsIndex.push(0);
-    }
-
+    if (optionsIndex.indexOf(1) < 0) {
+      wrapFunc.AlertStatus(
+        "Oopps...",
+        "Please select at least 1 option.",
+        "error",
+        false,
+        false
+      );
+      this.setState({
+        optionsButton: false,
+      });
+      return;
+    } 
+    
     wrapFunc.SetUpRoomTypeSearchOption(options);
-    this.setState({
-      optionDialogOpen: false,
-      optionsButton: false,
-    });    
+    this.resetButton();
   };
 
   refreshList = (e) => {
@@ -235,13 +176,61 @@ export default class RoomTypeConsolePage extends Component {
         refreshBtnDisabled: false,
       });
     });
-  }  
+  }
+
+  resetButton() {
+    this.setState({
+      optionDialogOpen: false,
+      optionsButton: false,
+    });
+  }
+
+  setSelectedValue(v) {
+    var thisObj = this;
+    var ds = wrapFunc.GetRoomTypeDataSource();
+    switch (v) {
+      case 'Campus':
+        ds.sort(thisObj.sortByCampus);
+      break;
+      case 'Types Of Rooms':
+        ds.sort(thisObj.sortByTypesOfRooms);
+      break;
+      case 'Deposit':
+        ds.sort(thisObj.sortByDeposit);
+      break;
+      case 'Rates':
+        ds.sort(thisObj.sortByRates);
+      break;
+      default: return;
+    }
+
+    wrapFunc.SetRoomTypeDataSource(ds);
+    wrapFunc.PaginateRoomTypeContent(ds);
+  }
 
   sortByCampus(a, b) {
-    var aCampus = a.Campus.toLowerCase();
-    var bCampus = b.Campus.toLowerCase();
-    return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
+    var av = a.Campus.toLowerCase();
+    var bv = b.Campus.toLowerCase();
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
   }
+
+  sortByTypesOfRooms(a, b) {
+    var av = a.TypesOfRooms.toLowerCase();
+    var bv = b.TypesOfRooms.toLowerCase();
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByDeposit(a, b) {
+    var av = a.Deposit;
+    var bv = b.Deposit;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByRates(a, b) {
+    var av = a.RatesPerPerson;
+    var bv = b.RatesPerPerson;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }  
 
   componentDidMount() {
     var thisObj = this;
@@ -252,6 +241,7 @@ export default class RoomTypeConsolePage extends Component {
   }
 
   updateRoomStatusList() {
+    var thisObj = this;
     var userState = {
       userCampus: userData.campus
     };
@@ -270,6 +260,7 @@ export default class RoomTypeConsolePage extends Component {
           $('#errMsg').text(res.error);
         } else {
           console.log(res.data);
+          res.data.sort(thisObj.sortByCampus);
           wrapFunc.SetRoomTypeDataSource(res.data);
           wrapFunc.PaginateRoomTypeContent(res.data);
         }
@@ -332,16 +323,6 @@ export default class RoomTypeConsolePage extends Component {
                     id="crt-tor"
                     style={styles.checkbox}
                   />
-                  <Checkbox
-                    label="Deposit"
-                    id="crt-dp"
-                    style={styles.checkbox}
-                  />
-                  <Checkbox
-                    label="Rates Per Person"
-                    id="crt-rpp"
-                    style={styles.checkbox}
-                  />
                   </div>
                 </Dialog>
                 <IconButton
@@ -358,6 +339,9 @@ export default class RoomTypeConsolePage extends Component {
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
                   <MenuItem value={"Campus"} primaryText="Campus" />
+                  <MenuItem value={"Types Of Rooms"} primaryText="Types Of Rooms" />
+                  <MenuItem value={"Deposit"} primaryText="Deposit" />
+                  <MenuItem value={"Rates"} primaryText="Rates" />
                 </DropDownMenu>
                 </div>
               </div>

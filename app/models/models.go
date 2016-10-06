@@ -865,7 +865,7 @@ func (r *Request) UpdateStatus(userId int) (errMsg string) {
 func (u *User) GetRequestStatus() (errMsg string) {
 	o := orm.NewOrm()
 	cond := orm.NewCondition()
-	c1 := cond.And("status", "Processing").Or("status", "Approved")
+	c1 := cond.And("status", "Processing").Or("status", "Approved").Or("status", "Paid Off")
 	qs := o.QueryTable("request")
 	ux := qs.SetCond(c1).Filter("User__Id", u.Id).RelatedSel()
 
@@ -882,7 +882,7 @@ func (u *User) GetRequestStatus() (errMsg string) {
 
 	num, _ := ux.Count()
 	if num >= 1 {
-		errMsg = "Unable to request due to yours booking status was processing / Approved."
+		errMsg = "Unable to request due to yours booking status was processing / Approved / Paid Off."
 		beego.Debug(num)
 		return
 	}
@@ -1225,6 +1225,24 @@ func (u *User) GetRoomTypeList() (errMsg string, roomTypes []*RoomTypes) {
 		beego.Debug(err)
 		errMsg = "Ooops...Something goes wrong when get the room type data."
 		return errMsg, nil
+	}
+	return
+}
+
+func (u *User) GetBookedRoom() (errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("users").Filter("id", u.Id)
+	urObj := qs.RelatedSel("room").Filter("room_id__isnull", false)
+
+	n, _ := urObj.Count()
+	if n == 0 {
+		errMsg = "No Room is Booked."
+		return errMsg
+	}
+	err := urObj.One(u)
+	if err != nil {
+		errMsg = "Oops...Something happened when find the booked list."
+		return errMsg
 	}
 	return
 }

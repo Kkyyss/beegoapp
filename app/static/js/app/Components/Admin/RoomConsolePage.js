@@ -124,12 +124,6 @@ const iuRoomTypes = [
   'SP(AC-2) RM1,380',
 ];
 
-const iicsRoomTypes = [
-  'Room A',
-];
-
-var campusDataSource = [];
-
 export default class AdminConsolePage extends Component {
   state = {
     value: "IU",
@@ -225,6 +219,7 @@ export default class AdminConsolePage extends Component {
   }   
 
   handleSortTypeChange = (event, index, value) => {
+    this.setSelectedValue(value);    
     this.setState({
       sortValue: value,
     });
@@ -275,19 +270,19 @@ export default class AdminConsolePage extends Component {
       optionsIndex.push(0);
     }
 
-    if ($('#cr-dp').is(":checked")) {
-      options.push("Deposit");
-      optionsIndex.push(1);
-    } else {
-      optionsIndex.push(0);
-    }
-
-    if ($('#cr-rpp').is(':checked')) {
-      options.push("RatesPerPerson");
-      optionsIndex.push(1);
-    } else {
-      optionsIndex.push(0);
-    }
+    if (optionsIndex.indexOf(1) < 0) {
+      wrapFunc.AlertStatus(
+        "Oopps...",
+        "Please select at least 1 option.",
+        "error",
+        false,
+        false
+      );
+      this.setState({
+        optionsButton: false,
+      });
+      return;
+    }    
 
     wrapFunc.SetUpRoomSearchOption(options);
     this.setState({
@@ -309,10 +304,59 @@ export default class AdminConsolePage extends Component {
     });
   };
 
+  setSelectedValue(v) {
+    var thisObj = this;
+    var ds = wrapFunc.GetRoomDataSource();
+    switch (v) {
+      case 'Campus':
+        ds.sort(thisObj.sortByCampus);
+      break;
+      case 'Types Of Rooms':
+        ds.sort(thisObj.sortByTypesOfRooms);
+      break;
+      case 'Deposit':
+        ds.sort(thisObj.sortByDeposit);
+      break;
+      case 'Rates':
+        ds.sort(thisObj.sortByRates);
+      break;
+      case 'Available':
+        ds.sort(thisObj.sortByAvailable);
+      break;
+      default: return;
+    }
+    wrapFunc.SetRoomDataSource(ds);
+    wrapFunc.PaginateRoomContent(ds);
+  }
+
   sortByCampus(a, b) {
-    var aCampus = a.Campus.toLowerCase();
-    var bCampus = b.Campus.toLowerCase();
-    return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
+    var av = a.Campus.toLowerCase();
+    var bv = b.Campus.toLowerCase();
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByTypesOfRooms(a, b) {
+    var av = a.TypesOfRooms.toLowerCase();
+    var bv = b.TypesOfRooms.toLowerCase();
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByDeposit(a, b) {
+    var av = a.Deposit;
+    var bv = b.Deposit;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByRates(a, b) {
+    var av = a.RatesPerPerson;
+    var bv = b.RatesPerPerson;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByAvailable(a, b) {
+    var av = a.IsAvailable;
+    var bv = b.IsAvailable;
+    return ((av && !bv) ? -1 : ((!av && bv) ? 1 : 0));
   }
 
   componentDidMount() {
@@ -338,7 +382,7 @@ export default class AdminConsolePage extends Component {
 
     editRoomResize();
 
-    $(window).on('window:resize', editRoomResize);   
+    $(window).on('window:resize', editRoomResize);
 
     function editRoomResize() {
       var windowHeight = $(window).height();
@@ -414,6 +458,7 @@ export default class AdminConsolePage extends Component {
   }
 
   updateRoomList() {
+    var thisObj = this;
     console.log(userData.campus);
     var userState = {
       userCampus: userData.campus,
@@ -431,8 +476,9 @@ export default class AdminConsolePage extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
+          res.data.sort(thisObj.sortByCampus);
           wrapFunc.SetRoomDataSource(res.data);
-          wrapFunc.PaginateRoomContent(res.data);           
+          wrapFunc.PaginateRoomContent(res.data);
         }
       }
     });
@@ -588,16 +634,6 @@ export default class AdminConsolePage extends Component {
                 id="cr-tor"
                 style={styles.checkbox}
               />
-              <Checkbox
-                label="Deposit"
-                id="cr-dp"
-                style={styles.checkbox}
-              />
-              <Checkbox
-                label="Rates Per Person"
-                id="cr-rpp"
-                style={styles.checkbox}
-              />
               </div>
             </Dialog>
                 <IconButton
@@ -614,6 +650,10 @@ export default class AdminConsolePage extends Component {
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
                   <MenuItem value={"Campus"} primaryText="Campus" />
+                  <MenuItem value={"Types Of Rooms"} primaryText="Types Of Rooms" />
+                  <MenuItem value={"Deposit"} primaryText="Deposit" />
+                  <MenuItem value={"Rates"} primaryText="Rates" />
+                  <MenuItem value={"Available"} primaryText="Available" />
                 </DropDownMenu>
                 </div>
               </div>

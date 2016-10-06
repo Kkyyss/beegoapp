@@ -1,11 +1,20 @@
 import React, {Component} from 'react';
-import {Card, CardActions, CardTitle} from 'material-ui/Card';
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
+import {Card} from 'material-ui/Card';
+import FontIcon from 'material-ui/FontIcon';
+import Checkbox from 'material-ui/Checkbox';
+import IconButton from 'material-ui/IconButton';
+import FlatButton from 'material-ui/FlatButton';
+import DropDownMenu from 'material-ui/DropDownMenu';
+import MenuItem from 'material-ui/MenuItem';
+import Dialog from 'material-ui/Dialog';
+import Divider from 'material-ui/Divider';
 
 var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var options = [];
+var optionsIndex = [1];
 
 const styles = {
   cardSize: {
@@ -22,23 +31,9 @@ const styles = {
     paddingLeft: '10px',
     display: 'flex',
     flexWrap: 'wrap',
-  },  
-  inputStyle: {
-    // border: 'none',
-    fontSize: '20px',
-    outline: 'none',
-    border: 'none',
-    margin: '10px 0 10px 0',
-    padding: '0 10px 0 10px',
-  },
-  wall: {
-    marginLeft: '10px',
   },
   textCenter: {
     textAlign: 'center',
-  },
-  title: {
-    marginLeft: 10,
   },
   root: {
     display: 'flex',
@@ -66,10 +61,6 @@ const styles = {
     // alignItems: 'center',
     // justifyContent: 'center',
     padding: '0 15px 0 15px',
-  },  
-  rightAlign: {
-    float: 'right',      
-    margin: 10,
   },
   clearFix: {
     both: 'clear',
@@ -88,6 +79,44 @@ const styles = {
     color: '#1A237E',
     fontStyle: 'normal',
   },
+  balanceStyle: {
+    display: 'flex',
+    marginBottom: 15,
+  },
+  inputStyle: {
+    // border: 'none',
+    fontSize: '20px',
+    outline: 'none',
+    border: 'none',
+    margin: '0 15px 0 15px',
+    padding: '15px 10px 15px 40px',
+  },
+  toolBarItem: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    padding: '0 15px 0 15px',
+  },
+  optionContentStyle: {
+    padding: 20,
+  },
+  checkbox: {
+    marginBottom: 16,
+  },
+  button: {
+    margin: '0 5px 0 5px',
+  },
+  title: {
+    textAlign: 'center',
+    padding: '10px 0 5px 0',
+  },
+  wall: {
+    marginLeft: '10px',
+  },
+  rightAlign: {
+    float: 'right',      
+    margin: 10,
+  },  
 };
 
 var iuRoomTypes = {
@@ -111,80 +140,196 @@ var iuRoomTypes = {
     ],
 };
 
-var iicsRoomTypes = {
-    Campus: "IICS",
-    TypesOfRooms: [
-      'Room A',
-    ]
-};
-
 var campusDataSource;
 
 export default class RoomStatusPage extends Component {
+  state = {
+    refreshBtnDisabled: false,
+    optionDialogOpen: false,
+    optionsButton: false,
+    sortValue: "Available",
+  };
+
+  handleSortTypeChange = (event, index, value) => {
+    this.setState({
+      sortValue: value,
+    });
+  };
+
+  handleOptionDialogOpen = (e) => {
+    this.setState({
+      optionDialogOpen: true,
+    }, function() {
+      $.each(optionsIndex, function(index, value) {
+        if (value == 1) {
+          $($('#options-group').children()[index]).children().click();
+        }
+      });
+    });
+  };
+  handleOptionDialogClose = (e) => {
+    this.setState({
+      optionDialogOpen: false,
+    });
+  };
+
+  handleSearchOptionSubmit = (e) => {
+    this.setState({
+      optionsButton: true,
+    })
+    options = [];
+    optionsIndex = [];
+
+    if ($("#rs-cp").is(":checked")) {
+      options.push("Campus");
+      optionsIndex.push(1);
+    } else {
+      optionsIndex.push(0);
+    } 
+
+    if ($("#rs-tor").is(":checked")) {
+      options.push("TypesOfRooms");
+      optionsIndex.push(1);
+    } else {
+      optionsIndex.push(0);
+    }
+
+    wrapFunc.SetUpRoomStatusSearchOption(options);
+    this.setState({
+      optionDialogOpen: false,
+      optionsButton: false,
+    });
+  };
+
+  refreshList = (e) => {
+    var thisObj = this;
+    thisObj.setState({
+      refreshBtnDisabled: true,
+    });
+    thisObj.updateRoomStatusList();
+    $.when().then(function() {
+      thisObj.setState({
+        refreshBtnDisabled: false,
+      });
+    });
+  };
+
+  sortByCampus(a, b) {
+    var aCampus = a.Campus.toLowerCase();
+    var bCampus = b.Campus.toLowerCase();
+    return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
+  }  
+
 
   componentDidMount() {
     var thisObj = this;
     $.when().then(function() {
       userData = window.UserData;
-      switch (userData.campus) {
-        case 'IU': 
-          campusDataSource = iuRoomTypes;
-          break;
-        case 'IICS':
-          campusDataSource = iicsRoomTypes;
-          break;
-        case 'ALL':
-          // campusDataSource = iuRoomTypes.push(iicsRoomTypes);
-          break;
-        default:
-          break;
-      }
-      updateRoomStatusList();
+      thisObj.updateRoomStatusList();
     });
-
-    function updateRoomStatusList() {
-      console.log(userData.id);
-      var userState = {
-        userCampus: userData.campus
-      };
-
-      ajax({
-        url: "/api/view-room-status-list",
-        method: "POST",
-        cache: false,
-        data: JSON.stringify(userState),
-        beforeSend: function() {
-          wrapFunc.LoadingSwitch(true);
-        },
-        success: function(res) {
-          wrapFunc.LoadingSwitch(false);
-          if (res.error != null) {
-            $('#errMsg').text(res.error);
-          } else {
-            console.log(res.data);
-            wrapFunc.SetRoomStatusDataSource(res.data);
-            wrapFunc.PaginateRoomStatusContent(res.data);
-          }
-        }
-      });
-    }
   }
 
+  updateRoomStatusList() {
+    console.log(userData.id);
+    var userState = {
+      userCampus: userData.campus
+    };
+
+    ajax({
+      url: "/api/view-room-status-list",
+      method: "POST",
+      cache: false,
+      data: JSON.stringify(userState),
+      beforeSend: function() {
+        wrapFunc.LoadingSwitch(true);
+      },
+      success: function(res) {
+        wrapFunc.LoadingSwitch(false);
+        if (res.error != null) {
+          $('#errMsg').text(res.error);
+        } else {
+          console.log(res.data);
+          wrapFunc.SetRoomStatusDataSource(res.data);
+          wrapFunc.PaginateRoomStatusContent(res.data);
+        }
+      }
+    });
+  }  
+
   render() {
+    const actions = [
+      <FlatButton
+        label="Cancel"
+        primary={true}
+        onTouchTap={this.handleOptionDialogClose}
+      />,
+      <FlatButton
+        label="OK"
+        primary={true}
+        onTouchTap={this.handleSearchOptionSubmit}
+        disabled={this.state.optionsButton}
+      />,
+    ];
+
     return (
       <div id="card-wrapper" className="wrapper-margin">
         <Card id="card" style={styles.cardSize}>
-          <div style={styles.toolBar}>
-            <ToolbarTitle text="Room Status" />
-            <ToolbarSeparator />
-            <span style={styles.wall}></span>
-            <input 
+          <h1 style={styles.title}>Room Status Console</h1>
+          <div style={styles.balanceStyle}>
+            <input
               id="search-box"
               placeholder="Search"
               style={styles.inputStyle}
-            />   
+            />
           </div>
-          <br/>
+          <Divider/>
+          <div style={styles.toolBarItem}>
+            <IconButton
+              id="search-option"
+              style={styles.button}
+              iconClassName="fa fa-filter"
+              onTouchTap={this.handleOptionDialogOpen}
+              tooltip="Filter"
+              touch={true}
+            />
+            <Dialog
+              title="Search Options"
+              actions={actions}
+              modal={false}
+              open={this.state.optionDialogOpen}
+              onRequestClose={this.handleOptionDialogClose}
+              autoScrollBodyContent={true}
+            >
+            <div id="options-group" style={styles.optionContentStyle}>
+              <Checkbox
+                label="Campus"
+                id="rs-cp"
+                style={styles.checkbox}
+              />                    
+              <Checkbox
+                label="Types Of Rooms"
+                id="rs-tor"
+                style={styles.checkbox}
+              />
+              </div>
+            </Dialog>
+                <IconButton
+                  id="refresh-list"
+                  style={styles.button}
+                  onTouchTap={this.refreshList}
+                  disabled={this.state.refreshBtnDisabled}
+                  iconClassName="fa fa-refresh"
+                  tooltip="Refresh"
+                  touch={true}
+                />
+                <div style={styles.wall}>
+                Sort By&nbsp;
+                <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
+                  <MenuItem value={"Available"} primaryText="Available" />
+                </DropDownMenu>
+                </div>
+            </div>
+            <Divider />
           <div style={styles.contentStyle}>
             <div id="errMsg" style={styles.textCenter}></div>
             <div id="pagination-content"></div>

@@ -1,13 +1,12 @@
 package controllers
 
 import (
-	// "encoding/json"
-	// "strconv"
+	"encoding/json"
 
 	"github.com/astaxie/beego"
 
 	"akgo/app/common"
-	// "akgo/app/models"
+	"akgo/app/models"
 )
 
 type UserBookedRoomController struct {
@@ -51,4 +50,29 @@ func (self *UserBookedRoomController) Get() {
 	directory["IsAdmin"] = true
 	self.Data["Directory"] = directory
 	self.TplName = "index.tpl"
+}
+
+func (self *UserBookedRoomController) Post() {
+	resMap := make(map[string]interface{})
+
+	var (
+		errMsg string
+		ob     interface{}
+	)
+
+	json.Unmarshal(self.Ctx.Input.RequestBody, &ob)
+	userId := int(ob.(map[string]interface{})["userId"].(float64))
+
+	user := models.User{
+		Id: userId,
+	}
+
+	errMsg = user.GetBookedRoom()
+	if errMsg != "" {
+		resMap["error"] = errMsg
+	} else {
+		resMap["data"] = user
+	}
+	self.Data["json"] = resMap
+	self.ServeJSON()
 }

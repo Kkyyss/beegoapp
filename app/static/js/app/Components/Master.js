@@ -230,7 +230,7 @@ export default class Master extends Component {
         method: "GET",
         async: false,
         cache: false,
-        success: function(res, ts, request) {       
+        success: function(res, ts, request) {
           if (request.getResponseHeader('IsLogined') === 'FALSE') {
             thisObj.setState({
               showMenuIcon: false,
@@ -287,7 +287,7 @@ export default class Master extends Component {
                 if (!fillUpProfile) {
                   $('#form-content').remove();
                 } else {
-                  $('#form-warning').remove();
+                  $('#form-warning-profile').remove();
                 }
                 break;
               case '/user/request':

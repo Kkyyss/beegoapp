@@ -1,12 +1,8 @@
 import React, {Component} from 'react';
-import {Card, CardActions, CardTitle} from 'material-ui/Card';
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
+import {Card} from 'material-ui/Card';
 import Divider from 'material-ui/Divider';
-import Chip from 'material-ui/Chip';
-import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
-import FloatingActionButton from 'material-ui/FloatingActionButton';
 import FontIcon from 'material-ui/FontIcon';
 import DatePicker from 'material-ui/DatePicker';
 import Checkbox from 'material-ui/Checkbox';
@@ -44,14 +40,8 @@ const styles = {
   textField: {
     width: 'auto',
   },
-  wall: {
-    marginLeft: '10px',
-  },
   textCenter: {
     textAlign: 'center',
-  },
-  title: {
-    marginLeft: 10,
   },
   root: {
     display: 'flex',
@@ -143,7 +133,7 @@ const styles = {
   title: {
     textAlign: 'center',
     padding: '10px 0 5px 0',
-  },  
+  },
   wall: {
     marginLeft: '10px',
   },
@@ -182,7 +172,7 @@ export default class UserRequestConsolePage extends Component {
       refreshBtnDisabled: false,
       optionDialogOpen: false,
       optionsButton: false,
-      sortValue: "Campus",      
+      sortValue: "Processing",
     };
   }
 
@@ -232,20 +222,6 @@ export default class UserRequestConsolePage extends Component {
 
     if ($("#creq-ss").is(":checked")) {
       options.push("Session");
-      optionsIndex.push(1);
-    } else {
-      optionsIndex.push(0);
-    }
-
-    if ($('#creq-si').is(":checked")) {
-      options.push("User.StudentId");
-      optionsIndex.push(1);
-    } else {
-      optionsIndex.push(0);
-    }
-
-    if ($('#creq-nm').is(':checked')) {
-      options.push("User.Name");
       optionsIndex.push(1);
     } else {
       optionsIndex.push(0);
@@ -683,16 +659,6 @@ export default class UserRequestConsolePage extends Component {
                 id="creq-ss"
                 style={styles.checkbox}
               />
-              <Checkbox
-                label="Student Id"
-                id="creq-si"
-                style={styles.checkbox}
-              />
-              <Checkbox
-                label="Name"
-                id="creq-nm"
-                style={styles.checkbox}
-              />
               </div>
             </Dialog>
                 <IconButton
@@ -707,7 +673,7 @@ export default class UserRequestConsolePage extends Component {
                 <div style={styles.wall}>
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
-                  <MenuItem value={"Campus"} primaryText="Campus" />
+                  <MenuItem value={"Processing"} primaryText="Processing" />
                 </DropDownMenu>
                 </div>  
             </div>

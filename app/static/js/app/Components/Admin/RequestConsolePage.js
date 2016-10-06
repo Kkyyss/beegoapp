@@ -1,12 +1,8 @@
 import React, {Component} from 'react';
-import {Card, CardActions, CardTitle} from 'material-ui/Card';
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
+import {Card} from 'material-ui/Card';
 import Divider from 'material-ui/Divider';
-import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
-import FloatingActionButton from 'material-ui/FloatingActionButton';
-import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
 import Checkbox from 'material-ui/Checkbox';
@@ -134,6 +130,7 @@ export default class RequestConsolePage extends Component {
   };
 
   handleSortTypeChange = (event, index, value) => {
+    this.setSelectedValue(value);
     this.setState({
       sortValue: value,
     });
@@ -198,6 +195,20 @@ export default class RequestConsolePage extends Component {
       optionsIndex.push(0);
     }
 
+    if (optionsIndex.indexOf(1) < 0) {
+      wrapFunc.AlertStatus(
+        "Oopps...",
+        "Please select at least 1 option.",
+        "error",
+        false,
+        false
+      );
+      this.setState({
+        optionsButton: false,
+      });
+      return;
+    }    
+
     wrapFunc.SetUpRequestSearchOption(options);
     this.setState({
       optionDialogOpen: false,
@@ -218,11 +229,69 @@ export default class RequestConsolePage extends Component {
     });
   };
 
+  setSelectedValue(v) {
+    var thisObj = this;
+    var ds = wrapFunc.GetRequestDataSource();
+    switch (v) {
+      case 'Campus':
+        ds.sort(thisObj.sortByCampus);
+      break;
+      case 'Types Of Rooms':
+        ds.sort(thisObj.sortByTypesOfRooms);
+      break;
+      case 'Deposit':
+        ds.sort(thisObj.sortByDeposit);
+      break;
+      case 'Rates':
+        ds.sort(thisObj.sortByRates);
+      break;
+      case 'Payment':
+        ds.sort(thisObj.sortByPayment);
+      break;
+      case 'Status':
+        ds.sort(thisObj.sortByPayment);
+      break;
+      default: return;
+    }
+    wrapFunc.SetRequestDataSource(ds);
+    wrapFunc.PaginateRequestContent(ds);
+  }
+
   sortByCampus(a, b) {
-    var aCampus = a.Campus.toLowerCase();
-    var bCampus = b.Campus.toLowerCase();
-    return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
-  }  
+    var av = a.Campus.toLowerCase();
+    var bv = b.Campus.toLowerCase();
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByTypesOfRooms(a, b) {
+    var av = a.TypesOfRooms.toLowerCase();
+    var bv = b.TypesOfRooms.toLowerCase();
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByDeposit(a, b) {
+    var av = a.Deposit;
+    var bv = b.Deposit;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByRates(a, b) {
+    var av = a.RatesPerPerson;
+    var bv = b.RatesPerPerson;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByPayment(a, b) {
+    var av = a.Payment;
+    var bv = b.Payment;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByProcessing(a, b) {
+    var av = a.Status;
+    var bv = b.Status;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
 
   componentDidMount() {
     var thisObj = this;
@@ -256,6 +325,7 @@ export default class RequestConsolePage extends Component {
   }
 
   updateRequestList() {
+    var thisObj = this;
     var userState = {
       userCampus: userData.campus
     };
@@ -273,7 +343,7 @@ export default class RequestConsolePage extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
-          console.log(res.data);
+          res.data.sort(thisObj.sortByCampus);
           wrapFunc.SetRequestDataSource(res.data);
           wrapFunc.PaginateRequestContent(res.data);
         }
@@ -299,7 +369,7 @@ export default class RequestConsolePage extends Component {
     return (
       <div>
         <div id="bg-overlay"></div>
-        <div id="view-request-box" zDepth={2}>
+        <div id="view-request-box">
           <div className="dialog-header">
             <h1 style={styles.textCenter}>View Request</h1>
           </div>
@@ -480,6 +550,11 @@ export default class RequestConsolePage extends Component {
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
                   <MenuItem value={"Campus"} primaryText="Campus" />
+                  <MenuItem value={"Types Of Rooms"} primaryText="Types Of Rooms" />
+                  <MenuItem value={"Deposit"} primaryText="Deposit" />
+                  <MenuItem value={"Rates"} primaryText="Rates" />
+                  <MenuItem value={"Payment"} primaryText="Payment" />
+                  <MenuItem value={"Status"} primaryText="Status" />
                 </DropDownMenu>
                 </div>                 
             </div>

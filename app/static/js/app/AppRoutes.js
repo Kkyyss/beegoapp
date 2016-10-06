@@ -13,6 +13,7 @@ import LoginRegisterPage from './Components/LoginRegister/LoginRegisterPage';
 import UserPage from './Components/User/UserPage';
 import UserAccountPage from './Components/User/UserAccountPage';
 import UserRequestConsolePage from './Components/User/UserRequestConsolePage';
+import UserBookedRoomPage from './Components/User/UserBookedRoomPage';
 import RoomStatusPage from './Components/User/RoomStatusPage';
 
 import RoomConsolePage from './Components/Admin/RoomConsolePage';
@@ -41,12 +42,13 @@ const AppRoutes = (
     <Route path="user/inti-iics" component={IICSPage}/>
     <Route path="user/inti-iickl" component={IICKLPage}/>
     <Route path="user/inti-iicp" component={IICPPage}/>
-    <Route path="user/booking-form" component={BookingFormPage}/> 
+    <Route path="user/booking-form" component={BookingFormPage}/>
     <Route path="user/account" component={UserAccountPage} />
     <Route path="user/room-console" component={RoomConsolePage} />
     <Route path="user/request-console" component={RequestConsolePage} />
     <Route path="user/booked-room-console" component={BookedRoomConsolePage} />
     <Route path="user/user-console" component={UserConsolePage} />
+    <Route path="user/booked-room" component={UserBookedRoomPage} />
     <Route path="user/room-type" component={RoomTypeConsolePage} />
     <Route path="user/room-status" component={RoomStatusPage} />
     <Route path="user/request" component={UserRequestConsolePage} />

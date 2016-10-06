@@ -15,6 +15,8 @@ import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
 import Divider from 'material-ui/Divider';
 import Checkbox from 'material-ui/Checkbox';
+import IconButton from 'material-ui/IconButton';
+import Avatar from 'material-ui/Avatar';
 import "intl-tel-input/build/css/intlTelInput.css";
 
 var $ = window.Jquery;
@@ -66,10 +68,6 @@ const styles = {
   contentStyle: {
     padding:'25px',
   },
-  formStyle: {
-    marginLeft: '25%',
-    width: '50%',
-  },  
   textCenter: {
     textAlign: 'center',
   },
@@ -108,7 +106,16 @@ const styles = {
   rightAlign: {
     float: 'right',      
     margin: 10,
-  },  
+  },
+  bottomLine: {
+    borderBottom: '1px solid #a4a4a6',
+  },
+  clearFix: {
+    clear: 'both',
+  },
+  textLeft: {
+    textAlign: 'left',
+  },
 };
 
 export default class UserConsolePage extends Component {
@@ -269,15 +276,18 @@ export default class UserConsolePage extends Component {
 
     function editUserResize() {
       var windowHeight = $(window).height();
-      var editUserBox = $('#edit-user-box'); 
-      var windowWidth = $(window).width();      
+      var editUserBox = $('#edit-user-box');
+      var viewUserBox = $('#view-user-box');
+      var windowWidth = $(window).width();
       editUserBox.width(windowWidth * 0.6);
       editUserBox.height(windowHeight * 0.8);
+      viewUserBox.width(windowWidth * 0.8);
+      viewUserBox.height(windowHeight * 0.8);
       var dialogContentHeight = editUserBox.height() - 140;
       $('.dialog-content').height(dialogContentHeight);
     }
-    $('#bg-overlay, #cancel-btn').on('click', function() {
-      $('#bg-overlay, #edit-user-box').css('display', 'none');
+    $('#bg-overlay, .cancel-btn').on('click', function() {
+      $('#bg-overlay, #edit-user-box, #view-user-box').css('display', 'none');
     });
 
     $('#update-btn').on('click', updateUser);
@@ -376,7 +386,8 @@ export default class UserConsolePage extends Component {
             <h1 style={styles.textCenter}>Edit User</h1>
           </div>
           <div className="dialog-content">
-          <form id="edit-user-form" style={styles.formStyle} className="edit-user-style">
+          <div className="block-center">
+          <form id="edit-user-form" className="edit-user-content">
             <input id="edit-user-id" name="edit-user-id" type="text" style={styles.hide} />
             <div>Campus&nbsp;
             <DropDownMenu id="campusDropDown" value={this.state.value} onChange={this.handleChange} disabled={this.state.disabled}>
@@ -474,6 +485,7 @@ export default class UserConsolePage extends Component {
             </div>
           </form>
           </div>
+          </div>
           <div className="dialog-footer">
             <RaisedButton
               id="update-btn"
@@ -482,11 +494,90 @@ export default class UserConsolePage extends Component {
               style={styles.rightAlign}
             />
             <RaisedButton
-              id="cancel-btn"
+              className="cancel-btn"
               label="Cancel"
               secondary={true}
               style={styles.rightAlign}
             />
+          </div>
+        </div>
+        <div id="view-user-box">
+          <div className="dialog-header">
+            <h1 style={styles.textCenter}>Profile</h1>
+          </div>
+          <div className="dialog-content">
+            <div className="table-hero">
+              <Card className="half-content">
+                <table className="centerTable">
+                  <caption>
+                    <Avatar
+                      id="view-user-avatar"
+                      src="../"
+                      size={128} />
+                  </caption>
+                  <tbody>
+                  <tr colSpan="2">
+                    <td style={styles.textCenter}>
+                      <b>Joined On <span id="view-user-dj"></span></b>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </Card>
+              <Card className="half-content">
+                <table className="centerTable">
+                  <caption><h1>Role & Permissions</h1></caption>
+                  <tbody>
+                    <tr>
+                      <td>Activated</td>
+                      <td><b><span id="view-user-activated"></span></b></td>
+                    </tr>
+                    <tr>
+                      <td>Permission</td>
+                      <td><b><span id="view-user-pm"></span></b></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </Card>
+            </div>
+            <div style={styles.clearFix}></div>
+            <div className="table-hero">
+              <Card className="two-wrapper">
+                <table className="centerTable">
+                  <caption><h1>Basic Information</h1></caption>
+                  <tbody>
+                    <tr style={styles.bottomLine}>
+                      <td>Campus</td>
+                      <td style={styles.textLeft}><b><span id="view-user-campus"></span></b></td>
+                    </tr>
+                    <tr style={styles.bottomLine}>
+                      <td>Full Name</td>
+                      <td style={styles.textLeft}><b><span id="view-user-name"></span></b></td>
+                    </tr>
+                    <tr style={styles.bottomLine}>
+                      <td>Email</td>
+                      <td style={styles.textLeft}><b><span id="view-user-email"></span></b></td>
+                    </tr>
+                    <tr style={styles.bottomLine}>
+                      <td>Permanent Address</td>
+                      <td style={styles.textLeft}><b><span id="view-user-location"></span></b></td>
+                    </tr>
+                    <tr>
+                      <td>Contact No.</td>
+                      <td style={styles.textLeft}><b><span id="view-user-contact-no"></span></b></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </Card>
+            </div>
+          </div>
+          <div className="dialog-footer">
+            <RaisedButton
+              className="cancel-btn"
+              label="Cancel"
+              secondary={true}
+              style={styles.rightAlign}
+            />          
           </div>
         </div>
         <div id="card-wrapper" className="wrapper-margin">
@@ -501,11 +592,10 @@ export default class UserConsolePage extends Component {
             </div>
             <Divider/>
               <div style={styles.toolBarItem}>
-                <RaisedButton
+                <IconButton
                   id="search-option"
-                  primary={true}
                   style={styles.button}
-                  icon={<FontIcon className="fa fa-filter" />}
+                  iconClassName="fa fa-filter"
                   onTouchTap={this.handleOptionDialogOpen}
                 />
                 <Dialog
@@ -549,14 +639,12 @@ export default class UserConsolePage extends Component {
                   />
                   </div>
                 </Dialog>
-                <RaisedButton
+                <IconButton
                   id="refresh-list"
-                  secondary={true}
                   style={styles.button}
                   onTouchTap={this.refreshList}
                   disabled={this.state.refreshBtnDisabled}
-                  className="toolbar-button"
-                  icon={<FontIcon className="fa fa-refresh" />}
+                  iconClassName="fa fa-refresh"
                 />
                 <AddUserDialog/>
                 <div style={styles.wall}>

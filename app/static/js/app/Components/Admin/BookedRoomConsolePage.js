@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
-import {Card, CardActions, CardTitle} from 'material-ui/Card';
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
-import Paper from 'material-ui/Paper';
+import {Card} from 'material-ui/Card';
 import TextField from 'material-ui/TextField';
 import Divider from 'material-ui/Divider';
 import FontIcon from 'material-ui/FontIcon';
@@ -11,6 +9,7 @@ import Checkbox from 'material-ui/Checkbox';
 import Dialog from 'material-ui/Dialog';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
+import RaisedButton from 'material-ui/RaisedButton';
 
 var $ = window.Jquery;
 var ajax = $.ajax;
@@ -171,6 +170,20 @@ export default class BookedRoomConsolePage extends Component {
       optionsIndex.push(0);
     }
 
+    if (optionsIndex.indexOf(1) < 0) {
+      wrapFunc.AlertStatus(
+        "Oopps...",
+        "Please select at least 1 option.",
+        "error",
+        false,
+        false
+      );
+      this.setState({
+        optionsButton: false,
+      });
+      return;
+    }    
+
     wrapFunc.SetUpBookedSearchOption(options);
     this.setState({
       optionDialogOpen: false,
@@ -275,32 +288,64 @@ export default class BookedRoomConsolePage extends Component {
         <div id="bg-overlay"></div>
         <div id="view-booked-box">
           <div className="dialog-header">
-            <h1 style={styles.textCenter}>Edit Room</h1>
+            <h1 style={styles.textCenter}>View Booked</h1>
           </div>
           <div className="dialog-content">
-            <h1 style={styles.bgColor}>User Details</h1>
               <div className="table-hero">
-                <Card className="view-content-card">
-                <table className="tableBody">
+                <Card className="half-wrapper">
+                <table className="centerTable">
+                  <caption><h1>User Details</h1></caption>
                   <tbody>
                     <tr>
-                      <td style={styles.textLeft}>Full Name</td>
+                      <td style={styles.textCenter}>Full Name</td>
                       <td style={styles.textLeft}>
-                        <span id="view-booked-name"></span>
+                        <b><span id="view-booked-name"></span></b>
                       </td>
                     </tr>
                     <tr>
-                      <td style={styles.textLeft}>Student Id</td>
+                      <td style={styles.textCenter}>Student Id</td>
                       <td style={styles.textLeft}>
-                        <span id="view-booked-si"></span>
+                        <b><span id="view-booked-si"></span></b>
                       </td>
                     </tr>
                   </tbody>
                 </table>
                 </Card>
+                <Card className="half-wrapper">
+                <table className="centerTable">
+                  <caption><h1>Room Details</h1></caption>
+                  <tbody>
+                    <tr>
+                      <td style={styles.textCenter}>Campus</td>
+                      <td style={styles.textLeft}>
+                        <b><span id="view-booked-cp"></span></b>
+                      </td>
+                    </tr>                  
+                    <tr>
+                      <td style={styles.textCenter}>Room No.</td>
+                      <td style={styles.textLeft}>
+                        <b><span id="view-booked-rn"></span></b>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={styles.textCenter}>Types</td>
+                      <td style={styles.textLeft}>
+                        <b><span id="view-booked-tor"></span></b>
+                      </td>
+                    </tr>
+                  </tbody>                  
+                </table>
+                </Card>
               </div>
           </div>
           <div className="dialog-footer">
+            <RaisedButton
+              id="cancel-btn"
+              label="Cancel"
+              secondary={true}
+              style={styles.rightAlign}
+            />
+            <div style={styles.clearFix}></div>          
           </div>
         </div>
         <div id="card-wrapper" className="wrapper-margin">

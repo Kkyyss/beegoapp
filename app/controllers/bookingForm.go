@@ -66,16 +66,6 @@ func (self *BookingFormController) Post() {
 		ratespp float64
 	)
 
-	room = models.Room{
-		Campus:       self.GetString("campus"),
-		TypesOfRooms: self.GetString("types-of-rooms"),
-	}
-
-	errMsg = room.Available()
-	if errMsg != "" {
-		goto Response
-	}
-
 	userId, _ = strconv.Atoi(self.GetString("form-user-id"))
 	beego.Debug(userId)
 	user = models.User{
@@ -83,6 +73,16 @@ func (self *BookingFormController) Post() {
 	}
 
 	errMsg = user.GetRequestStatus()
+	if errMsg != "" {
+		goto Response
+	}
+
+	room = models.Room{
+		Campus:       self.GetString("campus"),
+		TypesOfRooms: self.GetString("types-of-rooms"),
+	}
+
+	errMsg = room.Available()
 	if errMsg != "" {
 		goto Response
 	}

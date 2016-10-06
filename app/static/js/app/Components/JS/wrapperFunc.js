@@ -22,7 +22,8 @@ searchRequestOption = ["Status"],
 searchBookedOption = ["Room.RoomNo"],
 searchUserRequestOption = ["Status"],
 searchRoomTypeOption = ["Campus"],
-searchUserOption = ["StudentId"];    
+searchUserOption = ["StudentId"],
+searchRoomStatusOption = ["Campus"];
 
 require('./pagination.min.js');
 
@@ -291,22 +292,27 @@ window.Wrapper = {
         },
         afterRender: function() {
           var removeUserBtn = $('.removeUserButton'),
-          editUserBtn = $('.editUserButton');
+          editUserBtn = $('.editUserButton'),
+          viewUserBtn = $('.viewUserButton');
 
           searchBox.unbind('input', SearchUserQuery);
           removeUserBtn.unbind('click', removeUser);
           editUserBtn.unbind('click', editUser);
+          viewUserBtn.unbind('click', viewUser);
 
           searchBox.bind('input', SearchUserQuery);
           removeUserBtn.bind('click', removeUser);
           editUserBtn.bind('click', editUser);
+          viewUserBtn.bind('click', viewUser);
         },
         afterPaging: function() {
           var removeUserBtn = $('.removeUserButton'),
-          editUserBtn = $('.editUserButton');
+          editUserBtn = $('.editUserButton'),
+          viewUserBtn = $('.viewUserButton');
 
           removeUserBtn.on('click', removeUser);
           editUserBtn.on('click', editUser);
+          viewUserBtn.on('click', viewUser)
         }
     });
   },
@@ -487,6 +493,30 @@ window.Wrapper = {
   SetRoomStatusDataSource: function(ds) {
     roomStatusDataSource = ds;
   },
+  GetRoomDataSource: function() {
+    return roomDataSource;
+  },
+  GetRequestDataSource: function() {
+    return requestDataSource;
+  },
+  GetBookedDataSource: function() {
+    return bookedDataSource;
+  },
+  GetUsersDataSource: function() {
+    return usersDataSource;
+  },
+  GetUserRequestDataSource: function() {
+    return userRequestDataSource;
+  },
+  GetUserBookedDataSource: function() {
+    return userBookedDataSource;
+  },
+  GetRoomTypeDataSource: function() {
+    return roomTypeDataSource;
+  },
+  GetRoomStatusDataSource: function() {
+    return roomStatusDataSource;
+  },
   ClearContent: function() {
     var container = $('#pagination-container');
     var content = $('#pagination-content');
@@ -519,6 +549,10 @@ window.Wrapper = {
   SetUpBookedSearchOption: function(ds) {
     searchBookedOption = ds;
     SearchBookedQuery();
+  },
+  SetUpRoomStatusSearchOption: function(ds) {
+    searchRoomStatusOption = ds;
+    SearchRoomStatusRequestQuery();
   },
   SetUpEditUser: function() {
 
@@ -683,6 +717,8 @@ function userListTemplate(data) {
     '<img src="'+ item.AvatarUrl +'" width="32x32" class="imgRound" />'+
     '<span id="u-id" class="hide">' + item.Id + '</span>' +
     '<span id="u-cn" class="hide">' + item.ContactNo + '</span>' +
+    '<span id="u-avatar" class="hide">' + item.AvatarUrl + '</span>' +
+    '<span id="u-dj" class="hide">' + item.DateJoined + '</span>' +
     '<span id="u-email" class="hide">' + item.Email + '</span>' +
     '<span id="u-location" class="hide">' + item.Location + '</span>' +
     '<span id="u-gender" class="hide">' + item.Gender + '</span>' +
@@ -763,7 +799,7 @@ function roomStatusListTemplate(data) {
     '<span id="rt-available" class="hide">' + item.Available + '</span>' +
     '<span class="paraStyle">' + (item.Total - item.Available) + '/' +item.Total + '</span>' +
     '<div class="rightAlignment">' +
-    '<button type="button" class="viewRoomStatusButtonButton">View</button>' +
+    // '<button type="button" class="viewRoomStatusButtonButton">View</button>' +
     '</div>' +    
     '</div>';
   });
@@ -1154,11 +1190,9 @@ function viewBooked(e) {
 
   $('#view-booked-name').text(thisObj.children("#booked-name").text());
   $('#view-booked-si').text(thisObj.children('#booked-student-id').text());
-    // '<span id="booked-name" class="paraStyle">' + item.Name + '</span>' +
-    // '<span id="booked-student-id" class="hide">' + item.StudentId + '</span>' +
-    // '<span id="booked-cp" class="paraStyle">' + item.Room.Campus + '</span>' +
-    // '<span id="booked-tor" class="paraStyle">' + item.Room.TypesOfRooms + '</span>' +
-    // '<span id="booked-rn" class="paraStyle">' + item.Room.RoomNo + '</span>' +
+  $('#view-booked-cp').text(thisObj.children('#booked-cp').text());
+  $('#view-booked-rn').text(thisObj.children('#booked-rn').text());
+  $('#view-booked-tor').text(thisObj.children('#booked-tor').text());
 }
 
 function updateBookedView() {
@@ -1286,6 +1320,28 @@ function editUser(e) {
   }
 }
 
+function viewUser(e) {
+  e.preventDefault();
+
+  var thisObj = $(this).parent().parent();
+  var gender = thisObj.children("#u-gender").text();
+  $('#bg-overlay, #view-user-box').css('display', 'block');
+  $('#view-user-id').text(thisObj.children("#u-id").text());
+  $('#view-user-avatar').attr('src', thisObj.children("#u-avatar").text());
+  $('#view-user-dj').text(moment(thisObj.children("#u-dj").text()).format('MMMM Do YYYY'));
+  $('#view-user-campus').text(thisObj.children("#u-campus").text());
+  $('#view-user-name').text(thisObj.children("#u-name").text());
+  $('#view-user-email').text(thisObj.children("#u-email").text());
+  $('#view-user-location').text(thisObj.children("#u-location").text());
+  $('#view-user-contact-no').text(thisObj.children("#u-cn").text());
+  var activated = thisObj.children("#u-activated").text();
+  var fullPermission = thisObj.children('#u-fullPermission').text();
+  if (activated === 'Activated') {
+    $('#view-user-activated').text("Yes");
+  }
+  $('#view-user-pm').text(fullPermission);
+}
+
 function updateUserView() {
   var userData = window.UserData;
 
@@ -1303,7 +1359,7 @@ function updateUserView() {
     success: function(res) {
       if (res.error != null) {
         wrapFunc.ClearContent();
-        $('#errMsg').text(res.error);                
+        $('#errMsg').text(res.error);
       } else {
         usersDataSource = res.data;
         wrapFunc.PaginateUsersContent(usersDataSource);
@@ -1456,15 +1512,13 @@ function SearchRoomStatusRequestQuery() {
     return;
   }
   var options = {
-    caseSensitive: true,
+    caseSensitive: false,
     shouldSort: true,
     threshold: 0.6,
     location: 0,
     distance: 100,
     maxPatternLength: 32,
-    keys: [
-      "Campus"
-    ]
+    keys: searchRoomStatusOption
   };
   console.log(roomStatusDataSource);
   var fuse = new Fuse(roomStatusDataSource, options);

@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {Card, CardActions, CardTitle} from 'material-ui/Card';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import Dialog from 'material-ui/Dialog';
@@ -7,8 +6,8 @@ import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
 import FontIcon from 'material-ui/FontIcon';
+import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 import "intl-tel-input/build/css/intlTelInput.css";
 var $ = window.Jquery;
@@ -182,10 +181,9 @@ export default class AddUserDialog extends Component {
 
     return (
       <div>
-          <RaisedButton
+          <IconButton
             id="add-user-btn"
-            primary={true}
-            icon={<FontIcon className="fa fa-user-plus" />}
+            iconClassName="fa fa-user-plus"
             style={styles.button}
             onTouchTap={this.handleOpen}
           />
