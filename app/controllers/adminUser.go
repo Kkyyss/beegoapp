@@ -56,12 +56,11 @@ func (self *AdminUserController) Get() {
 
 func (self *AdminUserController) Post() {
 	var (
-		errMsg         string
-		activated      bool
-		isAdmin        bool
-		fullPermission bool
-		profiled       bool
-		err            error
+		errMsg    string
+		activated bool
+		// fullPermission bool
+		profiled bool
+		err      error
 	)
 
 	if self.GetString("user-activated") == "on" {
@@ -70,27 +69,18 @@ func (self *AdminUserController) Post() {
 	if self.GetString("user-profiled") == "on" {
 		profiled = true
 	}
-	if self.GetString("user-admin") == "on" {
-		isAdmin = true
-		if self.GetString("user-permission") == "on" {
-			fullPermission = true
-		}
-	}
 
 	namespaced := models.NameSpace(self.GetString("user-name"))
 	user := models.User{
-		Name:           namespaced,
-		Email:          self.GetString("user-email"),
-		Campus:         self.GetString("user-c"),
-		AvatarUrl:      "../static/upload/default/pikachu.png",
-		ContactNo:      self.GetString("user-contact-no"),
-		Location:       self.GetString("user-location"),
-		Gender:         self.GetString("user-gender"),
-		Activated:      activated,
-		IsAdmin:        isAdmin,
-		FillUpProfile:  profiled,
-		Provider:       "gplus",
-		FullPermission: fullPermission,
+		Name:          namespaced,
+		Email:         self.GetString("user-email"),
+		Campus:        self.GetString("user-c"),
+		AvatarUrl:     "../static/upload/default/pikachu.png",
+		ContactNo:     self.GetString("user-contact-no"),
+		Gender:        self.GetString("user-gender"),
+		Activated:     activated,
+		FillUpProfile: profiled,
+		// FullPermission: fullPermission,
 	}
 
 	errMsg = user.IsUniqueDataDuplicated()
@@ -135,12 +125,11 @@ func (self *AdminUserController) Delete() {
 
 func (self *AdminUserController) Put() {
 	var (
-		errMsg         string
-		activated      bool
-		isAdmin        bool
-		fullPermission bool
-		profiled       bool
-		err            error
+		errMsg    string
+		activated bool
+		// fullPermission bool
+		profiled bool
+		err      error
 	)
 
 	if self.GetString("edit-user-activated") == "on" {
@@ -148,12 +137,6 @@ func (self *AdminUserController) Put() {
 	}
 	if self.GetString("edit-user-profiled") == "on" {
 		profiled = true
-	}
-	if self.GetString("edit-user-admin") == "on" {
-		isAdmin = true
-		if self.GetString("edit-user-permission") == "on" {
-			fullPermission = true
-		}
 	}
 
 	namespaced := models.NameSpace(self.GetString("edit-user-name"))
@@ -165,13 +148,11 @@ func (self *AdminUserController) Put() {
 		Email:  self.GetString("edit-user-email"),
 		Campus: self.GetString("edit-user-campus"),
 		// AvatarUrl:     "../static/upload/default/pikachu.png",
-		ContactNo:      self.GetString("edit-user-contact-no"),
-		Location:       self.GetString("edit-user-location"),
-		Gender:         self.GetString("edit-user-gender"),
-		Activated:      activated,
-		IsAdmin:        isAdmin,
-		FillUpProfile:  profiled,
-		FullPermission: fullPermission,
+		ContactNo:     self.GetString("edit-user-contact-no"),
+		Gender:        self.GetString("edit-user-gender"),
+		Activated:     activated,
+		FillUpProfile: profiled,
+		// FullPermission: fullPermission,
 	}
 
 	errMsg = user.UpdateIsUniqueDataDuplicated()

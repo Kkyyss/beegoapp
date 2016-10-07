@@ -8,21 +8,17 @@ import Avatar from 'material-ui/Avatar';
 import Paper from 'material-ui/Paper';
 import {yellow400} from 'material-ui/styles/colors';
 import FontIcon from 'material-ui/FontIcon';
-import RaisedButton from 'material-ui/RaisedButton';
 import Divider from 'material-ui/Divider';
 import Subheader from 'material-ui/Subheader';
 import FlatButton from 'material-ui/FlatButton';
 
 require('./CSS/animate.css');
 require('./CSS/sweetalert2.min.css');
-// require('./CSS/scrollbar/jquery.mCustomScrollbar.css');
 require('./CSS/backup.css');
 require('./JS/wrapperFunc.js');
 
 var $ = window.Jquery;
 var moment = window.Moment;
-require("jquery-mousewheel")($);
-// require('malihu-custom-scrollbar-plugin')($);
 
 require('./JS/jquery.fittext.js');
 require('./JS/jquery.lettering.js');
@@ -190,7 +186,7 @@ export default class Master extends Component {
   }
 
   componentDidMount(){
-    $('#log-gplus, #reg-gplus, #log-facebook, #reg-facebook').on('click', providerRequest);
+    $('#log-gplus, #reg-gplus').on('click', providerRequest);
 
     function providerRequest() {
       var idName = $(this).attr('name');
@@ -205,13 +201,6 @@ export default class Master extends Component {
     var thisObj = this;
 
     IsLogined(url_path)
-
-    $('.left-drawer-scrollbar, #card-wrapper, .right-drawer-scrollbar').mousewheel(function(event, delta, deltaX, deltaY){
-      event.preventDefault();
-      if (delta < 0) $(this).scrollTop($(this).scrollTop() + 55);
-      else if (delta > 0) $(this).scrollTop($(this).scrollTop() - 55);
-      return false;
-    });
 
     $(window).resize(function() {
       $(window).trigger("window:resize");
@@ -250,19 +239,17 @@ export default class Master extends Component {
             var userInfo = tokenString.user;
             console.log(userInfo);
             wrapFunc.SetUpUser(userInfo);
-            var userId  = userInfo.id;
             var isAdmin = userInfo.isAdmin;
-            var dateJoined = userInfo.dateJoined;
+            var userId  = userInfo.id;
             var avatarURL = userInfo.avatar;
             var isAccount = request.getResponseHeader('IsAccount');
             var isForm = request.getResponseHeader("IsForm");
-            var provider = userInfo.provider;
             var email = userInfo.email;
             var campus = userInfo.campus;
             var studentId = userInfo.studentId;
+            var adminId = userInfo.adminId;
             var activated = userInfo.activated;
             var username = userInfo.name;
-            var userLocation = userInfo.location;
             var gender = userInfo.gender;
             var contactNo = userInfo.contactNo;
             var status = (activated) ? "Activated" : "Inactivated";
@@ -288,6 +275,36 @@ export default class Master extends Component {
                   $('#form-content').remove();
                 } else {
                   $('#form-warning-profile').remove();
+                }
+                break;
+              case '/user/account':
+                if (isAdmin) {
+                  $('#student-id').parent().next().remove();
+                  $('#student-id, #gender-section').parent().remove();
+                  $('#admin-id').val(adminId);
+                } else {
+                  $('#admin-id').parent().next().remove();
+                  $('#admin-id').parent().remove();
+                  $('#student-id').val(studentId);
+                  switch (gender) {
+                    case 'Male':
+                      $('input[name=user-gender]')[0].click();
+                      break;
+                    case 'Female':
+                      $('input[name=user-gender]')[1].click();
+                      break;
+                    default: break;
+                  }
+                }
+                if (isAccount === 'TRUE') {
+                  $('#user-type').text(userType);
+                  $('#user-img').attr('src', avatarURL);
+                  $('#status').text(status);
+                  $('#user-campus').val(campus);
+                  $('#reg-email').val(email);
+                  $('#user-name').val(username);
+
+                  $('#user-tel-no').text(contactNo);
                 }
                 break;
               case '/user/request':
@@ -320,40 +337,7 @@ export default class Master extends Component {
 
               document.title += ' ' + username;
               $('#sidebar-user-avatar, #sidebar-admin-avatar, #user-avatar, #menu-avatar').attr('src', avatarURL);
-              // /user/account
-              if (isAccount === 'TRUE') {
-                // if (provider) {
-                //   $('#password-tab').remove();
-                //   $('#account-tab')
-                //   .css('width', '100%')
-                //   .parent()
-                //   .next()
-                //   .children()
-                //   .css('width', '100%');
-                // } else {
-                // $('#password-email').val(email);
-                // }
-                $('#user-type').text(userType);
-                $('#joined-date').text(moment(dateJoined).format('MMMM Do YYYY'));
-                $('#user-img').attr('src', avatarURL);
-                $('#status').text(status);
-                $('#user-provider').val(provider);
-                $('#user-campus').val(campus);
-                $('#reg-email').val(email);
-                $('#student-id').val(studentId);
-                $('#user-name').val(username);
-                $('#user-location').val(userLocation);
-                switch (gender) {
-                  case 'Male':
-                    $('input[name=user-gender]')[0].click();
-                    break;
-                  case 'Female':
-                    $('input[name=user-gender]')[1].click();
-                    break;
-                  default: break;
-                }
-                $('#user-tel-no').text(contactNo);
-              }
+
               if (isForm === 'TRUE') {
                 $('#form-user-id').val(userId);
               }

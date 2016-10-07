@@ -11,7 +11,6 @@
     "file-loader": "^0.9.0",
     "fuse.js": "^2.5.0",
     "intl-tel-input": "^9.0.14",
-    "jquery-mousewheel": "^3.1.13",
     "material-ui": "^0.15.4",
     "moment": "^2.15.1",
     "react": "^15.3.2",
@@ -39,7 +38,8 @@
     "webpack": "^1.13.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --hot --inline"
   },
   "repository": {
     "type": "git",

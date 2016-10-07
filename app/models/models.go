@@ -14,32 +14,22 @@ import (
 )
 
 type (
-	// Own's user
 	User struct {
-		Id                  int
-		DateJoined          time.Time `orm:"auto_now_add;type(date)"`
-		Provider            string    `orm:"null;size(25);"`
-		UserId              string    `orm:"null"`
-		Name                string    `orm:"size(255);"`
-		Email               string    `orm:"size(100)"`
-		Campus              string    `orm:"size(10)"`
-		StudentId           string    `orm:"size(25)"`
-		Password            string    `orm:"null"`
-		HashPassword        string    `orm:"null;size(128)"`
-		AvatarUrl           string    `orm:"null"`
-		Location            string    `orm:"default(none)"`
-		Gender              string    `orm:"default(none);size(20)"`
-		ContactNo           string    `orm:"default(none)"`
-		ActivationToken     string    `orm:"null;size(156)"`
-		ForgotPasswordToken string    `orm:"null;size(156)"`
-		Balance             float64
-		Activated           bool
-		// DepositIsPaid       bools
-		IsAdmin        bool
-		FillUpProfile  bool
-		FullPermission bool
-		Room           *Room      `orm:"null;rel(fk);"`
-		Request        []*Request `orm:"null;reverse(many);"`
+		Id            int
+		Name          string `orm:"size(255);"`
+		Email         string `orm:"size(100)"`
+		Campus        string `orm:"size(10)"`
+		StudentId     string `orm:"size(25)"`
+		Password      string `orm:"null"`
+		HashPassword  string `orm:"null;size(128)"`
+		AvatarUrl     string `orm:"null"`
+		Gender        string `orm:"default(none);size(20)"`
+		ContactNo     string `orm:"default(none)"`
+		Balance       float64
+		Activated     bool
+		FillUpProfile bool
+		Room          *Room      `orm:"null;rel(fk);"`
+		Request       []*Request `orm:"null;reverse(many);"`
 	}
 
 	RecaptchaResponse struct {
@@ -93,21 +83,8 @@ func (u *User) IsValidName() (errMsg string) {
 
 func (u *User) IsStudentEmail() (errMsg string) {
 	valid := validation.Validation{}
-	if v := valid.Match(u.Provider, regexp.MustCompile(`^gplus$`), "provider"); !v.Ok {
+	if v := valid.Match(u.Email, regexp.MustCompile(`^(i|j|p|l){1}[0-9]{5,}@student.newinti.edu.my$`), "email").Message("Invalid student email!"); !v.Ok {
 		errMsg = v.Error.Message
-	} else if v := valid.Match(u.Email, regexp.MustCompile(`^(i|j|p|l){1}[0-9]{5,}@student.newinti.edu.my$`), "email").Message("Invalid student email!"); !v.Ok {
-		errMsg = v.Error.Message
-	}
-	return
-}
-
-func (u *User) IsAdminEmail() (errMsg string) {
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-	aObj := qs.Filter("email", u.Email)
-	num, _ := aObj.Count()
-	if num == 1 {
-		errMsg = "Yessu"
 	}
 	return
 }
@@ -154,16 +131,6 @@ func (u *User) UpdateIsUniqueDataDuplicated() (errMsg string) {
 	return
 }
 
-func (u *User) IsValidContactNo() (errMsg string) {
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-	num, _ := qs.Filter("contact_no", u.ContactNo).Exclude("email", u.Email).Count()
-	if num >= 1 {
-		errMsg = "Contact No. exist!"
-	}
-	return
-}
-
 func (u *User) Insert() error {
 	o := orm.NewOrm()
 	qs := o.QueryTable("users")
@@ -176,36 +143,21 @@ func (u *User) Insert() error {
 	return err
 }
 
-func (u *User) GetUserByToken(token string) (err error) {
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-	err = qs.Filter("activation_token", token).One(u)
-	beego.Debug("Get token")
-	if err == orm.ErrNoRows {
-		beego.Debug(err)
-		u = nil
-		beego.Debug("Not get user by token")
-		return
-	}
-	beego.Debug("Get user by token")
-	return
-}
-
-func (u *User) GetUserByEmailAndPassword(email, password string) (err error) {
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-	err = qs.Filter("provider", "").Filter("email", email).One(u)
-	if err == orm.ErrNoRows {
-		beego.Debug(err)
-		return
-	}
-	// Validate password
-	if err = isPasswordEqual(u.HashPassword, password); err != nil {
-		u = nil
-		return
-	}
-	return
-}
+// func (u *User) GetUserByEmailAndPassword(email, password string) (err error) {
+// 	o := orm.NewOrm()
+// 	qs := o.QueryTable("users")
+// 	err = qs.Filter("provider", "").Filter("email", email).One(u)
+// 	if err == orm.ErrNoRows {
+// 		beego.Debug(err)
+// 		return
+// 	}
+// 	// Validate password
+// 	if err = isPasswordEqual(u.HashPassword, password); err != nil {
+// 		u = nil
+// 		return
+// 	}
+// 	return
+// }
 
 func (u *User) GetUserById() (errMsg string) {
 	o := orm.NewOrm()
@@ -223,7 +175,7 @@ func (u *User) GetUserById() (errMsg string) {
 func (u *User) GetUserId() (id int, errMsg string) {
 	o := orm.NewOrm()
 	qs := o.QueryTable("users")
-	r := qs.Filter("provider", u.Provider).Filter("email", u.Email)
+	r := qs.Filter("email", u.Email)
 	num, _ := r.Count()
 	if num < 1 {
 		id = 0
@@ -274,7 +226,7 @@ func (u *User) InsertAuthUser() (err error) {
 	}
 	defer response.Body.Close()
 
-	url = "./static/upload/img/" + strconv.FormatInt(num, 10)
+	url = "./static/upload/img/u/" + strconv.FormatInt(num, 10)
 	err = CheckingPathExist(url)
 	if err != nil {
 		return
@@ -298,193 +250,35 @@ func (u *User) InsertAuthUser() (err error) {
 	return
 }
 
-func (u *User) UpdateAuthUser() (err error) {
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-	_, err = qs.Filter("provider", u.Provider).Filter("user_id", u.UserId).Update(orm.Params{
-		"email": u.Email,
-	})
-	if err != nil {
-		beego.Debug("Not update")
-	}
-	err = qs.Filter("provider", u.Provider).Filter("user_id", u.UserId).One(u)
-	beego.Debug(err)
-	return
-}
+// func (u *User) UpdateAuthUser() (err error) {
+// 	o := orm.NewOrm()
+// 	qs := o.QueryTable("users")
+// 	_, err = qs.Filter("user_id", u.UserId).Update(orm.Params{
+// 		"email": u.Email,
+// 	})
+// 	if err != nil {
+// 		beego.Debug("Not update")
+// 	}
+// 	err = qs.Filter("provider", u.Provider).Filter("user_id", u.UserId).One(u)
+// 	beego.Debug(err)
+// 	return
+// }
 
 // User repo
-func (u *User) Create(host string) (errMsg string, err error) {
-	// Hash password
-	hpass, err := hashingPassword(u.Password)
-	if err != nil {
-		return "Something goes wrong when creating password.", err
-	}
-	u.HashPassword = hpass
-	//clear the incoming text password
-	u.Password = ""
-
-	// Generate Token
-	u.ActivationToken, err = generateEmailActivationToken()
-	if err != nil {
-		return "Something goes wrong when creating verification token", err
-	}
-
-	// Insert User
-	err = u.Insert()
-	if err != nil {
-		return "Something goes wrong when adding user to database.", err
-	}
-
-	// Send verification email
-	recipient := u.Email
-	subject := "Account Verification"
-	body := activationMailBody(u.ActivationToken, host, u.Name)
-
-	if err = goSendMail(recipient, subject, body); err != nil {
-		return "Something goes wrong when sending the email.", err
-	}
-	return
-}
-
-func (u *User) ResendActivationMail(host string) string {
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-	r := qs.Filter("provider", u.Provider).Filter("email", u.Email)
-	num, _ := r.Count()
-	if num < 1 {
-		return "No email found."
-	}
-	err := r.One(u)
-	// Send verification email
-	recipient := u.Email
-	subject := "Account Verification"
-	body := activationMailBody(u.ActivationToken, host, u.Name)
-
-	if err = goSendMail(recipient, subject, body); err != nil {
-		return "Something goes wrong when sending the email."
-	}
-	return ""
-}
-
-func (u *User) ActivateUser() (err error) {
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-	_, err = qs.Filter("activation_token", u.ActivationToken).Update(orm.Params{
-		"activation_token": "",
-		"activated":        true,
-	})
-	if err != nil {
-		beego.Debug("Not update")
-	}
-	err = qs.Filter("provider", u.Provider).Filter("email", u.Email).One(u)
-	return err
-}
-
-func (u *User) GenerateLink(host string) string {
-	var err error
-	u.ForgotPasswordToken, err = generateForgotPasswordToken()
-	if err != nil {
-		beego.Debug(err)
-		return "Something goes wrong when creating token"
-	}
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-	r := qs.Filter("provider", "").Filter("email", u.Email)
-	num, err := r.Count()
-	if err != nil {
-		beego.Debug(err)
-	}
-	if num < 1 {
-		return "No such email."
-	}
-	_, err = r.Update(orm.Params{
-		"forgot_password_token": u.ForgotPasswordToken,
-	})
-	if err != nil {
-		beego.Debug(err)
-		return "Something goes wrong when update token"
-	}
-
-	err = r.One(u)
-
-	// Send forgot password email
-	recipient := u.Email
-	subject := "Forgot Password"
-	body := forgotPasswordMailBody(u.ForgotPasswordToken, host, u.Name)
-
-	if err = goSendMail(recipient, subject, body); err != nil {
-		beego.Debug(err)
-		return "Something goes wrong when sending the email."
-	}
-	return ""
-}
-
-func (u *User) UpdateForgotPassword() string {
-	var err error
-	u.HashPassword, err = hashingPassword(u.Password)
-	if err != nil {
-		return "Something goes wrong when creating new password."
-	}
-	u.Password = ""
-
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-
-	_, err = qs.Filter(
-		"forgot_password_token",
-		u.ForgotPasswordToken,
-	).Update(orm.Params{
-		"forgot_password_token": "",
-		"hash_password":         u.HashPassword,
-	})
-	if err != nil {
-		beego.Debug(err)
-		return "Something goes wrong when updating password on database."
-	}
-	return ""
-}
-
-func (u *User) UpdateNewPassword() string {
-	var err error
-	u.HashPassword, err = hashingPassword(u.Password)
-	if err != nil {
-		return "Something goes wrong when creating new password."
-	}
-	u.Password = ""
-
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-	r := qs.Filter("provider", u.Provider).Filter("email", u.Email)
-	num, _ := r.Count()
-	if num < 1 {
-		return "Provider or Email issue"
-	}
-	_, err = r.Update(orm.Params{
-		"hash_password": u.HashPassword,
-	})
-	if err != nil {
-		beego.Debug(err)
-		return "Something goes wrong when updating password on database."
-	}
-	return ""
-}
 
 func (u *User) UpdateAccount() string {
 	var err error
 
 	o := orm.NewOrm()
 	qs := o.QueryTable("users")
-	beego.Debug(u.Provider)
 	beego.Debug(u.Email)
-	r := qs.Filter("provider", u.Provider).Filter("email", u.Email)
+	r := qs.Filter("email", u.Email)
 	num, _ := r.Count()
 	if num < 1 {
 		return "Provider or Email issue"
 	}
 
 	_, err = r.Update(orm.Params{
-		// "name":            u.Name,
-		"location":        u.Location,
 		"gender":          u.Gender,
 		"contact_no":      u.ContactNo,
 		"fill_up_profile": u.FillUpProfile,
@@ -512,20 +306,15 @@ func (u *User) GetUserDataMap() map[string]interface{} {
 	userData := make(map[string]interface{})
 
 	userData["id"] = u.Id
-	userData["isAdmin"] = u.IsAdmin
 	userData["activated"] = u.Activated
-	userData["dateJoined"] = u.DateJoined.String()
-	userData["provider"] = u.Provider
 	userData["name"] = u.Name
 	userData["email"] = u.Email
-	userData["location"] = u.Location
 	userData["avatar"] = u.AvatarUrl
 	userData["gender"] = u.Gender
 	userData["contactNo"] = u.ContactNo
 	userData["fillUpProfile"] = u.FillUpProfile
 	userData["studentId"] = u.StudentId
 	userData["campus"] = u.Campus
-	userData["fullPermission"] = u.FullPermission
 	return userData
 }
 
@@ -1034,9 +823,7 @@ func (u *User) Update() (err error) {
 		"campus":          u.Campus,
 		"gender":          u.Gender,
 		"contact_no":      u.ContactNo,
-		"location":        u.Location,
 		"activated":       u.Activated,
-		"is_admin":        u.IsAdmin,
 		"fill_up_profile": u.FillUpProfile,
 	})
 
@@ -1245,4 +1032,145 @@ func (u *User) GetBookedRoom() (errMsg string) {
 		return errMsg
 	}
 	return
+}
+
+type Admin struct {
+	Id             int
+	Name           string `orm:"size(255);"`
+	Email          string `orm:"size(100)"`
+	AvatarUrl      string `orm:"null"`
+	Campus         string `orm:"size(10)"`
+	ContactNo      string `orm:"default(none)"`
+	AdminId        string `orm:"size(100)"`
+	Activated      bool
+	FullPermission bool
+}
+
+func (a *Admin) Insert() (err error) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("admin")
+	i, err := qs.PrepareInsert()
+	if err != nil {
+		return err
+	}
+	defer i.Close()
+	_, err = i.Insert(a)
+	return err
+}
+
+func (a *Admin) Remove() (errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("admin").Filter("id", a.Id)
+	_, err := qs.Delete()
+	if err != nil {
+		errMsg = "Cannot Remove admin."
+		beego.Debug()
+	}
+	return
+}
+
+func (a *Admin) UpdateAccount() (errMsg string) {
+	var err error
+
+	o := orm.NewOrm()
+	qs := o.QueryTable("admin")
+	beego.Debug(a.Email)
+	r := qs.Filter("email", a.Email)
+	num, _ := r.Count()
+	if num < 1 {
+		return "Email issue"
+	}
+
+	_, err = r.Update(orm.Params{
+		"contact_no": a.ContactNo,
+	})
+	if err != nil {
+		return "Something goes wrong when update data."
+	}
+	if a.AvatarUrl != "" {
+		_, err = r.Update(orm.Params{
+			"avatar_url": a.AvatarUrl,
+		})
+		if err != nil {
+			return "Something goes wrong when update data."
+		}
+	}
+	err = r.One(a)
+	if err != nil {
+		beego.Debug(err)
+		return "Something goes wrong when get user data."
+	}
+	return ""
+}
+
+func (a *Admin) GetAdminDataMap() map[string]interface{} {
+	adminData := make(map[string]interface{})
+	adminData["id"] = a.Id
+	adminData["activated"] = a.Activated
+	adminData["name"] = a.Name
+	adminData["email"] = a.Email
+	adminData["avatar"] = a.AvatarUrl
+	adminData["contactNo"] = a.ContactNo
+	adminData["adminId"] = a.AdminId
+	adminData["campus"] = a.Campus
+	adminData["fullPermission"] = a.FullPermission
+	adminData["isAdmin"] = true
+	return adminData
+}
+
+func (a *Admin) GetAdminByEmail() (errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("admin").Filter("email", a.Email)
+	num, _ := qs.Count()
+	if num == 1 {
+		err := qs.One(a)
+		if err != nil {
+			errMsg = "Cannot get admin data."
+			beego.Debug()
+		}
+	} else {
+		errMsg = "No such Admin"
+	}
+	return
+}
+
+func (a *Admin) IsAdminEmail() (errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("admin")
+	aObj := qs.Filter("email", a.Email)
+	num, _ := aObj.Count()
+	if num == 1 {
+		errMsg = "Yessu"
+	}
+	return
+}
+
+func (a *Admin) GetAuthAdmin() (errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("admin").Filter("email", a.Email)
+	num, _ := qs.Count()
+	if num <= 0 {
+		errMsg = "No such Admin"
+	} else {
+		err := qs.One(a)
+		if err != nil {
+			errMsg = "Cannot get admin data."
+		}
+	}
+	return
+}
+
+func (a *Admin) GetAdminId() (id int, errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("admin")
+	r := qs.Filter("email", a.Email)
+	num, _ := r.Count()
+	if num < 1 {
+		id = 0
+		errMsg = "No data found."
+		return id, errMsg
+	}
+	var acp Admin
+	r.One(&acp)
+	return acp.Id, ""
 }

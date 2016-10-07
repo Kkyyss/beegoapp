@@ -7,7 +7,6 @@ import (
 	"github.com/astaxie/beego/orm"
 	// _ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
-	// "golang.org/x/crypto/bcrypt"
 
 	"akgo/app/models"
 )
@@ -46,7 +45,14 @@ func initDB() {
 		20,
 	)
 	// register model here
-	orm.RegisterModel(new(models.User), new(models.Request), new(models.RoomTypes), new(models.Room), new(models.Ip))
+	orm.RegisterModel(
+		new(models.Admin),
+		new(models.User),
+		new(models.Request),
+		new(models.RoomTypes),
+		new(models.Room),
+		new(models.Ip),
+	)
 
 	// Database alias.
 	name := "default"
@@ -58,24 +64,18 @@ func initDB() {
 	verbose := true
 
 	// Admin account
-	// byteHashPassword, _ := bcrypt.GenerateFromPassword([]byte("qwerty"), bcrypt.DefaultCost)
-	// hpass := string(byteHashPassword)
-	// u := models.User{
-	// 	Name:          "Alpha",
-	// 	Campus:        "ALL",
-	// 	Email:         "ongkys1994@gmail.com",
-	// 	AvatarUrl:     "../static/upload/default/pikachu.png",
-	// 	Location:      "anything",
-	// 	ContactNo:     "+601121314799",
-	// 	FillUpProfile: true,
-	// 	Gender:        "Male",
-	// 	HashPassword:  hpass,
-	// 	Activated:     true,
-	// 	IsAdmin:       true,
+	// a := models.Admin{
+	// 	Name:           "Alpha",
+	// 	Campus:         "ALL",
+	// 	Email:          "ongkys1994@gmail.com",
+	// 	AvatarUrl:      "../static/upload/default/pikachu.png",
+	// 	ContactNo:      "+601121314799",
+	// 	Activated:      true,
 	// 	FullPermission: true,
+	// 	AdminId:        "xyz",
 	// }
 
-	// u.Insert()
+	// a.Insert()
 
 	// Error.
 	err := orm.RunSyncdb(name, force, verbose)
@@ -83,13 +83,13 @@ func initDB() {
 		beego.Error(err)
 	}
 	o := orm.NewOrm()
-	user := models.User{Id: 1}
-	err = o.Read(&user)
+	admin := models.Admin{Id: 1}
+	err = o.Read(&admin)
 	if err == orm.ErrNoRows {
 		beego.Debug("No result found.")
 	} else if err == orm.ErrMissPK {
 		beego.Debug("No primary key found.")
 	} else {
-		beego.Debug(user.DateJoined, user.Name, user.Activated)
+		beego.Debug(admin.Name, admin.Activated)
 	}
 }

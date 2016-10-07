@@ -1,20 +1,17 @@
 import React, {Component} from 'react';
-import {Card, CardActions, CardTitle} from 'material-ui/Card';
+import {Card} from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
-import FontIcon from 'material-ui/FontIcon';
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
-import AddRoomDialog from "./RoomComponents/AddRoomDialog.js";
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
-import AutoComplete from 'material-ui/AutoComplete';
 import Toggle from 'material-ui/Toggle';
-import Paper from 'material-ui/Paper';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
 import Divider from 'material-ui/Divider';
 import Checkbox from 'material-ui/Checkbox';
+
+import AddRoomDialog from "./RoomComponents/AddRoomDialog.js";
 
 require('../CSS/pagination.css');
 
@@ -39,9 +36,6 @@ const styles = {
   textCenter: {
     textAlign: 'center',
   },
-  inputFieldStyle: {
-    width: 'auto',
-  },
   hide: {
     display: 'none',
   },
@@ -61,9 +55,6 @@ const styles = {
     color: '#1A237E',
     fontStyle: 'normal',
   },
-  buttonRight: {
-    float: 'right',
-  },
   clear: {
     both: 'clear',
   },
@@ -72,7 +63,6 @@ const styles = {
     marginBottom: 15,
   },
   inputStyle: {
-    // border: 'none',
     fontSize: '20px',
     outline: 'none',
     border: 'none',
@@ -97,12 +87,12 @@ const styles = {
   title: {
     textAlign: 'center',
     padding: '10px 0 5px 0',
-  },  
+  },
   wall: {
     marginLeft: '10px',
   },
   rightAlign: {
-    float: 'right',      
+    float: 'right',
     margin: 10,
   },
   textRight: {
@@ -134,7 +124,7 @@ export default class AdminConsolePage extends Component {
     optionsButton: false,
     sortValue: "Campus",
     roomTypeValue: "",
-    roomTypeDisabled: false, 
+    roomTypeDisabled: false,
   };
 
   handleCampusChange = (event, index, value) => {
@@ -172,7 +162,7 @@ export default class AdminConsolePage extends Component {
     };
 
     this.onAjaxRequest(userState);
-  }  
+  }
 
   onAjaxRequest(us) {
     var thisObj = this;
@@ -202,7 +192,7 @@ export default class AdminConsolePage extends Component {
           thisObj.generateCampusItem(res.data);
           thisObj.setState({
             roomTypeDisabled: false,
-          });          
+          });
         }
       }
     });
@@ -288,7 +278,7 @@ export default class AdminConsolePage extends Component {
     this.setState({
       optionDialogOpen: false,
       optionsButton: false,
-    });    
+    });
   };
 
   refreshList = (e) => {
@@ -482,7 +472,7 @@ export default class AdminConsolePage extends Component {
         }
       }
     });
-  }  
+  }
 
   render() {
     const actions = [

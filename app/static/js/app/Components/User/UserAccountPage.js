@@ -22,17 +22,6 @@ var userData;
 import intlTelInput from 'intl-tel-input';
 
 const styles = {
-  root: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-  },  
-  clear: {
-    clear: 'both',
-  },
-  buttonPos: {
-    float: 'right',
-  },
   hide: {
     display: 'none',
   },
@@ -93,14 +82,11 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
-  },  
+  },
   adminChipStyle: {
     color: 'white',
     padding: '6px',
     margin: 5,
-  }, 
-  locationStyle: {
-    width: 'auto',
   },
   oneLine: {
     display: 'flex',
@@ -110,7 +96,7 @@ const styles = {
     color: '#1A237E',
     fontStyle: 'normal',
     fontSize: '18px',
-  },  
+  },
 };
 
 export default class UserAccountPage extends Component {
@@ -134,8 +120,6 @@ export default class UserAccountPage extends Component {
       userData = window.UserData;
       console.log(userData);
       if (userData.isAdmin) {
-        $('#student-id').parent().next().remove();
-        $('#student-id').parent().remove();
         thisObj.setState({
           chipBgColor: "#D50000",
         });
@@ -159,15 +143,6 @@ export default class UserAccountPage extends Component {
       }
     }
 
-    $('#location-btn').on('click', showLocationDialog);
-    function showLocationDialog(ev) {
-      ev.preventDefault();
-      $('#bg-overlay, #location-box').css('display', 'block');
-      google.maps.event.trigger(map, "resize");
-    }
-    $('#cls-loc-btn').on('click', function() {
-      $('#bg-overlay, #location-box').css('display', 'none');
-    });
     var userContactNo = $('#user-contact-no');
     userContactNo.intlTelInput({
       initialCountry: "auto",
@@ -198,17 +173,17 @@ export default class UserAccountPage extends Component {
 
     function submitAccount(e) {
       e.preventDefault();
-      var finalValidation = validFunc(usernameVrf()) &
-                            validFunc(locationVrf()) & 
-                            validFunc(genderVrf()) &
-                            validFunc(contactVrf());
+      var finalValidation;
+      if (!userData.isAdmin) {
+        finalValidation = validFunc(genderVrf())
+      }
+      finalValidation = validFunc(contactVrf());
                // & validFunc(phoneVrf());
       if (!finalValidation) {
         return false;
       }
 
       userContactNo.val(userContactNo.intlTelInput("getNumber"));
-      userLocation.val(userLocation.val().trim());
       var formData = new FormData(acForm[0]);
       ajax({
         url   : "/user/account",
@@ -229,7 +204,7 @@ export default class UserAccountPage extends Component {
             var d = new Date();        
             $('#sidebar-user-avatar, #user-avatar').attr('src', avatarURL + '?' + d.getTime());
             $('#user-img').attr('src', avatarURL + '?' + d.getTime());
-            $('#user-name').val(username);
+            // $('#user-name').val(username);
             wrapFunc.LockScreen(acBtn, acForm, false);
             swal({
               title: 'Success',
@@ -255,29 +230,29 @@ export default class UserAccountPage extends Component {
       return;
     }
 
-    var username = $('#user-name');
-    var userMsg = $('#userMsg');
-    username.on({
-      'input focusout': usernameVrf,
-    });
+    // var username = $('#user-name');
+    // var userMsg = $('#userMsg');
+    // username.on({
+    //   'input focusout': usernameVrf,
+    // });
 
-    function usernameVrf() {
-      var plainText = username.val().trim();
-      isValid = wrapFunc.BasicValidation(
-        (plainText).match(/^[a-zA-Z\s]{1,}$/),
-        userMsg,
-        "Please don't leave it empty.",
-        username
-      );
-      if (!isValid) {
-        return;
-      }
-      wrapFunc.MeetRequirement(
-        username, 
-        userMsg, 
-        "Please don't leave it empty."
-      );
-    }
+    // function usernameVrf() {
+    //   var plainText = username.val().trim();
+    //   isValid = wrapFunc.BasicValidation(
+    //     (plainText).match(/^[a-zA-Z\s]{1,}$/),
+    //     userMsg,
+    //     "Please don't leave it empty.",
+    //     username
+    //   );
+    //   if (!isValid) {
+    //     return;
+    //   }
+    //   wrapFunc.MeetRequirement(
+    //     username, 
+    //     userMsg, 
+    //     "Please don't leave it empty."
+    //   );
+    // }
 
     var userGender = $('input[name=user-gender]');
     var genderMsg = $('#genderMsg');
@@ -336,44 +311,12 @@ export default class UserAccountPage extends Component {
       );
     }
 
-
-    var userLocation = $('#user-location');
-    var locationMsg = $('#locationMsg');
-    userLocation.on({
-      'input focusout': locationVrf,
-    })
-
-    function locationVrf() {
-      var plainText = userLocation.val().trim();
-      isValid = wrapFunc.BasicValidation(
-        (plainText.length != 0),
-        locationMsg,
-        "Please don't leave it empty.",
-        userLocation
-      );
-      if (!isValid) {
-        return;
-      }
-      wrapFunc.MeetRequirement(
-        userLocation, 
-        locationMsg, 
-        "Please don't leave it empty."
-      );
-    }
-
     var userUploadImg = $('#user-upload-img');
 
     userUploadImg.on('change', imageValidator);
 
     function imageValidator(e) {
       if (!e.target.files[0]) {
-        wrapFunc.AlertStatus(
-          'Oops...',
-          "BOBO",
-          'warning',
-          false,
-          false
-        );
         userUploadImg.val("");
       } else if (e.target.files[0].size > 51200) {
         wrapFunc.AlertStatus(
@@ -384,6 +327,8 @@ export default class UserAccountPage extends Component {
           false
         );
         userUploadImg.val("")
+      } else {
+        console.log("ok");
       }
     }
 
@@ -402,34 +347,6 @@ export default class UserAccountPage extends Component {
     return (
       <div>
       <div id="bg-overlay"></div>
-      <div id="location-box">
-        <div className="location-content">
-          <TextField
-            fullWidth={true}
-            placeholder="Location"
-            type="text"
-            id="pac-input"
-            name="pac-input"
-          />        
-          <div id="map"></div>
-          <br/>
-          <div>
-          <RaisedButton
-            primary={true}
-            label="Go!"
-            id="loc-btn"
-            style={styles.buttonMarginWithRight}
-          />
-          <RaisedButton
-            secondary={true}
-            label="cancel"
-            id="cls-loc-btn"
-            style={styles.buttonMarginWithRight}
-          />
-          </div>
-          <div style={styles.clear}></div>
-        </div>
-      </div>
       <div id="card-wrapper" style={styles.cardWrapper} className="wrapper-margin">
         <Card id="card" name="account-card" style={styles.cardSize}>
           <Tabs>
@@ -442,8 +359,6 @@ export default class UserAccountPage extends Component {
               <div >
                 <div className="card-content" style={styles.contentPadding}>
                   <form name="account" encType="multipart/form-data">
-                    <div style={styles.textCenter}><i>Joined on <span id="joined-date"></span></i></div>
-                    <br/>
                     <div style={styles.textCenter}>
                       <Avatar
                         id="user-img"
@@ -503,6 +418,17 @@ export default class UserAccountPage extends Component {
                           />
                           <br/>
                           <TextField
+                            floatingLabelText="Admin ID"
+                            floatingLabelFixed={true}
+                            fullWidth={true}
+                            id="admin-id"
+                            name="admin-id"
+                            type="text"
+                            readOnly={true}
+                            floatingLabelStyle={styles.floatingLabelStyle}
+                          />
+                          <br/>
+                          <TextField
                             floatingLabelText="Student ID"
                             floatingLabelFixed={true}
                             fullWidth={true}
@@ -523,9 +449,8 @@ export default class UserAccountPage extends Component {
                             readOnly={true}
                             floatingLabelStyle={styles.floatingLabelStyle}
                           />
-                          <div id="userMsg">Please don't leave it empty.</div>
-                          <br/>
-                          <p className="form-paragraph">Gender</p>
+                          <div>
+                          <p id="gender-section" className="form-paragraph">Gender</p>
                           <RadioButtonGroup name="user-gender" style={styles.oneLine}>
                             <RadioButton
                               value="Male"
@@ -539,6 +464,7 @@ export default class UserAccountPage extends Component {
                           <br/>
                           <div id="genderMsg">Please select your gender.</div>
                           <br/>
+                          </div>
                           <span style={styles.hide} id="user-tel-no"></span>
                           <p className="form-paragraph">Contact No.</p>
                           <input
@@ -548,25 +474,6 @@ export default class UserAccountPage extends Component {
                           />
                           <br/><br/>
                           <div id="contactMsg">Please don't leave it empty.</div>
-                          <div>
-                            <TextField
-                              id="user-location"
-                              name="user-location"
-                              floatingLabelText="Permanent Address"
-                              floatingLabelFixed={true}
-                              style={styles.locationStyle}
-                              type="text"
-                              floatingLabelStyle={styles.floatingLabelStyle}
-                            />
-                            <IconButton
-                              id="location-btn"
-                              name="location-btn"
-                              iconClassName="fa fa-map-marker"
-                              tooltip="Map"
-                              tooltipPosition="top-center"
-                            />
-                          </div>
-                          <div id="locationMsg">Please don't leave it empty.</div>
                           <br/>
                   </form>
                   <br/>

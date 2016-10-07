@@ -47,27 +47,39 @@ func (self *AuthProviderCallbackController) Get() {
 	}
 
 	var (
+		u        models.User
 		userData map[string]interface{}
 		jwtToken string
 	)
 
-	u := models.User{
-		Provider:  user.Provider,
+	a := models.Admin{
+		Email: user.Email,
+	}
+
+	errMsg := a.IsAdminEmail()
+	if errMsg != "" {
+		errMsg = a.GetAuthAdmin()
+		if errMsg != "" {
+			self.Data["json"] = errMsg
+			self.ServeJSON()
+		}
+
+		userData = a.GetAdminDataMap()
+		jwtToken, err = common.GenerateAdminJWT(userData)
+		if err != nil {
+			self.Abort("500")
+		}
+		goto Login
+	}
+
+	u = models.User{
 		Name:      user.Name,
-		UserId:    user.UserID,
 		Email:     user.Email,
-		Location:  user.Location,
 		AvatarUrl: user.AvatarURL,
 		Activated: true,
 	}
 
-	errMsg := u.IsAdminEmail()
-	if errMsg != "" {
-		goto Login
-	}
-
 	errMsg = u.IsStudentEmail()
-	beego.Debug(errMsg)
 	if errMsg != "" {
 		self.Ctx.SetCookie("LOGIN_ERROR", errMsg)
 		self.Redirect("/", 302)
@@ -90,7 +102,6 @@ func (self *AuthProviderCallbackController) Get() {
 
 	u.StudentId = strings.Replace(u.Email, "@student.newinti.edu.my", "", -1)
 
-Login:
 	err = u.GetAuthUser()
 	if err != nil {
 		self.Data["json"] = err.Error()
@@ -99,10 +110,12 @@ Login:
 
 	userData = u.GetUserDataMap()
 
-	jwtToken, err = common.GenerateJWT(userData)
+	jwtToken, err = common.GenerateUserJWT(userData)
 	if err != nil {
 		self.Abort("500")
 	}
+
+Login:
 	self.Ctx.SetSecureCookie(beego.AppConfig.String("COOKIE_SECRET"), "_AUTH", jwtToken)
 	self.Redirect("/user", 302)
 }

@@ -30,7 +30,7 @@ func (self *UserAccountController) Prepare() {
 
 		switch errType {
 		case "EXPIRED":
-			self.Redirect("/login_register", 302)
+			self.Redirect("/", 302)
 			return
 		case "ERROR":
 			// Internal server error
@@ -56,6 +56,8 @@ func (self *UserAccountController) Get() {
 
 func (self *UserAccountController) Put() {
 	var (
+		u        models.User
+		a        models.Admin
 		errMsg   string
 		url      string
 		jwtToken string
@@ -65,19 +67,64 @@ func (self *UserAccountController) Put() {
 
 	userData := make(map[string]interface{})
 
-	u := models.User{
-		Provider: self.GetString("user-provider"),
-		Email:    self.GetString("reg-email"),
-		// Name:          models.NameSpace(self.GetString("user-name")),
-		Location:      self.GetString("user-location"),
+	errMsg = models.IsValidContactNo(
+		self.GetString("reg-email"),
+		self.GetString("user-contact-no"),
+	)
+	if errMsg != "" {
+		goto Response
+	}
+
+	a = models.Admin{
+		Email:     self.GetString("reg-email"),
+		ContactNo: self.GetString("user-contact-no"),
+	}
+
+	errMsg = a.IsAdminEmail()
+	if errMsg != "" {
+		errMsg = ""
+		_, _, err = self.GetFile("user-upload-img")
+		beego.Debug(err)
+		if err == nil {
+			id, errMsg := a.GetAdminId()
+			if errMsg != "" {
+				goto Response
+			}
+			url = "./static/upload/img/a/" + strconv.Itoa(id)
+			err = models.CheckingPathExist(url)
+			if err != nil {
+				self.Data["json"] = err.Error()
+				self.ServeJSON()
+			}
+			url += "/personal.jpg"
+			err = self.SaveToFile("user-upload-img", url)
+			if err != nil {
+				beego.Debug(err)
+				errMsg = "Cannot save file."
+				goto Response
+			}
+			a.AvatarUrl = "." + url
+		}
+
+		errMsg = a.UpdateAccount()
+		if errMsg != "" {
+			goto Response
+			return
+		}
+
+		userData["user"] = a.GetAdminDataMap()
+		jwtToken, err = common.GenerateAdminJWT(userData["user"].(map[string]interface{}))
+		if err != nil {
+			self.Abort("500")
+		}
+		goto Update
+	}
+
+	u = models.User{
+		Email:         self.GetString("reg-email"),
 		Gender:        self.GetString("user-gender"),
 		ContactNo:     self.GetString("user-contact-no"),
 		FillUpProfile: true,
-	}
-
-	errMsg = u.IsValidContactNo()
-	if errMsg != "" {
-		goto Response
 	}
 
 	_, _, err = self.GetFile("user-upload-img")
@@ -86,7 +133,7 @@ func (self *UserAccountController) Put() {
 		if errMsg != "" {
 			goto Response
 		}
-		url = "./static/upload/img/" + strconv.Itoa(id)
+		url = "./static/upload/img/u/" + strconv.Itoa(id)
 		err = models.CheckingPathExist(url)
 		if err != nil {
 			self.Data["json"] = err.Error()
@@ -102,11 +149,6 @@ func (self *UserAccountController) Put() {
 		u.AvatarUrl = "." + url
 	}
 
-	// errMsg = u.IsValidName()
-	// if errMsg != "" {
-	// 	goto Response
-	// }
-
 	errMsg = u.UpdateAccount()
 	if errMsg != "" {
 		goto Response
@@ -115,11 +157,12 @@ func (self *UserAccountController) Put() {
 
 	userData["user"] = u.GetUserDataMap()
 
-	jwtToken, err = common.GenerateJWT(userData["user"].(map[string]interface{}))
+	jwtToken, err = common.GenerateUserJWT(userData["user"].(map[string]interface{}))
 	if err != nil {
 		self.Abort("500")
 	}
 
+Update:
 	jsonfy, _ = json.Marshal(userData)
 
 	self.Ctx.Output.Header("User", string(jsonfy))

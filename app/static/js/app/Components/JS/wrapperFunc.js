@@ -83,26 +83,27 @@ window.Wrapper = {
     locationBox.width(windowWidth * 0.8);
     locationBox.height(windowHeight * 0.8);
     $('#map').height(locationBox.height() * 0.8);
-    // var dialogLeft = (windowWidth/2) - ($('#location-box').width()/2);
-    // $('#location-box').css({left:dialogLeft});
+
     if (windowWidth <= 767) {
       $('.paginationjs').removeClass('paginationjs-big').addClass('paginationjs-medium');
     } else {
       $('.paginationjs').removeClass('paginationjs-medium').addClass('paginationjs-big');
     }
-
-    // var contentTop = (($(window).height())/3) - ($('#content').height());
-    // $('#content').css('margin-top', contentTop);
   },
   LoadingSwitch: function(switcher) {
+    var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd ' +
+               'oanimationend animationend';
    if (switcher) {
-     $('<div id="wrapper" class="loading-screen">'+
+     $('<div id="wrapper" class="loading-screen hide">'+
        '<div class="loadingPos"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>' +
        '</div>'
      ).prependTo('body');
+    $("#wrapper").addClass('animated fadeIn').removeClass('hide');
      return;
    }
-   $('#wrapper').remove();
+    $('#wrapper').addClass("animated fadeOut").one(animationEnd, function() {
+      $(this).remove();
+    });
   },
   PaginateRoomContent: function(ds) {
     var container = $('#pagination-container');
@@ -126,7 +127,7 @@ window.Wrapper = {
         maxPatternLength: 32,
         showGoInput: true,
         showGoButton: true,
-        className: 'paginationjs-theme-green paginationjs-big',
+        className: 'paginationjs-theme-red paginationjs-big',
         formatGoInput: 'Go to <%= input %>',
         callback: function(data, pagination) {
           $('#errMsg').text('');
@@ -173,7 +174,7 @@ window.Wrapper = {
         maxPatternLength: 32,
         showGoInput: true,
         showGoButton: true,
-        className: 'paginationjs-theme-green paginationjs-big',
+        className: 'paginationjs-theme-red paginationjs-big',
         formatGoInput: 'Go to <%= input %>',
         callback: function(data, pagination) {
           $('#errMsg').text('');
@@ -233,7 +234,7 @@ window.Wrapper = {
         maxPatternLength: 32,
         showGoInput: true,
         showGoButton: true,
-        className: 'paginationjs-theme-green paginationjs-big',
+        className: 'paginationjs-theme-red paginationjs-big',
         formatGoInput: 'Go to <%= input %>',
         callback: function(data, pagination) {
           $('#errMsg').text('');
@@ -283,7 +284,7 @@ window.Wrapper = {
         maxPatternLength: 32,
         showGoInput: true,
         showGoButton: true,
-        className: 'paginationjs-theme-green paginationjs-big',
+        className: 'paginationjs-theme-red paginationjs-big',
         formatGoInput: 'Go to <%= input %>',
         callback: function(data, pagination) {
           $('#errMsg').text('');
@@ -338,7 +339,7 @@ window.Wrapper = {
         maxPatternLength: 32,
         showGoInput: true,
         showGoButton: true,
-        className: 'paginationjs-theme-green paginationjs-big',
+        className: 'paginationjs-theme-red paginationjs-big',
         formatGoInput: 'Go to <%= input %>',
         callback: function(data, pagination) {
           $('#errMsg').text('');
@@ -393,7 +394,7 @@ window.Wrapper = {
         maxPatternLength: 32,
         showGoInput: true,
         showGoButton: true,
-        className: 'paginationjs-theme-green paginationjs-big',
+        className: 'paginationjs-theme-red paginationjs-big',
         formatGoInput: 'Go to <%= input %>',
         callback: function(data, pagination) {
           $('#errMsg').text('');
@@ -442,7 +443,7 @@ window.Wrapper = {
         maxPatternLength: 32,
         showGoInput: true,
         showGoButton: true,
-        className: 'paginationjs-theme-green paginationjs-big',
+        className: 'paginationjs-theme-red paginationjs-big',
         formatGoInput: 'Go to <%= input %>',
         callback: function(data, pagination) {
           $('#errMsg').text('');
@@ -450,25 +451,15 @@ window.Wrapper = {
           content.html(html);
         },
         afterRender: function() {
-          var viewRoomStatusBtn = $('.viewRoomStatusButton');
+          // var viewRoomStatusBtn = $('.viewRoomStatusButton');
 
           searchBox.unbind('input', SearchRoomStatusRequestQuery);
-          // cancelRequestBtn.unbind('click', cancelRequest);
-          // viewRequestBtn.unbind('click', viewRequest);
-
           searchBox.bind('input', SearchRoomStatusRequestQuery);
-          // cancelRequestBtn.bind('click', cancelRequest);
-          // viewRequestBtn.bind('click', viewRequest);
         },
         afterPaging: function() {
-          // var cancelRequestBtn = $('.cancelRequestButton'),
-          // viewRequestBtn = $('.viewRequestButton');
-
-          // cancelRequestBtn.on('click', cancelRequest);
-          // viewRequestBtn.on('click', viewRequest);
         }
     });
-  },  
+  },
   SetRoomDataSource: function(ds) {
     roomDataSource = ds;
   },

@@ -227,3 +227,19 @@ func NameSpace(name string) (namespaced string) {
 
 	return namespaced
 }
+
+func IsValidContactNo(email, contactNo string) (errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("users")
+	num, _ := qs.Filter("contact_no", contactNo).Exclude("email", email).Count()
+	if num >= 1 {
+		errMsg = "Contact No. exist!"
+		return
+	}
+	qs = o.QueryTable("admin")
+	num, _ = qs.Filter("contact_no", contactNo).Exclude("email", email).Count()
+	if num >= 1 {
+		errMsg = "Contact No. exist!"
+	}
+	return
+}

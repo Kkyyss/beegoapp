@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
 import {Card} from 'material-ui/Card';
-import TextField from 'material-ui/TextField';
 import Divider from 'material-ui/Divider';
-import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
 import Checkbox from 'material-ui/Checkbox';
@@ -24,9 +22,6 @@ const styles = {
     marginBottom: '50px',
     marginLeft: '5%',
     width: '90%',
-  },  
-  wall: {
-    marginLeft: '10px',
   },
   contentStyle: {
     padding:'25px',
@@ -39,7 +34,6 @@ const styles = {
     marginBottom: 15,
   },
   inputStyle: {
-    // border: 'none',
     fontSize: '20px',
     outline: 'none',
     border: 'none',
@@ -64,33 +58,19 @@ const styles = {
   title: {
     textAlign: 'center',
     padding: '10px 0 5px 0',
-  },  
+  },
   wall: {
     marginLeft: '10px',
   },
   rightAlign: {
-    float: 'right',      
+    float: 'right',
     margin: 10,
   },
   bgColor: {
     color: 'white',
     backgroundColor: 'black',
     padding: 10,
-    margin: 0,    
-  },  
-  floatingLabelStyle: {
-    color: '#1A237E',
-    fontStyle: 'normal',
-  },  
-  textRight: {
-    textAlign: 'right',
-  },
-  flexContent: {
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
-  textField: {
-    width: 'auto',
+    margin: 0,
   },
   textLeft: {
     textAlign: 'left',
@@ -106,6 +86,7 @@ export default class BookedRoomConsolePage extends Component {
   };
 
   handleSortTypeChange = (event, index, value) => {
+    this.setSelectedValue();
     this.setState({
       sortValue: value,
     });
@@ -204,10 +185,77 @@ export default class BookedRoomConsolePage extends Component {
     });
   };
 
+  setSelectedValue(v) {
+    var thisObj = this;
+    var ds = wrapFunc.GetRoomDataSource();
+    switch (v) {
+      case 'Campus':
+        ds.sort(thisObj.sortByCampus);
+      break;
+      case 'RoomNo':
+        ds.sort(thisObj.sortByRoomNo);
+      break;
+      case 'Types Of Rooms':
+        ds.sort(thisObj.sortByTypesOfRooms);
+      break;
+      case 'Deposit':
+        ds.sort(thisObj.sortByDeposit);
+      break;
+      case 'Rates':
+        ds.sort(thisObj.sortByRates);
+      break;
+      case 'Student ID':
+        ds.sort(thisObj.sortByStudentId);
+      break;
+      case 'Student Name':
+        ds.sort(thisObj.sortByName);
+      break;      
+      default: return;
+    }
+    wrapFunc.SetBookedDataSource(ds);
+    wrapFunc.PaginateBookedContent(ds);
+  }
+
   sortByCampus(a, b) {
-    var aCampus = a.Campus.toLowerCase();
-    var bCampus = b.Campus.toLowerCase();
-    return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
+    var av = a.Room.Campus.toLowerCase();
+    var bv = b.Room.Campus.toLowerCase();
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByRoomNo(a, b) {
+    var av = a.Room.RoomNo.toLowerCase();
+    var bv = b.Room.RoomNo.toLowerCase();
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByTypesOfRooms(a, b) {
+    var av = a.Room.TypesOfRooms.toLowerCase();
+    var bv = b.Room.TypesOfRooms.toLowerCase();
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByDeposit(a, b) {
+    var av = a.Room.Deposit;
+    var bv = b.Room.Deposit;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByRates(a, b) {
+    var av = a.Room.RatesPerPerson;
+    var bv = b.Room.RatesPerPerson;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByStudentId(a, b) {
+    var av = a.StudentId;
+    var bv = b.StudentId;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByName(a, b) {
+    var av = a.Name;
+    var bv = b.Name;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
   }
 
   componentDidMount() {
@@ -216,7 +264,6 @@ export default class BookedRoomConsolePage extends Component {
       userData = window.UserData;
       thisObj.updateBookedList();
     });
-
 
     $(window).resize(function() {
       $(window).trigger("window:resize");
@@ -243,6 +290,7 @@ export default class BookedRoomConsolePage extends Component {
   }
 
   updateBookedList() {
+    var thisObj = this;
     var userState = {
       userCampus: userData.campus
     };
@@ -260,13 +308,13 @@ export default class BookedRoomConsolePage extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
-          console.log(res.data);
+          res.data.sort(thisObj.sortByCampus);
           wrapFunc.SetBookedDataSource(res.data);
           wrapFunc.PaginateBookedContent(res.data);
         }
       }
     });
-  } 
+  }
 
   render() {
     const actions = [
@@ -320,7 +368,7 @@ export default class BookedRoomConsolePage extends Component {
                       <td style={styles.textLeft}>
                         <b><span id="view-booked-cp"></span></b>
                       </td>
-                    </tr>                  
+                    </tr>
                     <tr>
                       <td style={styles.textCenter}>Room No.</td>
                       <td style={styles.textLeft}>
@@ -333,7 +381,7 @@ export default class BookedRoomConsolePage extends Component {
                         <b><span id="view-booked-tor"></span></b>
                       </td>
                     </tr>
-                  </tbody>                  
+                  </tbody>
                 </table>
                 </Card>
               </div>
@@ -345,7 +393,7 @@ export default class BookedRoomConsolePage extends Component {
               secondary={true}
               style={styles.rightAlign}
             />
-            <div style={styles.clearFix}></div>          
+            <div style={styles.clearFix}></div>
           </div>
         </div>
         <div id="card-wrapper" className="wrapper-margin">
@@ -376,12 +424,12 @@ export default class BookedRoomConsolePage extends Component {
               onRequestClose={this.handleOptionDialogClose}
               autoScrollBodyContent={true}
             >
-            <div id="options-group" style={styles.optionContentStyle}>      
+            <div id="options-group" style={styles.optionContentStyle}>
               <Checkbox
                 label="Room Number"
                 id="cb-no"
                 style={styles.checkbox}
-              />                    
+              />
               <Checkbox
                 label="Types Of Rooms"
                 id="cb-tor"
@@ -417,8 +465,14 @@ export default class BookedRoomConsolePage extends Component {
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
                   <MenuItem value={"Campus"} primaryText="Campus" />
+                  <MenuItem value={"RoomNo"} primaryText="RoomNo" />
+                  <MenuItem value={"Types Of Rooms"} primaryText="Types Of Rooms" />
+                  <MenuItem value={"Deposit"} primaryText="Deposit" />
+                  <MenuItem value={"Rates"} primaryText="Rates" />
+                  <MenuItem value={"Student ID"} primaryText="Student ID" />
+                  <MenuItem value={"Student Name"} primaryText="Student Name" />
                 </DropDownMenu>
-                </div>  
+                </div>
             </div>
             <br/>
             <div style={styles.contentStyle}>
@@ -426,9 +480,9 @@ export default class BookedRoomConsolePage extends Component {
               <div id="pagination-content"></div>
               <br/>
               <div id="pagination-container"></div>
-            </div>          
+            </div>
           </Card>
-        </div>     
+        </div>
       </div>
     );
   }

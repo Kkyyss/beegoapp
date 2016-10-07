@@ -51,28 +51,47 @@ func initKeys() {
 }
 
 // Generate JWT token
-func GenerateJWT(userData map[string]interface{}) (tokenString string, err error) {
+func GenerateUserJWT(userData map[string]interface{}) (tokenString string, err error) {
 	// create a signer for rsa 256
 	t := jwt.New(jwt.SigningMethodRS256)
 	// set claims for JWT token
 	// t.Claims["iss"] = "admin"
 	claims := t.Claims.(jwt.MapClaims)
 	claims["user"] = map[string]interface{}{
-		"id":             userData["id"].(int),
-		"isAdmin":        userData["isAdmin"].(bool),
-		"activated":      userData["activated"].(bool),
-		"dateJoined":     userData["dateJoined"].(string),
-		"provider":       userData["provider"].(string),
-		"name":           userData["name"].(string),
-		"email":          userData["email"].(string),
-		"location":       userData["location"].(string),
-		"avatar":         userData["avatar"].(string),
-		"gender":         userData["gender"].(string),
-		"contactNo":      userData["contactNo"].(string),
-		"fillUpProfile":  userData["fillUpProfile"].(bool),
-		"studentId":      userData["studentId"].(string),
-		"campus":         userData["campus"].(string),
-		"fullPermission": userData["fullPermission"].(bool),
+		"id":            userData["id"].(int),
+		"activated":     userData["activated"].(bool),
+		"name":          userData["name"].(string),
+		"email":         userData["email"].(string),
+		"avatar":        userData["avatar"].(string),
+		"gender":        userData["gender"].(string),
+		"contactNo":     userData["contactNo"].(string),
+		"fillUpProfile": userData["fillUpProfile"].(bool),
+		"studentId":     userData["studentId"].(string),
+		"campus":        userData["campus"].(string),
+	}
+
+	claims["exp"] = time.Now().Add(time.Hour * 12).Unix()
+
+	tokenString, err = t.SignedString(signKey)
+	return
+}
+
+func GenerateAdminJWT(adminData map[string]interface{}) (tokenString string, err error) {
+	t := jwt.New(jwt.SigningMethodRS256)
+	// set claims for JWT token
+	// t.Claims["iss"] = "admin"
+	claims := t.Claims.(jwt.MapClaims)
+	claims["user"] = map[string]interface{}{
+		"id":             adminData["id"].(int),
+		"activated":      adminData["activated"].(bool),
+		"name":           adminData["name"].(string),
+		"email":          adminData["email"].(string),
+		"avatar":         adminData["avatar"].(string),
+		"contactNo":      adminData["contactNo"].(string),
+		"adminId":        adminData["adminId"].(string),
+		"campus":         adminData["campus"].(string),
+		"fullPermission": adminData["fullPermission"].(bool),
+		"isAdmin":        adminData["isAdmin"].(bool),
 	}
 
 	claims["exp"] = time.Now().Add(time.Hour * 12).Unix()

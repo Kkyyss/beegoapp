@@ -27,8 +27,8 @@
 	{{ if .Directory.IsLoginRegister }}
 	<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit&hl=en" async defer></script>
 	{{ else if .Directory.IsUserAccount }}
-  <script type="text/javascript" src="../static/js/build/initmap.js"></script>
-	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZL7ViUpezQtWj380V_gcI19tKDG5KdhE&libraries=places&language=en&callback=initMap" async defer></script>
+<!--   <script type="text/javascript" src="../static/js/build/initmap.js"></script>
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZL7ViUpezQtWj380V_gcI19tKDG5KdhE&libraries=places&language=en&callback=initMap" async defer></script> -->
 	{{ end }}
 {{ end }}
 
