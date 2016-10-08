@@ -21,8 +21,6 @@ func (self *LoginController) Post() {
 		adminData map[string]interface{}
 	)
 
-	resMap := make(map[string]string)
-
 	// ip := models.Ip{
 	// 	Address: self.Ctx.Input.IP(),
 	// 	Expired: time.Now(),
@@ -44,7 +42,21 @@ func (self *LoginController) Post() {
 
 	errMsg := a.GetAdminByEmail()
 	if errMsg != "" {
-		goto Response
+		u := models.User{
+			Email: self.GetString("log-email"),
+		}
+		errMsg = u.GetUserByEmail()
+		if errMsg != "" {
+			goto Response
+		}
+		adminData = u.GetUserDataMap()
+		jwtToken, err = common.GenerateUserJWT(adminData)
+
+		if err != nil {
+			beego.Debug(err)
+			self.Abort("500")
+		}
+		goto Login
 	}
 	// if err != nil {
 	// 	err = ip.Update()
@@ -67,14 +79,17 @@ func (self *LoginController) Post() {
 	// Success verify credential
 	adminData = a.GetAdminDataMap()
 	jwtToken, err = common.GenerateAdminJWT(adminData)
+
 	if err != nil {
 		beego.Debug(err)
 		self.Abort("500")
 	}
 
+Login:
+
 	self.Ctx.SetSecureCookie(beego.AppConfig.String("COOKIE_SECRET"), "_AUTH", jwtToken)
 
 Response:
-	self.Data["json"] = resMap
+	self.Data["json"] = errMsg
 	self.ServeJSON()
 }

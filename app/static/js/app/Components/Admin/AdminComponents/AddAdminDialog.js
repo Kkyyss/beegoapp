@@ -36,7 +36,7 @@ const styles = {
   },  
 };
 
-export default class AddUserDialog extends Component {
+export default class AddAdminDialog extends Component {
   state = {
     open: false,
     value: "IU",
@@ -52,7 +52,10 @@ export default class AddUserDialog extends Component {
     this.setState({open: true}, afterOpened);
 
     function afterOpened(){
-      var userContactNo = $('#user-contact-no');
+      if (!userData.fullPermission) {
+        $('#admin-permission').parent().remove();
+      }
+      var userContactNo = $('#admin-contact-no');
       userContactNo.intlTelInput({
         initialCountry: "auto",
         geoIpLookup: function(callback) {
@@ -77,13 +80,13 @@ export default class AddUserDialog extends Component {
     thisObj.setState({
       btnDisabled: true,
     });
-    $('#user-c').val(thisObj.state.value);
+    $('#admin-c').val(thisObj.state.value);
 
-    var addUserForm = $('#add-user-form');
-    var userContactNo = $('#user-contact-no');
+    var addUserForm = $('#add-admin-form');
+    var userContactNo = $('#admin-contact-no');
     userContactNo.val(userContactNo.intlTelInput("getNumber"));
     ajax({
-      url: "/user/user-console",
+      url: "/user/admin-console",
       method: "POST",
       data: addUserForm.serialize(),
       cache: false,
@@ -103,7 +106,7 @@ export default class AddUserDialog extends Component {
         } else {
           thisObj.setState({open: false});
           thisObj.getUserList();
-          wrapFunc.AlertStatus('Success', 'User Added Successfully!', 'success', true, true);
+          wrapFunc.AlertStatus('Success', 'Admin Added Successfully!', 'success', true, true);
         }
         thisObj.setState({
           btnDisabled: false,
@@ -113,23 +116,14 @@ export default class AddUserDialog extends Component {
     });    
   };
 
-  togglePermission = (e) => {
-    $('#user-permission').parent().toggleClass('hide');
-  };
-
   getUserList() {
     var thisObj = this;
 
-    var userState = {
-      userCampus: userData.campus
-    };
-
     var searchBox = $('#search-box');
     ajax({
-      url: "/api/view-users-list",
+      url: "/api/view-admin-list",
       method: "POST",
       cache: false,
-      data: JSON.stringify(userState),
       beforeSend: function() {
         wrapFunc.LoadingSwitch(true);
       },
@@ -138,8 +132,8 @@ export default class AddUserDialog extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
-          wrapFunc.SetUsersDataSource(res.data);
-          wrapFunc.PaginateUsersContent(res.data);
+          wrapFunc.SetAdminDataSource(res.data);
+          wrapFunc.PaginateAdminContent(res.data);
         }
       }
     });
@@ -182,21 +176,21 @@ export default class AddUserDialog extends Component {
     return (
       <div>
           <IconButton
-            id="add-user-btn"
+            id="add-admin-btn"
             iconClassName="fa fa-user-plus"
             style={styles.button}
             onTouchTap={this.handleOpen}
           />
           <Dialog
-            title="Add User"
-            className="add-user-dialog"
+            title="Add Admin"
+            className="add-admin-dialog"
             actions={actions}
             modal={false}
             open={this.state.open}
             onRequestClose={this.handleClose}
             autoScrollBodyContent={true}
           >
-            <form id="add-user-form" style={styles.formStyle} className="add-user-style">
+            <form id="add-admin-form" style={styles.formStyle} className="add-admin-style">
               <div>Campus&nbsp;
               <DropDownMenu id="campusDropDown" value={this.state.value} onChange={this.handleChange} disabled={this.state.disabled}>
                 <MenuItem value={"ALL"} primaryText="ALL" />
@@ -205,78 +199,50 @@ export default class AddUserDialog extends Component {
                 <MenuItem value={"IICKL"} primaryText="IICKL" />
                 <MenuItem value={"IICP"} primaryText="IICP" />
               </DropDownMenu>
-              <input id="user-c" name="user-c" type="text" style={styles.hide} />
+              <input id="admin-c" name="admin-c" type="text" style={styles.hide} />
               <TextField
-                id="user-name"
-                name="user-name"
+                id="admin-name"
+                name="admin-name"
                 floatingLabelText="Full Name"
                 type="text"
                 fullWidth={true}
               />
               <TextField
-                id="user-email"
-                name="user-email"
+                id="admin-email"
+                name="admin-email"
                 floatingLabelText="Email"
                 type="email"
                 fullWidth={true}
               />
               <TextField
-                id="user-location"
-                name="user-location"
-                floatingLabelText="Permanent Address"
+                id="admin-uid"
+                name="admin-uid"
+                floatingLabelText="Admin ID"
                 type="text"
                 fullWidth={true}
               />
               <br/><br/>
-              <p className="form-paragraph">Gender</p>
-              <RadioButtonGroup name="user-gender">
-                <RadioButton
-                  value="Male"
-                  label="Male"
-                />
-                <RadioButton
-                  value="Female"
-                  label="Female"
-                />
-              </RadioButtonGroup>
-              <br/>
               <p className="form-paragraph">Contact No.</p>
               <input
-                id="user-contact-no"
-                name="user-contact-no"
+                id="admin-contact-no"
+                name="admin-contact-no"
                 type="tel"
               />
               <br/><br/>
               <p className="form-paragraph">Role & Permissions</p>
               <Toggle
-                id="user-activated"
-                name="user-activated"
+                id="admin-activated"
+                name="admin-activated"
                 label="Activated"
                 defaultToggled={true}
                 style={styles.toggle}
               />
               <Toggle
-                id="user-profiled"
-                name="user-profiled"
-                label="Filled Up Profile"
-                defaultToggled={false}
-                style={styles.toggle}
-              />
-              <Toggle
-                id="user-admin"
-                name="user-admin"
-                label="Admin"
-                defaultToggled={false}
-                style={styles.toggle}
-                onToggle={this.togglePermission}
-              />
-              <Toggle
-                id="user-permission"
-                name="user-permission"
+                id="admin-permission"
+                name="admin-permission"
                 label="Full Permission"
                 defaultToggled={false}
                 style={styles.toggle}
-                className="hide"
               />
               </div>
             </form>

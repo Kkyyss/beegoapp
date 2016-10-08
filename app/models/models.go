@@ -159,6 +159,22 @@ func (u *User) Insert() error {
 // 	return
 // }
 
+func (u *User) GetUserByEmail() (errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("users").Filter("email", u.Email)
+	num, _ := qs.Count()
+	if num == 1 {
+		err := qs.One(u)
+		if err != nil {
+			errMsg = "Cannot get user data."
+			beego.Debug()
+		}
+	} else {
+		errMsg = "No such User"
+	}
+	return
+}
+
 func (u *User) GetUserById() (errMsg string) {
 	o := orm.NewOrm()
 	qs := o.QueryTable("users")
@@ -656,25 +672,25 @@ func (u *User) GetRequestStatus() (errMsg string) {
 	cond := orm.NewCondition()
 	c1 := cond.And("status", "Processing").Or("status", "Approved").Or("status", "Paid Off")
 	qs := o.QueryTable("request")
-	ux := qs.SetCond(c1).Filter("User__Id", u.Id).RelatedSel()
-
-	// num, _ := ux.Count()
-
-	// if num >= 1 {
-	// 	num, _ = ux.SetCond(c1).Count()
-	// 	if num >= 1 {
-	// 		errMsg = "Unable to request due to yours booking status was processing / Approved."
-	// 		beego.Debug(num)
-	// 		return
-	// 	}
-	// }
+	ux := qs.Filter("User__Id", u.Id).RelatedSel()
 
 	num, _ := ux.Count()
+
 	if num >= 1 {
-		errMsg = "Unable to request due to yours booking status was processing / Approved / Paid Off."
-		beego.Debug(num)
-		return
+		num, _ = ux.SetCond(c1).Count()
+		if num >= 1 {
+			errMsg = "Unable to request due to yours booking status was processing / Approved / Paid Off."
+			beego.Debug(num)
+			return
+		}
 	}
+
+	// num, _ := ux.Count()
+	// if num >= 1 {
+	// 	errMsg = "Unable to request due to yours booking status was processing / Approved / Paid Off."
+	// 	beego.Debug(num)
+	// 	return
+	// }
 
 	beego.Debug(num)
 
@@ -958,6 +974,22 @@ func (rt *RoomTypes) Insert() (err error) {
 	return err
 }
 
+func (rt *RoomTypes) Update() (err error) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("room_types").Filter("id", rt.Id)
+	_, err = qs.Update(orm.Params{
+		"campus":           rt.Campus,
+		"types_of_rooms":   rt.TypesOfRooms,
+		"deposit":          rt.Deposit,
+		"rates_per_person": rt.RatesPerPerson,
+		"twin":             rt.Twin,
+	})
+	if err != nil {
+		beego.Debug(err)
+	}
+	return
+}
+
 func (rt *RoomTypes) Remove() (err error) {
 	o := orm.NewOrm()
 	qs := o.QueryTable("room_types").Filter("id", rt.Id)
@@ -1016,21 +1048,40 @@ func (u *User) GetRoomTypeList() (errMsg string, roomTypes []*RoomTypes) {
 	return
 }
 
-func (u *User) GetBookedRoom() (errMsg string) {
+func (u *User) GetBookedRoom() (errMsg string, roommates User) {
 	o := orm.NewOrm()
 	qs := o.QueryTable("users").Filter("id", u.Id)
+
 	urObj := qs.RelatedSel("room").Filter("room_id__isnull", false)
 
 	n, _ := urObj.Count()
 	if n == 0 {
 		errMsg = "No Room is Booked."
-		return errMsg
+		return
 	}
 	err := urObj.One(u)
 	if err != nil {
 		errMsg = "Oops...Something happened when find the booked list."
-		return errMsg
+		return
 	}
+
+	// append(users, u)
+	qs = o.QueryTable("users").
+		RelatedSel("room").
+		Filter("room__id", u.Room.Id).
+		Exclude("id", u.Id)
+	n, _ = qs.Count()
+	beego.Debug(n)
+	if n <= 0 {
+		return
+	}
+
+	err = qs.One(&roommates)
+	if err != nil {
+		beego.Error(err)
+		panic(err)
+	}
+	beego.Debug(roommates.Room)
 	return
 }
 
@@ -1056,6 +1107,24 @@ func (a *Admin) Insert() (err error) {
 	defer i.Close()
 	_, err = i.Insert(a)
 	return err
+}
+
+func (a *Admin) Update() (errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("admin").Filter("id", a.Id)
+	_, err := qs.Update(orm.Params{
+		"name":            a.Name,
+		"email":           a.Email,
+		"campus":          a.Campus,
+		"contact_no":      a.ContactNo,
+		"activated":       a.Activated,
+		"full_permission": a.FullPermission,
+	})
+	if err != nil {
+		errMsg = "Cannot update admin."
+		beego.Debug(err)
+	}
+	return
 }
 
 func (a *Admin) Remove() (errMsg string) {

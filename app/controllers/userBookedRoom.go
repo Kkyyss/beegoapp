@@ -67,11 +67,14 @@ func (self *UserBookedRoomController) Post() {
 		Id: userId,
 	}
 
-	errMsg = user.GetBookedRoom()
+	errMsg, roommates := user.GetBookedRoom()
 	if errMsg != "" {
 		resMap["error"] = errMsg
 	} else {
 		resMap["data"] = user
+		if roommates.Id != 0 {
+			resMap["roommate"] = roommates
+		}
 	}
 	self.Data["json"] = resMap
 	self.ServeJSON()

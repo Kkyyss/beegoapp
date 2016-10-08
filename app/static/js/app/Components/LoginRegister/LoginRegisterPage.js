@@ -82,14 +82,13 @@ export default class LoginRegisterPage extends Component {
     // Login
     var logBtn = $('#log-submit-btn');
     var logEmail = $('#log-email');
-    var logPwd = $('#log-password');
     var logForm = $('form[name="login"]');
     logBtn.click(submitLogin);
     wrapFunc.DisabledFormSubmitByEnterKeyDown(logForm);
 
     function submitLogin(ev) {
       ev.preventDefault();
-      if ( !logEmail.val().trim() || !logPwd.val().trim() ) {
+      if ( !logEmail.val().trim() ) {
         wrapFunc.AlertStatus(
           'Empty',
           "Please don't leave input field empty!",
@@ -108,26 +107,11 @@ export default class LoginRegisterPage extends Component {
           wrapFunc.LockScreen(logBtn, logForm, true);
         },
         success: function(res) {
-          if (res.capres) {
-            wrapFunc.ResetCap(LogRecap);
-            wrapFunc.LockScreen(logBtn, logForm, false);
+          wrapFunc.LockScreen(logBtn, logForm, false);
+          if (res.length != 0) {
             wrapFunc.AlertStatus(
               'Oops...',
-              res.capres,
-              'error',
-              false,
-              false
-            );
-            return;
-          } else if (res.error) {
-            if (res.excceed != null && $('#log-recap').css('display') === 'none') {
-              $('#log-recap').removeClass('hide').addClass('show');
-            }
-            wrapFunc.ResetCap(LogRecap);
-            wrapFunc.LockScreen(logBtn, logForm, false);
-            wrapFunc.AlertStatus(
-              'Oops...',
-              res.error,
+              res,
               'error',
               false,
               false
@@ -139,16 +123,6 @@ export default class LoginRegisterPage extends Component {
       });
       return;
     }
-
-    function validFunc(func) {
-     func;
-     if (isValid) {
-       return true;
-     }
-     return false;
-    }
-
-    this.forceUpdate();
   }
 
   render() {
@@ -165,17 +139,6 @@ export default class LoginRegisterPage extends Component {
             >
               <div className="card-content" style={styles.contentPadding} >
                 <CardTitle title="Login" subtitle="Welcome back." />
-                  <RaisedButton
-                    id="reg-gplus"
-                    name="gplus"                  
-                    label="Login With Student Mail"
-                    fullWidth={true}
-                    labelColor="white"
-                    style={styles.button}
-                    backgroundColor="#d34836"
-                    icon={<FontIcon className="fa fa-google-plus-official whitify" />}
-                  />
-                  <h3 style={styles.textCenter}>OR</h3>
                   <form name="login">
                     <TextField
                       floatingLabelText="Email"
@@ -184,20 +147,7 @@ export default class LoginRegisterPage extends Component {
                       name="log-email"
                       type="email"
                     />
-                    <TextField
-                      floatingLabelText="Password"
-                      fullWidth={true}
-                      id="log-password"
-                      name="log-password"
-                      type="password"
-                    />
                     <br/><br/>
-                    <div id="log-recap"></div>
-                    <br/>
-                    <p>
-                    <a href="/forgot_password" style={styles.paragraphStyle}>Forgot password?</a>
-                    </p>
-                    <Divider/>
                   </form>
                 <br/>
                 <CardActions>

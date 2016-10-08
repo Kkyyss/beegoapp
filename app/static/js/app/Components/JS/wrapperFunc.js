@@ -12,6 +12,7 @@ var roomDataSource,
     requestDataSource,
     bookedDataSource,
     usersDataSource,
+    adminDataSource,
     userRequestDataSource,
     roomTypeDataSource,
     roomStatusDataSource,
@@ -23,6 +24,7 @@ searchBookedOption = ["Room.RoomNo"],
 searchUserRequestOption = ["Status"],
 searchRoomTypeOption = ["Campus"],
 searchUserOption = ["StudentId"],
+searchAdminOption = ["AdminId"],
 searchRoomStatusOption = ["Campus"];
 
 require('./pagination.min.js');
@@ -73,16 +75,13 @@ window.Wrapper = {
     var cardWrapperHeight, cardHeight, marginCardHeight;
     var windowHeight = $(window).height();
     var windowWidth = $(window).width();
-    var locationBox = $('#location-box');
+
     cardWrapperHeight = windowHeight - 112;
     $('#card-wrapper').height(cardWrapperHeight);
     cardHeight = $('#card').height();
     marginCardHeight = 32;
     $('#card').css('margin-top', marginCardHeight).
                css('margin-bottom', marginCardHeight);
-    locationBox.width(windowWidth * 0.8);
-    locationBox.height(windowHeight * 0.8);
-    $('#map').height(locationBox.height() * 0.8);
 
     if (windowWidth <= 767) {
       $('.paginationjs').removeClass('paginationjs-big').addClass('paginationjs-medium');
@@ -102,7 +101,7 @@ window.Wrapper = {
      return;
    }
     $('#wrapper').addClass("animated fadeOut").one(animationEnd, function() {
-      $(this).remove();
+      $(".loading-screen").remove();
     });
   },
   PaginateRoomContent: function(ds) {
@@ -293,27 +292,77 @@ window.Wrapper = {
         },
         afterRender: function() {
           var removeUserBtn = $('.removeUserButton'),
-          editUserBtn = $('.editUserButton'),
-          viewUserBtn = $('.viewUserButton');
+          editUserBtn = $('.editUserButton');
 
           searchBox.unbind('input', SearchUserQuery);
           removeUserBtn.unbind('click', removeUser);
           editUserBtn.unbind('click', editUser);
-          viewUserBtn.unbind('click', viewUser);
 
           searchBox.bind('input', SearchUserQuery);
           removeUserBtn.bind('click', removeUser);
           editUserBtn.bind('click', editUser);
-          viewUserBtn.bind('click', viewUser);
         },
         afterPaging: function() {
           var removeUserBtn = $('.removeUserButton'),
-          editUserBtn = $('.editUserButton'),
-          viewUserBtn = $('.viewUserButton');
+          editUserBtn = $('.editUserButton');
 
           removeUserBtn.on('click', removeUser);
           editUserBtn.on('click', editUser);
-          viewUserBtn.on('click', viewUser)
+        }
+    });
+  },
+  PaginateAdminContent: function(ds) {
+    var container = $('#pagination-container');
+    var content = $('#pagination-content');
+    var searchBox = $('#search-box');
+
+    if (ds.length == 0) {
+      content.empty();
+      container.pagination('destroy');
+      $('#errMsg').text('No Results Found.');
+      return;
+    }
+    container.pagination({
+        dataSource: ds,
+        pageSize: 5,
+        // autoHidePrevious: true,
+        // autoHideNext: true,
+        threshold: 0.6,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        showGoInput: true,
+        showGoButton: true,
+        className: 'paginationjs-theme-red paginationjs-big',
+        formatGoInput: 'Go to <%= input %>',
+        callback: function(data, pagination) {
+          $('#errMsg').text('');
+          var html = adminListTemplate(data);
+          content.html(html);
+        },
+        afterRender: function() {
+          var removeAdminBtn = $('.removeAdminButton'),
+          editAdminBtn = $('.editAdminButton'),
+          viewAdminBtn = $('.viewAdminButton');
+
+          searchBox.unbind('input', SearchAdminQuery);
+          removeAdminBtn.unbind('click', removeAdmin);
+          editAdminBtn.unbind('click', editAdmin);
+          viewAdminBtn.unbind('click', viewAdmin);
+
+          searchBox.bind('input', SearchAdminQuery);
+          removeAdminBtn.bind('click', removeAdmin);
+          editAdminBtn.bind('click', editAdmin);
+          viewAdminBtn.bind('click', viewAdmin);
+        },
+        afterPaging: function() {
+          var removeAdminBtn = $('.removeAdminButton'),
+          editAdminBtn = $('.editAdminButton'),
+          viewAdminBtn = $('.viewAdminButton');
+
+          removeAdminBtn.on('click', removeAdmin);
+          editAdminBtn.on('click', editAdmin);
+          viewAdminBtn.on('click', viewAdmin);
         }
     });
   },
@@ -402,22 +451,23 @@ window.Wrapper = {
           content.html(html);
         },
         afterRender: function() {
-          var removeRoomTypeBtn = $('.removeRoomTypeButton');
+          var removeRoomTypeBtn = $('.removeRoomTypeButton'),
+          editRoomTypeBtn = $('.editRoomTypeButton');
 
           searchBox.unbind('input', SearchRoomTypeQuery);
           removeRoomTypeBtn.unbind('click', removeRoomType);
-          // viewRequestBtn.unbind('click', viewRequest);
+          editRoomTypeBtn.unbind('click', editRoomType);
 
           searchBox.bind('input', SearchRoomTypeQuery);
           removeRoomTypeBtn.bind('click', removeRoomType);
-          // viewRequestBtn.bind('click', viewRequest);
+          editRoomTypeBtn.bind('click', editRoomType);
         },
         afterPaging: function() {
-          var removeRoomTypeBtn = $('.removeRoomTypeButton');
-          // viewRequestBtn = $('.viewRequestButton');
+          var removeRoomTypeBtn = $('.removeRoomTypeButton'),
+          editRoomTypeBtn = $('.editRoomTypeButton');
 
           removeRoomTypeBtn.on('click', removeRoomType);
-          // viewRequestBtn.on('click', viewRequest);
+          editRoomTypeBtn.on('click', editRoomType);
         }
     });
   },
@@ -472,6 +522,9 @@ window.Wrapper = {
   SetUsersDataSource: function(ds) {
     usersDataSource = ds;
   },
+  SetAdminDataSource: function(ds) {
+    adminDataSource = ds;
+  },  
   SetUserRequestDataSource: function(ds) {
     userRequestDataSource = ds;
   },
@@ -521,6 +574,10 @@ window.Wrapper = {
     searchUserOption = ds;
     SearchUserQuery();
   },
+  SetUpAdminSearchOption: function(ds) {
+    searchAdminOption = ds;
+    SearchAdminQuery();
+  },  
   SetUpRoomTypeSearchOption: function(ds) {
     searchRoomTypeOption = ds;
     SearchRoomTypeQuery();
@@ -620,7 +677,6 @@ function requestListTemplate(data) {
     '<span id="request-user-si" class="paraStyle">' + item.User.StudentId + '</span>' +
     '<span id="request-user-gender" class="hide">' + item.User.Gender + '</span>' +
     '<span id="request-user-email" class="hide">' + item.User.Email + '</span>' +
-    '<span id="request-user-location" class="hide">' + item.User.Location + '</span>' +
     '<span id="request-user-contactno" class="hide">' + item.User.ContactNo + '</span>' +
     '<span id="request-user-avatar" class="hide">' + item.User.AvatarUrl + '</span>' +
     '<div class="rightAlignment">' +
@@ -657,6 +713,36 @@ function bookedListTemplate(data) {
 
 function userListTemplate(data) {
   var html = '';
+  $.each(data, function(index, item){
+    var buttons = '<button type="button" class="editUserButton">Edit</button>' +
+              '<button type="button" class="removeUserButton">Remove</button>';
+
+    var activated = (item.Activated) ? "Activated" : "Inactivated";
+    var profiled = (item.FillUpProfile) ? "Filled" : "Not yet";
+
+    html += '<div class="user-list-style">'+
+    '<img src="'+ item.AvatarUrl +'" width="32x32" class="imgRound" />'+
+    '<span id="u-id" class="hide">' + item.Id + '</span>' +
+    '<span id="u-cn" class="hide">' + item.ContactNo + '</span>' +
+    '<span id="u-avatar" class="hide">' + item.AvatarUrl + '</span>' +
+    '<span id="u-email" class="hide">' + item.Email + '</span>' +
+    '<span id="u-gender" class="hide">' + item.Gender + '</span>' +
+    '<span id="u-activated" class="hide">' + activated + '</span>' +
+    '<span id="u-profiled" class="hide">' + profiled + '</span>' +
+    '<span class="paraStyle">Campus -</span><span id="u-campus">' + item.Campus + '</span>' +
+    '<span class="paraStyle">ID - </span><span id="u-student-id">' + item.StudentId + '</span>' +
+    '<span class="paraStyle">Name -</span><span id="u-name">' + item.Name + '</span>' +
+    '<div class="rightAlignment">' +
+    buttons +
+    '</div>' +
+    '</div>';
+  });
+
+  return html;
+}
+
+function adminListTemplate(data) {
+  var html = '';
   var user_data = window.UserData;
   $.each(data, function(index, item){
     var buttons;
@@ -665,60 +751,53 @@ function userListTemplate(data) {
         if (user_data.fullPermission) {
           switch (item.Campus) {
             case 'ALL':
-              buttons = (!item.FullPermission) ? '<button type="button" class="editUserButton">Edit</button>' +
-              '<button type="button" class="removeUserButton">Remove</button>' : '<button type="button" class="viewUserButton">View</button>';
+              buttons = (!item.FullPermission) ? '<button type="button" class="editAdminButton">Edit</button>' +
+              '<button type="button" class="removeAdminButton">Remove</button>' : '<button type="button" class="viewAdminButton">View</button>';
               break;
             default:
-              buttons = '<button type="button" class="editUserButton">Edit</button>' +
-              '<button type="button" class="removeUserButton">Remove</button>';
+              buttons = '<button type="button" class="editAdminButton">Edit</button>' +
+              '<button type="button" class="removeAdminButton">Remove</button>';
               break;
           }
         } else {
-          buttons = (item.Campus !== 'ALL') ? '<button type="button" class="editUserButton">Edit</button>' +
-          '<button type="button" class="removeUserButton">Remove</button>' : '<button type="button" class="viewUserButton">View</button>';
+          buttons = (item.Campus !== 'ALL') ? '<button type="button" class="editAdminButton">Edit</button>' +
+          '<button type="button" class="removeAdminButton">Remove</button>' : '<button type="button" class="viewAdminButton">View</button>';
         }
         break;
       default:
         if (user_data.fullPermission) {
           switch (item.Campus) {
             case user_data.campus:
-              buttons =  (!item.FullPermission) ? '<button type="button" class="editUserButton">Edit</button>' +
-              '<button type="button" class="removeUserButton">Remove</button>' : '<button type="button" class="viewUserButton">View</button>';
+              buttons =  (!item.FullPermission) ? '<button type="button" class="editAdminButton">Edit</button>' +
+              '<button type="button" class="removeAdminButton">Remove</button>' : '<button type="button" class="viewAdminButton">View</button>';
               break;
             default:
-              buttons = '<button type="button" class="viewUserButton">View</button>';
+              buttons = '<button type="button" class="viewAdminButton">View</button>';
               break;
           }
         } else {
-          buttons = (!item.IsAdmin) ? '<button type="button" class="editUserButton">Edit</button>' +
-          '<button type="button" class="removeUserButton">Remove</button>' : '<button type="button" class="viewUserButton">View</button>';
+          buttons = '<button type="button" class="viewAdminButton">View</button>';
         }
         break;
     }
-    var student_id = (item.StudentId.length != 0) ? '<span class="paraStyle">ID - </span><span id="u-student-id">' + item.StudentId + '</span>' : "";
+    var admin_id = '<span class="paraStyle">ID - </span><span id="u-student-id">' + item.AdminId + '</span>' ;
 
     var activated = (item.Activated) ? "Activated" : "Inactivated";
-    var profiled = (item.FillUpProfile) ? "Filled" : "Not yet";
-    var isAdmin = (item.IsAdmin) ? "Admin" : "Student";
     var fullPermission = (item.FullPermission) ? "Full" : "Normal";
 
-    var permission = (item.StudentId.length == 0) ? '<span class="paraStyle">Permission -</span><span id="u-fullPermission">' + fullPermission + '</span>' : "";
+    var permission = '<span class="paraStyle">Permission -</span><span id="a-fullPermission">' + fullPermission + '</span>';
 
     html += '<div class="user-list-style">'+
     '<img src="'+ item.AvatarUrl +'" width="32x32" class="imgRound" />'+
-    '<span id="u-id" class="hide">' + item.Id + '</span>' +
-    '<span id="u-cn" class="hide">' + item.ContactNo + '</span>' +
-    '<span id="u-avatar" class="hide">' + item.AvatarUrl + '</span>' +
-    '<span id="u-dj" class="hide">' + item.DateJoined + '</span>' +
-    '<span id="u-email" class="hide">' + item.Email + '</span>' +
-    '<span id="u-location" class="hide">' + item.Location + '</span>' +
-    '<span id="u-gender" class="hide">' + item.Gender + '</span>' +
-    '<span id="u-activated" class="hide">' + activated + '</span>' +
-    '<span id="u-profiled" class="hide">' + profiled + '</span>' +
-    '<span id="u-isAdmin" class="hide">' + isAdmin + '</span>' +
-    '<span class="paraStyle">Campus -</span><span id="u-campus">' + item.Campus + '</span>' +
-    student_id +
-    '<span class="paraStyle">Name -</span><span id="u-name">' + item.Name + '</span>' +
+    '<span id="a-id" class="hide">' + item.Id + '</span>' +
+    '<span id="a-cn" class="hide">' + item.ContactNo + '</span>' +
+    '<span id="a-avatar" class="hide">' + item.AvatarUrl + '</span>' +
+    '<span id="a-email" class="hide">' + item.Email + '</span>' +
+    '<span id="a-gender" class="hide">' + item.Gender + '</span>' +
+    '<span id="a-activated" class="hide">' + activated + '</span>' +
+    '<span class="paraStyle">Campus -</span><span id="a-campus">' + item.Campus + '</span>' +
+    admin_id +
+    '<span class="paraStyle">Name -</span><span id="a-name">' + item.Name + '</span>' +
     permission +
     '<div class="rightAlignment">' +
     buttons +
@@ -750,7 +829,6 @@ function userRequestListTemplate(data) {
     '<span id="request-user-balance" class="hide">' + item.User.Balance + '</span>' +
     '<span id="request-user-gender" class="hide">' + item.User.Gender + '</span>' +
     '<span id="request-user-email" class="hide">' + item.User.Email + '</span>' +
-    '<span id="request-user-location" class="hide">' + item.User.Location + '</span>' +
     '<span id="request-user-contactno" class="hide">' + item.User.ContactNo + '</span>' +
     '<span id="request-user-avatar" class="hide">' + item.User.AvatarUrl + '</span>' +
     '<span id="request-nap" class="hide">' + (item.Payment - item.User.Balance) + '</span>' +
@@ -766,13 +844,16 @@ function userRequestListTemplate(data) {
 function roomTypeListTemplate(data) {
   var html = '';
   $.each(data, function(index, item){
+    var twin = (item.Twin) ? "Twin" : "Single";
     html += '<div class="room-type-list-style">'+
     '<span id="rt-id" class="hide">' + item.Id + '</span>' +
     '<span id="rt-campus" class="paraStyle">' + item.Campus + '</span>' +
     '<span id="rt-tor" class="paraStyle">' + item.TypesOfRooms + '</span>' +
     '<span id="rt-dp" class="paraStyle">' + item.Deposit + '</span>' +
     '<span id="rt-rpp" class="paraStyle">' + item.RatesPerPerson + '</span>' +
+    '<span id="rt-twin" class="paraStyle">' + twin + '</span>' +
     '<div class="rightAlignment">' +
+    '<button type="button" class="editRoomTypeButton">Edit</button>' +
     '<button type="button" class="removeRoomTypeButton">Remove</button>' +
     '</div>' +
     '</div>';
@@ -985,7 +1066,6 @@ function viewRequest(e) {
   $('#view-user-si').val(thisObj.children("#request-user-si").text());
   $('#view-user-gender').val(thisObj.children("#request-user-gender").text());
   $('#view-user-contactno').val(thisObj.children("#request-user-contactno").text());
-  $('#view-user-location').val(thisObj.children("#request-user-location").text());
   $('#view-user-session').val(thisObj.children("#request-ss").text());
   $('#view-rd').val(thisObj.children("#request-rd").text());
   $('#view-tp').val(thisObj.children("#request-tp").text());
@@ -1141,6 +1221,30 @@ function SearchUserQuery() {
   wrapFunc.PaginateUsersContent(result);
 }
 
+function SearchAdminQuery() {
+  console.log(adminDataSource);
+  var query = $('#search-box').val();
+  console.log(query.length);
+  if (query.length == 0) {
+    wrapFunc.PaginateAdminContent(adminDataSource);
+    return;
+  }
+  var options = {
+    caseSensitive: false,
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    keys: searchAdminOption
+  };
+  console.log(adminDataSource);
+  var fuse = new Fuse(adminDataSource, options);
+  var result = fuse.search(query);
+  console.log(result);
+  wrapFunc.PaginateAdminContent(result);
+}
+
 function removeBooked(e) {
   e.preventDefault();
 
@@ -1265,13 +1369,9 @@ function editUser(e) {
   $('#edit-user-campus').val(thisObj.children("#u-campus").text());
   $('#edit-user-name').val(thisObj.children("#u-name").text());
   $('#edit-user-email').val(thisObj.children("#u-email").text());
-  $('#edit-user-location').val(thisObj.children("#u-location").text());
   $('#edit-user-contact-no').val(thisObj.children("#u-cn").text());
   var activated = thisObj.children("#u-activated").text();
   var profiled = thisObj.children("#u-profiled").text();
-  var isAdmin = thisObj.children("#u-isAdmin").text();
-  var fullPermission = thisObj.children('#u-fullPermission').text();
-  console.log(isAdmin);
   if (activated !== 'Activated' &&
       $('#edit-user-activated:checked').length != 0) {
     $('#edit-user-activated').click();
@@ -1288,50 +1388,29 @@ function editUser(e) {
   if (profiled === 'Filled' &&
       $('#edit-user-profiled:checked').length == 0) {
     $('#edit-user-profiled').click();
-  }  
-
-  if (isAdmin !== 'Admin' &&
-      $('#edit-user-admin:checked').length != 0) {
-    $('#edit-user-admin').click();
-
-  }
-  if (isAdmin === 'Admin' &&
-      $('#edit-user-admin:checked').length == 0) {
-    $('#edit-user-admin').click();
-  }
-
-  if (fullPermission !== 'Full' &&
-      $('#edit-user-permission:checked').length != 0) {
-    $('#edit-user-permission').click();
-
-  }
-  if (fullPermission === 'Full' &&
-      $('#edit-user-permission:checked').length == 0) {
-    $('#edit-user-permission').click();
   }
 }
 
-function viewUser(e) {
-  e.preventDefault();
+// function viewUser(e) {
+//   e.preventDefault();
 
-  var thisObj = $(this).parent().parent();
-  var gender = thisObj.children("#u-gender").text();
-  $('#bg-overlay, #view-user-box').css('display', 'block');
-  $('#view-user-id').text(thisObj.children("#u-id").text());
-  $('#view-user-avatar').attr('src', thisObj.children("#u-avatar").text());
-  $('#view-user-dj').text(moment(thisObj.children("#u-dj").text()).format('MMMM Do YYYY'));
-  $('#view-user-campus').text(thisObj.children("#u-campus").text());
-  $('#view-user-name').text(thisObj.children("#u-name").text());
-  $('#view-user-email').text(thisObj.children("#u-email").text());
-  $('#view-user-location').text(thisObj.children("#u-location").text());
-  $('#view-user-contact-no').text(thisObj.children("#u-cn").text());
-  var activated = thisObj.children("#u-activated").text();
-  var fullPermission = thisObj.children('#u-fullPermission').text();
-  if (activated === 'Activated') {
-    $('#view-user-activated').text("Yes");
-  }
-  $('#view-user-pm').text(fullPermission);
-}
+//   var thisObj = $(this).parent().parent();
+//   var gender = thisObj.children("#u-gender").text();
+//   $('#bg-overlay, #view-user-box').css('display', 'block');
+//   $('#view-user-id').text(thisObj.children("#u-id").text());
+//   $('#view-user-avatar').attr('src', thisObj.children("#u-avatar").text());
+//   $('#view-user-dj').text(moment(thisObj.children("#u-dj").text()).format('MMMM Do YYYY'));
+//   $('#view-user-campus').text(thisObj.children("#u-campus").text());
+//   $('#view-user-name').text(thisObj.children("#u-name").text());
+//   $('#view-user-email').text(thisObj.children("#u-email").text());
+//   $('#view-user-contact-no').text(thisObj.children("#u-cn").text());
+//   var activated = thisObj.children("#u-activated").text();
+//   var fullPermission = thisObj.children('#u-fullPermission').text();
+//   if (activated === 'Activated') {
+//     $('#view-user-activated').text("Yes");
+//   }
+//   $('#view-user-pm').text(fullPermission);
+// }
 
 function updateUserView() {
   var userData = window.UserData;
@@ -1354,6 +1433,110 @@ function updateUserView() {
       } else {
         usersDataSource = res.data;
         wrapFunc.PaginateUsersContent(usersDataSource);
+      } 
+      wrapFunc.LoadingSwitch(false);
+    }
+  });
+}
+
+function removeAdmin(e) {
+  e.preventDefault();
+  console.log($(this).parent().parent().children("#a-id").text());
+  var userId = {
+    userId: $(this).parent().parent().children("#a-id").text(),
+  }
+  ajax({
+    url: "/user/admin-console",
+    method: "DELETE",
+    data: JSON.stringify(userId),
+    dataType: 'json',
+    cache: false,
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      wrapFunc.LoadingSwitch(false);
+      if (res.length != 0) {
+        wrapFunc.AlertStatus(
+          'Oops...',
+          res,
+          'error',
+          false,
+          false
+        );
+      } else {
+        updateAdminView();
+      }
+    }
+  });
+}
+
+function editAdmin(e) {
+  e.preventDefault();
+  var thisObj = $(this).parent().parent();
+
+  $('#bg-overlay, #edit-admin-box').css('display', 'block');
+  $('#edit-admin-id').val(thisObj.children("#a-id").text());
+  $('#edit-admin-campus').val(thisObj.children("#a-campus").text());
+  $('#edit-admin-name').val(thisObj.children("#a-name").text());
+  $('#edit-admin-email').val(thisObj.children("#a-email").text());
+  $('#edit-admin-contact-no').val(thisObj.children("#a-cn").text());
+  var activated = thisObj.children("#a-activated").text();
+  var fullPermission = thisObj.children('#a-fullPermission').text();
+  if (activated !== 'Activated' &&
+      $('#edit-admin-activated:checked').length != 0) {
+    $('#edit-admin-activated').click();
+  }
+  if (activated === 'Activated' &&
+      $('#edit-admin-activated:checked').length == 0) {
+    $('#edit-admin-activated').click();
+  }
+
+  if (fullPermission !== 'Full' &&
+      $('#edit-admin-permission:checked').length != 0) {
+    $('#edit-admin-permission').click();
+
+  }
+  if (fullPermission === 'Full' &&
+      $('#edit-admin-permission:checked').length == 0) {
+    $('#edit-admin-permission').click();
+  }
+}
+
+function viewAdmin(e) {
+  e.preventDefault();
+
+  var thisObj = $(this).parent().parent();
+  $('#bg-overlay, #view-admin-box').css('display', 'block');
+  $('#view-admin-id').text(thisObj.children("#a-id").text());
+  $('#view-admin-avatar').attr('src', thisObj.children("#a-avatar").text());
+  $('#view-admin-campus').text(thisObj.children("#a-campus").text());
+  $('#view-admin-name').text(thisObj.children("#a-name").text());
+  $('#view-admin-email').text(thisObj.children("#a-email").text());
+  $('#view-admin-contact-no').text(thisObj.children("#a-cn").text());
+  var activated = thisObj.children("#a-activated").text();
+  var fullPermission = thisObj.children('#a-fullPermission').text();
+  if (activated === 'Activated') {
+    $('#view-admin-activated').text("Yes");
+  }
+  $('#view-admin-pm').text(fullPermission);
+}
+
+function updateAdminView() {
+  ajax({
+    url: "/api/view-admin-list",
+    method: "POST",
+    cache: false,
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      if (res.error != null) {
+        wrapFunc.ClearContent();
+        $('#errMsg').text(res.error);
+      } else {
+        adminDataSource = res.data;
+        wrapFunc.PaginateAdminContent(adminDataSource);
       } 
       wrapFunc.LoadingSwitch(false);
     }
@@ -1434,6 +1617,29 @@ function updateUserReuqest() {
   });
 }
 
+function editRoomType(e) {
+  e.preventDefault();
+
+  var thisObj = $(this).parent().parent();
+
+  $('#bg-overlay, #edit-room-type-box').css('display', 'block');
+  $('#edit-id').val(thisObj.children("#rt-id").text());
+  $('#edit-camp').val(thisObj.children("#rt-campus").text());
+  $('#edit-tor').val(thisObj.children("#rt-tor").text());
+  $('#edit-dp').val(thisObj.children("#rt-dp").text());
+  $('#edit-rpp').val(thisObj.children("#rt-rpp").text());
+  var twin = thisObj.children("#rt-twin").text();
+  if (twin !== 'Twin' &&
+      $('#rt-twin:checked').length != 0) {
+    $('#rt-twin').click();
+
+  }
+  if (twin === 'Twin' &&
+      $('#rt-twin:checked').length == 0) {
+    $('#rt-twin').click();
+  }  
+}
+
 function removeRoomType(e) {
   e.preventDefault();
 
@@ -1464,7 +1670,6 @@ function removeRoomType(e) {
       }
     }
   });
-
 }
 
 function updateRoomTypeRequest() {

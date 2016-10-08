@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Card, CardActions, CardTitle} from 'material-ui/Card';
-import AddUserDialog from "./UserComponents/AddUserDialog.js";
+import AddAdminDialog from "./AdminComponents/AddAdminDialog.js";
 import RaisedButton from 'material-ui/RaisedButton';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
@@ -114,7 +114,7 @@ const styles = {
   },
 };
 
-export default class UserConsolePage extends Component {
+export default class AdminConsolePage extends Component {
 
   state = {
     value: "IU",
@@ -134,10 +134,6 @@ export default class UserConsolePage extends Component {
     this.setState({
       sortValue: value,
     });
-  };
-
-  togglePermission = (e) => {
-    $('#edit-user-permission').parent().toggleClass('hide');
   };
 
   handleOptionDialogOpen = (e) => {
@@ -249,7 +245,7 @@ export default class UserConsolePage extends Component {
       thisObj.updateUserList();
     });
 
-    var userContactNo = $('#edit-user-contact-no');
+    var userContactNo = $('#edit-admin-contact-no');
     userContactNo.intlTelInput({
       initialCountry: "auto",
       geoIpLookup: function(callback) {
@@ -272,8 +268,8 @@ export default class UserConsolePage extends Component {
 
     function editUserResize() {
       var windowHeight = $(window).height();
-      var editUserBox = $('#edit-user-box');
-      var viewUserBox = $('#view-user-box');
+      var editUserBox = $('#edit-admin-box');
+      var viewUserBox = $('#view-admin-box');
       var windowWidth = $(window).width();
       editUserBox.width(windowWidth * 0.6);
       editUserBox.height(windowHeight * 0.8);
@@ -282,8 +278,14 @@ export default class UserConsolePage extends Component {
       var dialogContentHeight = editUserBox.height() - 140;
       $('.dialog-content').height(dialogContentHeight);
     }
+    var dialogCollection = $('#bg-overlay, #edit-admin-box, #view-admin-box');
     $('#bg-overlay, .cancel-btn').on('click', function() {
-      $('#bg-overlay, #edit-user-box, #view-user-box').css('display', 'none');
+      dialogCollection.css('display', 'none');
+    });
+    $(document).on('keyup', function(e) {
+      if (e.keyCode == 27) {
+        dialogCollection.css('display', 'none');
+      }
     });
 
     $('#update-btn').on('click', updateUser);
@@ -293,10 +295,10 @@ export default class UserConsolePage extends Component {
       thisObj.setState({
         btnDisabled: true,
       });
-      var editUserForm = $('#edit-user-form');
-      $('#edit-user-campus').val(thisObj.state.value);
+      var editUserForm = $('#edit-admin-form');
+      $('#edit-admin-campus').val(thisObj.state.value);
       ajax({
-        url: "/user/user-console",
+        url: "/user/admin-console",
         method: "PUT",
         data: editUserForm.serialize(),
         cache: false,
@@ -315,7 +317,7 @@ export default class UserConsolePage extends Component {
               false
             );
           } else {
-            $('#bg-overlay, #edit-user-box').css('display', 'none');
+            $('#bg-overlay, #edit-admin-box').css('display', 'none');
             thisObj.updateUserList();
             wrapFunc.AlertStatus(
               "Success",
@@ -335,14 +337,14 @@ export default class UserConsolePage extends Component {
 
   updateUserList() {
     var thisObj = this;
-    var userState = {
-      userCampus: userData.campus
-    };
+    // var userState = {
+    //   userCampus: userData.campus
+    // };
     ajax({
-      url: "/api/view-users-list",
+      url: "/api/view-admin-list",
       method: "POST",
       cache: false,
-      data: JSON.stringify(userState),
+      // data: JSON.stringify(userState),
       beforeSend: function() {
         wrapFunc.LoadingSwitch(true);
       },
@@ -351,9 +353,10 @@ export default class UserConsolePage extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
+          console.log(res.data);
           res.data.sort(thisObj.sortByCampus);
-          wrapFunc.SetUsersDataSource(res.data);
-          wrapFunc.PaginateUsersContent(res.data);
+          wrapFunc.SetAdminDataSource(res.data);
+          wrapFunc.PaginateAdminContent(res.data);
         }
       }
     });
@@ -377,14 +380,14 @@ export default class UserConsolePage extends Component {
     return (
       <div>
         <div id="bg-overlay"></div>
-        <div id="edit-user-box">
+        <div id="edit-admin-box">
           <div className="dialog-header">
-            <h1 style={styles.textCenter}>Edit User</h1>
+            <h1 style={styles.textCenter}>Edit Admin</h1>
           </div>
           <div className="dialog-content">
           <div className="block-center">
-          <form id="edit-user-form" className="edit-user-content">
-            <input id="edit-user-id" name="edit-user-id" type="text" style={styles.hide} />
+          <form id="edit-admin-form" className="edit-admin-content">
+            <input id="edit-admin-id" name="edit-admin-id" type="text" style={styles.hide} />
             <div>Campus&nbsp;
             <DropDownMenu id="campusDropDown" value={this.state.value} onChange={this.handleChange} disabled={this.state.disabled}>
               <MenuItem value={"ALL"} primaryText="ALL" />
@@ -393,10 +396,10 @@ export default class UserConsolePage extends Component {
               <MenuItem value={"IICKL"} primaryText="IICKL" />
               <MenuItem value={"IICP"} primaryText="IICP" />
             </DropDownMenu>
-            <input id="edit-user-campus" name="edit-user-campus" type="text" style={styles.hide} />
+            <input id="edit-admin-campus" name="edit-admin-campus" type="text" style={styles.hide} />
             <TextField
-              id="edit-user-name"
-              name="edit-user-name"
+              id="edit-admin-name"
+              name="edit-admin-name"
               floatingLabelText="Full Name"
               type="text"
               fullWidth={true}
@@ -406,8 +409,8 @@ export default class UserConsolePage extends Component {
               floatingLabelStyle={styles.floatingLabelStyle}
             />
             <TextField
-              id="edit-user-email"
-              name="edit-user-email"
+              id="edit-admin-email"
+              name="edit-admin-email"
               floatingLabelText="Email"
               type="email"
               fullWidth={true}
@@ -417,56 +420,28 @@ export default class UserConsolePage extends Component {
               floatingLabelStyle={styles.floatingLabelStyle}
             />
             <br/><br/>
-            <p className="form-paragraph">Gender</p>
-            <RadioButtonGroup name="edit-user-gender">
-              <RadioButton
-                value="Male"
-                label="Male"
-              />
-              <RadioButton
-                value="Female"
-                label="Female"
-              />
-            </RadioButtonGroup>
-            <br/>
             <p className="form-paragraph">Contact No.</p>
             <input
-              id="edit-user-contact-no"
-              name="edit-user-contact-no"
+              id="edit-admin-contact-no"
+              name="edit-admin-contact-no"
               type="tel"
             />
             <br/><br/>
             <p className="form-paragraph">Role & Permissions</p>
             <Toggle
-              id="edit-user-activated"
-              name="edit-user-activated"
+              id="edit-admin-activated"
+              name="edit-admin-activated"
               label="Activated"
               defaultToggled={true}
               style={styles.toggle}
             />
             <Toggle
-              id="edit-user-profiled"
-              name="edit-user-profiled"
-              label="Filled Up Profile"
-              defaultToggled={false}
-              style={styles.toggle}
-            />
-            <Toggle
-              id="edit-user-admin"
-              name="edit-user-admin"
-              label="Admin"
-              defaultToggled={false}
-              style={styles.toggle}
-              onToggle={this.togglePermission}
-            />
-            <Toggle
-              id="edit-user-permission"
-              name="edit-user-permission"
+              id="edit-admin-permission"
+              name="edit-admin-permission"
               label="Full Permission"
               defaultToggled={false}
               style={styles.toggle}
-              className="hide"
-            />              
+            />
             </div>
           </form>
           </div>
@@ -486,7 +461,7 @@ export default class UserConsolePage extends Component {
             />
           </div>
         </div>
-        <div id="view-user-box">
+        <div id="view-admin-box">
           <div className="dialog-header">
             <h1 style={styles.textCenter}>Profile</h1>
           </div>
@@ -496,14 +471,14 @@ export default class UserConsolePage extends Component {
                 <table className="centerTable">
                   <caption>
                     <Avatar
-                      id="view-user-avatar"
+                      id="view-admin-avatar"
                       src="../"
                       size={128} />
                   </caption>
                   <tbody>
                   <tr colSpan="2">
                     <td style={styles.textCenter}>
-                      <b>Joined On <span id="view-user-dj"></span></b>
+                      <b>Joined On <span id="view-admin-dj"></span></b>
                     </td>
                   </tr>
                   </tbody>
@@ -515,11 +490,11 @@ export default class UserConsolePage extends Component {
                   <tbody>
                     <tr>
                       <td>Activated</td>
-                      <td><b><span id="view-user-activated"></span></b></td>
+                      <td><b><span id="view-admin-activated"></span></b></td>
                     </tr>
                     <tr>
                       <td>Permission</td>
-                      <td><b><span id="view-user-pm"></span></b></td>
+                      <td><b><span id="view-admin-pm"></span></b></td>
                     </tr>
                   </tbody>
                 </table>
@@ -533,19 +508,19 @@ export default class UserConsolePage extends Component {
                   <tbody>
                     <tr style={styles.bottomLine}>
                       <td>Campus</td>
-                      <td style={styles.textLeft}><b><span id="view-user-campus"></span></b></td>
+                      <td style={styles.textLeft}><b><span id="view-admin-campus"></span></b></td>
                     </tr>
                     <tr style={styles.bottomLine}>
                       <td>Full Name</td>
-                      <td style={styles.textLeft}><b><span id="view-user-name"></span></b></td>
+                      <td style={styles.textLeft}><b><span id="view-admin-name"></span></b></td>
                     </tr>
                     <tr style={styles.bottomLine}>
                       <td>Email</td>
-                      <td style={styles.textLeft}><b><span id="view-user-email"></span></b></td>
+                      <td style={styles.textLeft}><b><span id="view-admin-email"></span></b></td>
                     </tr>
                     <tr>
                       <td>Contact No.</td>
-                      <td style={styles.textLeft}><b><span id="view-user-contact-no"></span></b></td>
+                      <td style={styles.textLeft}><b><span id="view-admin-contact-no"></span></b></td>
                     </tr>
                   </tbody>
                 </table>
@@ -563,7 +538,7 @@ export default class UserConsolePage extends Component {
         </div>
         <div id="card-wrapper" className="wrapper-margin">
           <Card id="card" style={styles.cardSize}>
-            <h1 style={styles.title}>User Console</h1>
+            <h1 style={styles.title}>Admin Console</h1>
             <div style={styles.balanceStyle}>
               <input
                 id="search-box"
@@ -627,7 +602,7 @@ export default class UserConsolePage extends Component {
                   disabled={this.state.refreshBtnDisabled}
                   iconClassName="fa fa-refresh"
                 />
-                <AddUserDialog/>
+                <AddAdminDialog/>
                 <div style={styles.wall}>
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>

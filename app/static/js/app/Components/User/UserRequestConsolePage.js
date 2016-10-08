@@ -281,11 +281,16 @@ export default class UserRequestConsolePage extends Component {
       var dialogContentHeight = paymentBox.height() - 140;
       $('.dialog-content').height(dialogContentHeight);
     }
+    var dialogCollection = $('#bg-overlay, #view-request-box, #payment-box');
     $('#bg-overlay, #cancel-btn, #payment-cancel').on('click', function() {
-      $('#bg-overlay, #view-request-box, #payment-box').css('display', 'none');
+      dialogCollection.css('display', 'none');
     });
 
-    
+    $(document).on('keyup', function(e) {
+      if (e.keyCode == 27) {
+        dialogCollection.css('display', 'none');
+      }
+    });
 
     function madePayment() {
       thisObj.setState({
@@ -407,14 +412,6 @@ export default class UserRequestConsolePage extends Component {
                     underlineShow={false}
                     readOnly={true}
                     floatingLabelStyle={styles.floatingLabelStyle}
-                  />           
-                  <TextField
-                    id="view-user-location"
-                    floatingLabelText="Permanent Address"
-                    floatingLabelFixed={true}
-                    underlineShow={false}
-                    readOnly={true}
-                    floatingLabelStyle={styles.floatingLabelStyle}
                   />
                   <TextField
                     id="view-user-session"
@@ -434,7 +431,7 @@ export default class UserRequestConsolePage extends Component {
                     underlineShow={false}
                     readOnly={true}
                     floatingLabelStyle={styles.floatingLabelStyle}
-                  /> 
+                  />
                   <TextField
                     id="view-tp"
                     floatingLabelText="Types Of Rooms"

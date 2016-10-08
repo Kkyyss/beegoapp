@@ -243,3 +243,21 @@ func IsValidContactNo(email, contactNo string) (errMsg string) {
 	}
 	return
 }
+
+func GetAdminList() (errMsg string, users []*Admin) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("admin")
+
+	n, _ := qs.Count()
+	beego.Debug(n)
+	if n == 0 {
+		errMsg = "No Admin Available."
+		return errMsg, nil
+	}
+	_, err := qs.All(&users)
+	if err != nil {
+		errMsg = "Oops...Something happened when find the admin list."
+		return errMsg, nil
+	}
+	return
+}

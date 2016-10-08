@@ -18,6 +18,17 @@ const styles = {
   textCenter: {
     textAlign: 'center',
   },
+  textLeft: {
+    textAlign: 'left',
+  },
+  errMsg: {
+    paddingTop: 20,
+    paddingBottom: 20,
+    textAlign: 'center',
+  },
+  bottomLine: {
+    borderBottom: '1px solid #a4a4a6',
+  },  
 };
 
 
@@ -58,6 +69,11 @@ export default class UserBookedRoomPage extends Component {
           $('#booked-no').text(bookedData.RoomNo);
           $('#booked-dp').text(bookedData.Deposit);
           $('#booked-r').text(bookedData.RatesPerPerson);
+
+          if (res.roommate !== undefined) {
+            console.log(res.roommate);
+            $('#no-roommate').remove();
+          }
         }
         $('#card').removeClass('hide');
       }
@@ -68,36 +84,48 @@ export default class UserBookedRoomPage extends Component {
     return (
       <div>
         <div id="card-wrapper" className="wrapper-margin">
-          <Card id="card" className="hide" style={styles.cardSize}>
-            <p style={styles.textCenter} id="errMsg"></p>
+            <h1 style={styles.errMsg} id="errMsg"></h1>
+
             <div id="booked-content">
-              <h1 style={styles.textCenter}>Booked Room</h1>
-              <table>
-                <tbody>
-                  <tr>
-                    <td>Campus</td>
-                    <td style={styles.textCenter}><b><span id="booked-cp"></span></b></td>
-                  </tr>
-                  <tr>
-                    <td>Types</td>
-                    <td style={styles.textCenter}><b><span id="booked-tor"></span></b></td>
-                  </tr>
-                  <tr>
-                    <td>No.</td>
-                    <td style={styles.textCenter}><b><span id="booked-no"></span></b></td>
-                  </tr>
-                  <tr>
-                    <td>Deposit</td>
-                    <td style={styles.textCenter}><b><span id="booked-dp"></span></b></td>
-                  </tr>
-                  <tr>
-                    <td>Rates</td>
-                    <td style={styles.textCenter}><b><span id="booked-r"></span></b></td>
-                  </tr>
-                </tbody>
-              </table>
+            <div className="table-hero">
+              <div className="u-booked-left">
+                <h1 style={styles.textCenter}>Booked Room</h1>
+                <div className="block-center">
+                  <table>
+                    <tbody>
+                      <tr style={styles.bottomLine}>
+                        <td style={styles.textLeft}>Campus</td>
+                        <td style={styles.textCenter}><b><span id="booked-cp"></span></b></td>
+                      </tr>
+                      <tr style={styles.bottomLine}>
+                        <td style={styles.textLeft}>Types</td>
+                        <td style={styles.textCenter}><b><span id="booked-tor"></span></b></td>
+                      </tr>
+                      <tr style={styles.bottomLine}>
+                        <td style={styles.textLeft}>No.</td>
+                        <td style={styles.textCenter}><b><span id="booked-no"></span></b></td>
+                      </tr>
+                      <tr style={styles.bottomLine}>
+                        <td style={styles.textLeft}>Deposit</td>
+                        <td style={styles.textCenter}><b><span id="booked-dp"></span></b></td>
+                      </tr>
+                      <tr>
+                        <td style={styles.textLeft}>Rates</td>
+                        <td style={styles.textCenter}><b><span id="booked-r"></span></b></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div className="half-wrapper">
+                <h1 style={styles.textCenter}>Roommate</h1>
+                <div className="block-center">
+                  <h1 style={styles.errMsg} id="no-roommate">N/A</h1>
+                </div>
+              </div>
             </div>
-          </Card>
+            </div>
+
         </div>
       </div>
     );

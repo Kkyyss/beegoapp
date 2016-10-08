@@ -20,6 +20,7 @@ import RoomConsolePage from './Components/Admin/RoomConsolePage';
 import RequestConsolePage from './Components/Admin/RequestConsolePage';
 import BookedRoomConsolePage from './Components/Admin/BookedRoomConsolePage';
 import UserConsolePage from './Components/Admin/UserConsolePage';
+import AdminConsolePage from './Components/Admin/AdminConsolePage';
 import RoomTypeConsolePage from './Components/Admin/RoomTypeConsolePage';
 
 import FourZeroOnePage from './Components/Error/FourZeroOnePage';
@@ -48,6 +49,7 @@ const AppRoutes = (
     <Route path="user/request-console" component={RequestConsolePage} />
     <Route path="user/booked-room-console" component={BookedRoomConsolePage} />
     <Route path="user/user-console" component={UserConsolePage} />
+    <Route path="user/admin-console" component={AdminConsolePage} />
     <Route path="user/booked-room" component={UserBookedRoomPage} />
     <Route path="user/room-type" component={RoomTypeConsolePage} />
     <Route path="user/room-status" component={RoomStatusPage} />

@@ -2,10 +2,10 @@
     width:100%; 
     height:100%;
     
-    filter:alpha(opacity=50); 
-    -moz-opacity:0.5; 
-    -khtml-opacity: 0.5; 
-    opacity: 0.5; 
+    filter:alpha(opacity=60); 
+    -moz-opacity:0.6; 
+    -khtml-opacity: 0.6; 
+    opacity: 0.6; 
     background:#000; 
 
     position:absolute; 
@@ -13,28 +13,31 @@
     z-index:1500; 
 
     display: none;
+
+    -webkit-animation-name: darktop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: darktop;
+    animation-duration: 0.4s    
 }
 
-#location-box {
-    padding: 15px;
-    background:#FFFFFF;
+@-webkit-keyframes darktop {
+    from {opacity:0}
+    to {opacity:0.6}
+}
 
-    position:absolute;
-    top: 50%;
-    left: 50%;
-    margin-right: -50%;
-    transform: translate(-50%, -50%);     
-    z-index:1500;
-
-    display: none;
-    overflow: auto;
+@keyframes darktop {
+    from {opacity:0}
+    to {opacity:0.6}
 }
 
 #edit-room-box, 
 #view-request-box, 
 #view-booked-box,
 #edit-user-box,
-#view-user-box {
+#edit-admin-box,
+#edit-room-type-box,
+#view-user-box,
+#view-admin-box {
     /*padding: 15px;*/
     background:#FFFFFF;
 
@@ -47,6 +50,21 @@
 
     display: none;
     overflow: hidden;
+
+    -webkit-animation-name: open;
+    -webkit-animation-duration: 0.4s;
+    animation-name: open;
+    animation-duration: 0.4s    
+}
+
+@-webkit-keyframes open {
+    from {top:25%; opacity:0}
+    to {top: 50%; opacity:1}
+}
+
+@keyframes open {
+    from {top:25%; opacity:0}
+    to {top: 50%;; opacity:1}
 }
 
 #payment-box {
@@ -61,6 +79,11 @@
 
     display: none;
     overflow: hidden;
+
+    -webkit-animation-name: open;
+    -webkit-animation-duration: 0.4s;
+    animation-name: open;
+    animation-duration: 0.4s      
 }
 
 #map {
@@ -74,7 +97,7 @@
     justify-content: center !important;
 }
 
-.edit-room-content, .edit-user-content {
+.edit-room-content {
     margin-top: 20px;
     padding: 20px;
     background-color: white;
@@ -190,11 +213,11 @@
         padding: 30px 15% 30px 15% !important;
     }
 
-    .half-wrapper {
+    .half-wrapper, .u-booked-left {
         width: 80% !important;
         padding: 30px 10% 30px 10% !important;
     }
-    .edit-user-content {
+    .edit-user-content, .edit-rt-content, .edit-admin-content {
         width: 70% !important; 
     }
     .half-content {
@@ -332,7 +355,8 @@
 .removeRequestButton, 
 .removeBookedButton,
 .removeUserButton,
-.removeRoomTypeButton {
+.removeRoomTypeButton,
+.removeAdminButton {
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
     -ms-transition: all 0.30s ease-in-out;
@@ -350,7 +374,8 @@
 .removeRequestButton:hover, 
 .removeBookedButton:hover,
 .removeUserButton:hover,
-.removeRoomTypeButton:hover {
+.removeRoomTypeButton:hover,
+.removeAdminButton:hover {
     background-color: #B71C1C;
     color: white;
 }
@@ -359,7 +384,10 @@
 .viewRequestButton, 
 .viewBookedButton,
 .editUserButton,
-.viewUserButton {
+.editRoomTypeButton,
+.viewUserButton,
+.editAdminButton,
+.viewAdminButton {
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
     -ms-transition: all 0.30s ease-in-out;
@@ -378,7 +406,10 @@
 .viewRequestButton:hover, 
 .viewBookedButton:hover,
 .editUserButton:hover,
-.viewUserButton:hover {
+.editRoomTypeButton:hover,
+.viewUserButton:hover,
+.editAdminButton:hover,
+.viewAdminButton:hover {
     background-color: #1A237E;
     color: white;
 }
@@ -470,7 +501,10 @@
     background-image: url("/static/img/flags.png");
 }
 
-#user-contact-no, #edit-user-contact-no {
+#user-contact-no, 
+#edit-user-contact-no,
+#admin-contact-no, 
+#edit-admin-contact-no {
     width: 100%;
     font-size: 18px;
     border-left: none;
@@ -479,7 +513,10 @@
     outline: none;
 }
 
-#user-contact-no:focus, #edit-user-contact-no:focus {
+#user-contact-no:focus, 
+#edit-user-contact-no:focusm
+#admin-contact-no:focus, 
+#edit-admin-contact-no:focus {
     border-bottom-color: green; 
 }
 
@@ -597,6 +634,15 @@
     float: left;
 }
 
+.u-booked-left {
+    width: 35%;
+    background-color: white;    
+    margin: 10px;
+    padding: 20px;
+    box-shadow: rgb(136, 136, 136) 0px 2px 5px;
+    float: left;
+}
+
 .half-wrapper {
     width: 45%;
     background-color: white;
@@ -624,7 +670,7 @@ table, td, th {
 
 }
 
-.edit-user-content {
+.edit-user-content, .edit-rt-content, .edit-admin-content {
     padding: 20px;
     background-color: white;
     box-shadow: rgb(136, 136, 136) 0px 2px 5px;    
@@ -646,4 +692,8 @@ table, td, th {
 .two-wrapper {
     padding: 20px;
     margin: 10px;
+}
+
+#booked-content {
+    padding: 20px 0 20px 0;
 }

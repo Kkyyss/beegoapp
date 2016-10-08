@@ -124,6 +124,10 @@ export default class Master extends Component {
     this.redirectUrl(event, "/user/user-console");
   };
 
+  adminConsole = (event) => {
+    this.redirectUrl(event, "/user/admin-console");
+  };
+
   userRequestConsole = (event) => {
     this.redirectUrl(event, "/user/request");
   };
@@ -453,6 +457,12 @@ export default class Master extends Component {
                 />,
                 <ListItem
                   key={7}
+                  primaryText="Admin"
+                  leftIcon={<FontIcon className="fa fa-eye" />}
+                  onTouchTap={this.adminConsole}
+                />,                
+                <ListItem
+                  key={8}
                   primaryText="Sign Out"
                   onTouchTap={this.logout}
                   leftIcon={<FontIcon className="fa fa-sign-out" />}

@@ -6,6 +6,9 @@ import MenuItem from 'material-ui/MenuItem';
 import Dialog from 'material-ui/Dialog';
 import Checkbox from 'material-ui/Checkbox';
 import FlatButton from 'material-ui/FlatButton';
+import RaisedButton from 'material-ui/RaisedButton';
+import Toggle from 'material-ui/Toggle';
+import TextField from 'material-ui/TextField';
 import IconButton from 'material-ui/IconButton';
 import AddRoomTypeDialog from "./RoomTypeComponents/AddRoomTypeDialog.js";
 
@@ -23,9 +26,25 @@ const styles = {
     marginLeft: '5%',
     width: '90%',
   },
+  toggle: {
+    marginBottom: 16,
+  },  
   contentStyle: {
     padding:'25px',
   },
+  floatingLabelStyle: {
+    color: '#1A237E',
+    fontStyle: 'normal',
+  },
+  underlineStyle: {
+    borderColor: '#1A237E',
+  },
+  underlineFocusStyle: {
+    borderColor: 'transparent',
+  },
+  raisedButton: {
+    marginBottom: 16,
+  },    
   wall: {
     marginLeft: '10px',
   },
@@ -72,6 +91,13 @@ const styles = {
   button: {
     margin: '0 5px 0 5px',
   },
+  hide: {
+    display: 'none',
+  },
+  rightAlign: {
+    float: 'right',      
+    margin: 10,
+  },  
 };
 
 var iuRoomTypes = {
@@ -97,6 +123,9 @@ var iuRoomTypes = {
 
 export default class RoomTypeConsolePage extends Component {
   state = {
+    value: "IU",
+    disabled: false,
+    btnDisabled: false,
     refreshBtnDisabled: false,
     optionDialogOpen: false,
     optionsButton: false,
@@ -236,8 +265,84 @@ export default class RoomTypeConsolePage extends Component {
     var thisObj = this;
     $.when().then(function() {
       userData = window.UserData;
+      if (userData.campus !== 'ALL') {
+        var userCampus = userData.campus;
+        thisObj.setState({
+          value: userCampus,
+          disabled: true,
+        });
+      }
       thisObj.updateRoomStatusList();
     });
+
+    $(window).resize(function() {
+      $(window).trigger("window:resize");
+    });
+
+    editRoomTypeResize();
+
+    $(window).on('window:resize', editRoomTypeResize);
+
+    function editRoomTypeResize() {
+      var windowHeight = $(window).height();
+      var editRoomTypeBox = $('#edit-room-type-box');
+      var windowWidth = $(window).width();
+      editRoomTypeBox.width(windowWidth * 0.6);
+      editRoomTypeBox.height(windowHeight * 0.8);
+      var dialogContentHeight = editRoomTypeBox.height() - 140;
+      $('.dialog-content').height(dialogContentHeight);
+    }    
+
+    $('#bg-overlay, .cancel-btn').on('click', function() {
+      $('#bg-overlay, #edit-room-type-box').css('display', 'none');
+    });
+
+    $('#update-btn').on('click', updateRoomType);
+
+    function updateRoomType(e) {
+      e.preventDefault();
+      thisObj.setState({
+        btnDisabled: true,
+      });
+      var editRoomTypeForm = $('#edit-rt-form');
+      $('#edit-rt-camp').val(thisObj.state.value);
+
+      ajax({
+        url: "/user/room-type-console",
+        method: "PUT",
+        data: editRoomTypeForm.serialize(),
+        cache: false,
+        beforeSend: function() {
+        wrapFunc.LoadingSwitch(true);
+        },
+        success: function(res) {
+          wrapFunc.LoadingSwitch(false);
+
+          if (res.length != 0) {
+            wrapFunc.AlertStatus(
+              "Oops...",
+              res,
+              "error",
+              false,
+              false
+            );
+          } else {
+            $('#bg-overlay, #edit-room-type-box').css('display', 'none');
+            thisObj.updateRoomStatusList();
+            wrapFunc.AlertStatus(
+              "Success",
+              "Update successfully!",
+              "success",
+              true,
+              true
+            );
+          }
+          thisObj.setState({
+            btnDisabled: false,
+          });          
+        }
+      });      
+    }    
   }
 
   updateRoomStatusList() {
@@ -284,6 +389,77 @@ export default class RoomTypeConsolePage extends Component {
     ];
 
     return (
+      <div>
+        <div id="bg-overlay"></div>
+        <div id="edit-room-type-box">
+          <div className="dialog-header">
+          <h1 style={styles.textCenter}>Edit Room Type</h1>
+          </div>
+          <div className="dialog-content">
+          <div className="block-center">
+          <form id="edit-rt-form" className="edit-rt-content">
+            <input id="edit-id" name="edit-id" type="text" style={styles.hide} />
+            <div>Campus&nbsp;
+            <DropDownMenu id="campusDropDown" value={this.state.value} onChange={this.handleChange} disabled={this.state.disabled}>
+              <MenuItem value={"IU"} primaryText="IU" />
+              <MenuItem value={"IICS"} primaryText="IICS" />
+              <MenuItem value={"IICKL"} primaryText="IICKL" />
+              <MenuItem value={"IICP"} primaryText="IICP" />
+            </DropDownMenu>
+            <input id="edit-camp" name="edit-camp" type="text" style={styles.hide} />
+            </div>
+            <TextField
+              id="edit-tor"
+              name="edit-tor"
+              floatingLabelText="Types Of Rooms"
+              type="text"
+              fullWidth={true}
+              floatingLabelFixed={true}
+            />
+            <br/>
+            <TextField
+              id="edit-dp"
+              name="edit-dp"
+              floatingLabelText="Deposit"
+              type="text"
+              fullWidth={true}
+              floatingLabelFixed={true}
+            />
+            <br/>
+            <TextField
+              id="edit-rpp"
+              name="edit-rpp"
+              floatingLabelText="Rates Per Person"
+              type="text"
+              fullWidth={true}
+              floatingLabelFixed={true}
+            />
+            <br/><br/>
+            <Toggle
+              id="edit-twin"
+              name="edit-twin"
+              label="Twin"
+              defaultToggled={false}
+              style={styles.toggle}
+            />            
+          </form>
+          </div>
+          </div>
+          <div className="dialog-footer">
+            <RaisedButton
+              id="update-btn"
+              label="Update"
+              primary={true}
+              style={styles.rightAlign}
+            />
+            <RaisedButton
+              className="cancel-btn"
+              label="Cancel"
+              secondary={true}
+              style={styles.rightAlign}
+            />          
+          </div>          
+        </div>      
       <div id="card-wrapper" className="wrapper-margin">
         <Card id="card" style={styles.cardSize}>
            <h1 style={styles.title}>Room Type Console</h1>
@@ -354,6 +530,7 @@ export default class RoomTypeConsolePage extends Component {
             <div id="pagination-container"></div>
           </div>
         </Card>
+      </div>
       </div>
     );
   }

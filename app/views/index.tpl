@@ -6,14 +6,14 @@
 {{ define "add-on-head-Js" }}
 <script type="text/javascript">
 	{{ if .Directory.IsLoginRegister }}
-	var onloadCallback = function() {
-	  LogRecap = grecaptcha.render('log-recap', {
-	    'sitekey' : "{{.reCAPTCHA_SK}}",
-	  });
-	  RegRecap = grecaptcha.render('reg-recap', {
-	    'sitekey' : "{{.reCAPTCHA_SK}}",
-	  });
-	};
+	// var onloadCallback = function() {
+	//   LogRecap = grecaptcha.render('log-recap', {
+	//     'sitekey' : "{{.reCAPTCHA_SK}}",
+	//   });
+	//   RegRecap = grecaptcha.render('reg-recap', {
+	//     'sitekey' : "{{.reCAPTCHA_SK}}",
+	//   });
+	// };
 	{{ end }}
 </script>
 {{ end }}

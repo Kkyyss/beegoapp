@@ -84,6 +84,40 @@ func (self *AdminRoomTypeController) Post() {
 	self.ServeJSON()
 }
 
+func (self *AdminRoomTypeController) Put() {
+	var (
+		errMsg string
+		twin   bool
+	)
+
+	if self.GetString("edit-twin") == "on" {
+		twin = true
+	}
+
+	id, _ := strconv.Atoi(self.GetString("edit-id"))
+
+	deposit, _ := strconv.ParseFloat(self.GetString("edit-dp"), 64)
+
+	rpp, _ := strconv.ParseFloat(self.GetString("edit-rpp"), 64)
+
+	roomTypes := models.RoomTypes{
+		Id:             id,
+		Campus:         self.GetString("edit-camp"),
+		TypesOfRooms:   self.GetString("edit-tor"),
+		Deposit:        deposit,
+		RatesPerPerson: rpp,
+		Twin:           twin,
+	}
+
+	err := roomTypes.Update()
+	if err != nil {
+		beego.Debug(err)
+		errMsg = "Ooops...something goes wrong when update room types."
+	}
+	self.Data["json"] = errMsg
+	self.ServeJSON()
+}
+
 func (self *AdminRoomTypeController) Delete() {
 	var errMsg string
 	var ob interface{}
