@@ -16,7 +16,8 @@ var roomDataSource,
     userRequestDataSource,
     roomTypeDataSource,
     roomStatusDataSource,
-    userBookedDataSource;
+    userBookedDataSource,
+    notificationDataSource;
 
 var searchRoomOption = ["RoomNo"],
 searchRequestOption = ["Status"],
@@ -25,7 +26,8 @@ searchUserRequestOption = ["Status"],
 searchRoomTypeOption = ["Campus"],
 searchUserOption = ["StudentId"],
 searchAdminOption = ["AdminId"],
-searchRoomStatusOption = ["Campus"];
+searchRoomStatusOption = ["Campus"],
+searchNotificationOption = ["Campus"];
 
 require('./pagination.min.js');
 
@@ -366,6 +368,61 @@ window.Wrapper = {
         }
     });
   },
+  PaginateNotificationContent: function(ds) {
+    var container = $('#pagination-container');
+    var content = $('#pagination-content');
+    var searchBox = $('#search-box');
+
+    if (ds.length == 0) {
+      content.empty();
+      container.pagination('destroy');
+      $('#errMsg').text('No Results Found.');
+      return;
+    }
+    container.pagination({
+        dataSource: ds,
+        pageSize: 5,
+        // autoHidePrevious: true,
+        // autoHideNext: true,
+        threshold: 0.6,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        showGoInput: true,
+        showGoButton: true,
+        className: 'paginationjs-theme-red paginationjs-big',
+        formatGoInput: 'Go to <%= input %>',
+        callback: function(data, pagination) {
+          $('#errMsg').text('');
+          var html = notificationListTemplate(data);
+          content.html(html);
+        },
+        afterRender: function() {
+          var removeNfBtn = $('.removeNfButton'),
+          editNfBtn = $('.editNfButton'),
+          viewNfBtn = $('.viewNfButton');
+
+          searchBox.unbind('input', SearchNotificationQuery);
+          // removeNfBtn.unbind('click', removeNf);
+          // editNfBtn.unbind('click', editNf);
+          // viewNfBtn.unbind('click', viewNf);
+
+          searchBox.bind('input', SearchNotificationQuery);
+          // removeNfBtn.bind('click', removeAdmin);
+          // editNfBtn.bind('click', editAdmin);
+          // viewNfBtn.bind('click', viewAdmin);
+        },
+        afterPaging: function() {
+          var removeNfBtn = $('.removeNfButton'),
+          editNfBtn = $('.editAdminButton'),
+          viewNfBtn = $('.viewAdminButton');
+
+          // removeNfBtn.on('click', removeAdmin);
+          // editNfBtn.on('click', editAdmin);
+          // viewNfBtn.on('click', viewAdmin);
+        }
+    });
+  },  
   PaginateUserRequestContent: function(ds) {
     var container = $('#pagination-container');
     var content = $('#pagination-content');
@@ -528,6 +585,9 @@ window.Wrapper = {
   SetUserRequestDataSource: function(ds) {
     userRequestDataSource = ds;
   },
+  SetNotificationDataSource: function(ds) {
+    notificationDataSource = ds;
+  },
   SetUserBookedDataSource: function(ds) {
     userBookedDataSource = ds;
   },
@@ -536,6 +596,9 @@ window.Wrapper = {
   },
   SetRoomStatusDataSource: function(ds) {
     roomStatusDataSource = ds;
+  },
+  GetNotificationDataSource: function(ds) {
+    return notificationDataSource;
   },
   GetRoomDataSource: function() {
     return roomDataSource;
@@ -602,8 +665,9 @@ window.Wrapper = {
     searchRoomStatusOption = ds;
     SearchRoomStatusRequestQuery();
   },
-  SetUpEditUser: function() {
-
+  SetUpNotificationSearchOption: function(ds) {
+    searchNotificationOption = ds;
+    SearchNotificationQuery();
   },
 }
 
@@ -664,14 +728,14 @@ function requestListTemplate(data) {
     '<button type="button" class="approveRequestButton">Approve</button>' : "";
     html += '<div class="request-list-style">'+
     '<span id="request-id" class="hide">' + item.Id + '</span>' +
-    '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('MMMM Do YYYY') + '</span>' +
+    '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('DD/MM/YYYY h:mm:ss a') + '</span>' +
     '<span id="request-ss" class="hide">' + item.Session + '</span>' +
     '<span id="request-tp" class="hide">' + item.TypesOfRooms + '</span>' +
     '<span id="request-dp" class="hide">' + item.Deposit + '</span>' +
     '<span id="request-rpp" class="hide">' + item.RatesPerPerson + '</span>' +
     '<span id="request-py" class="hide">' + item.Payment + '</span>' +
     '<span id="request-s" class="paraStyle">' + item.Status + '</span>' +
-    '<span id="request-dmd" class="hide">' + moment(item.DicisionMadeDate).format('MMMM Do YYYY') + '</span>' +
+    '<span id="request-dmd" class="hide">' + moment(item.DicisionMadeDate).format('DD/MM/YYYY h:mm:ss a') + '</span>' +
     '<span id="request-user-id" class="hide">' + item.User.Id + '</span>' +
     '<span id="request-user-name" class="paraStyle">' + item.User.Name + '</span>' +
     '<span id="request-user-si" class="paraStyle">' + item.User.StudentId + '</span>' +
@@ -815,14 +879,14 @@ function userRequestListTemplate(data) {
     Isprocess += (item.Status === 'Processing' || item.Status === 'Approved' || item.Status === 'Paid Off') ? '<button type="button" class="cancelRequestButton">Cancel</button>' : "";
     html += '<div class="request-list-style">'+
     '<span id="request-id" class="hide">' + item.Id + '</span>' +
-    '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('MMMM Do YYYY') + '</span>' +
+    '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('DD/MM/YYYY h:mm:ss a') + '</span>' +
     '<span id="request-ss" class="hide">' + item.Session + '</span>' +
     '<span id="request-tp" class="hide">' + item.TypesOfRooms + '</span>' +
     '<span id="request-dp" class="hide">' + item.Deposit + '</span>' +
     '<span id="request-rpp" class="hide">' + item.RatesPerPerson + '</span>' +
     '<span id="request-py" class="hide">' + item.Payment + '</span>' +
     '<span id="request-s" class="paraStyle">' + item.Status + '</span>' +
-    '<span id="request-dmd" class="hide">' + moment(item.DicisionMadeDate).format('MMMM Do YYYY') + '</span>' +
+    '<span id="request-dmd" class="hide">' + moment(item.DicisionMadeDate).format('DD/MM/YYYY h:mm:ss a') + '</span>' +
     '<span id="request-user-id" class="hide">' + item.User.Id + '</span>' +
     '<span id="request-user-name" class="hide">' + item.User.Name + '</span>' +
     '<span id="request-user-si" class="paraStyle">' + item.User.StudentId + '</span>' +
@@ -874,6 +938,22 @@ function roomStatusListTemplate(data) {
     '<div class="rightAlignment">' +
     // '<button type="button" class="viewRoomStatusButtonButton">View</button>' +
     '</div>' +    
+    '</div>';
+  });
+  return html;
+}
+
+function notificationListTemplate(data) {
+  var html = '';
+  $.each(data, function(index, item){
+    html += '<div class="nf-list-style">'+
+    '<span id="nf-dr" class="paraStyle">' + moment(item.DateReceive).format('DD/MM/YYYY HH:mm:ss a') + '</span>' +
+    '<span id="nf-cp" class="paraStyle">' + item.Campus + '</span>' +
+    '<span id="nf-ttl" class="paraStyle">' + item.Title + '</span>' +
+    '<span id="nf-msg" class="paraStyle">' + item.Message + '</span>' +
+    '<div class="rightAlignment">' +
+    '<button type="button" class="viewNfButton">View</button>' +
+    '</div>' +
     '</div>';
   });
   return html;
@@ -1740,4 +1820,28 @@ function SearchRoomStatusRequestQuery() {
   var result = fuse.search(query);
   console.log(result);
   wrapFunc.PaginateRoomStatusContent(result);
+}
+
+function SearchNotificationQuery() {
+  console.log(notificationDataSource);
+  var query = $('#search-box').val();
+  console.log(query.length);
+  if (query.length == 0) {
+    wrapFunc.PaginateNotificationContent(notificationDataSource);
+    return;
+  }
+  var options = {
+    caseSensitive: false,
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    keys: searchNotificationOption
+  };
+  console.log(notificationDataSource);
+  var fuse = new Fuse(notificationDataSource, options);
+  var result = fuse.search(query);
+  console.log(result);
+  wrapFunc.PaginateNotificationContent(result);
 }

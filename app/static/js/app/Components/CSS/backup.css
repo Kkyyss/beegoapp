@@ -37,7 +37,8 @@
 #edit-admin-box,
 #edit-room-type-box,
 #view-user-box,
-#view-admin-box {
+#view-admin-box,
+#view-nf-box {
     /*padding: 15px;*/
     background:#FFFFFF;
 
@@ -202,7 +203,8 @@
     .booked-list-style, 
     .user-list-style, 
     .room-type-list-style,
-    .room-status-list-style  {
+    .room-status-list-style,
+    .nf-list-style  {
         font-size: 12px !important;
     }
     .tableWrapperNap, 
@@ -296,7 +298,8 @@
 .request-list-style, 
 .user-list-style,
 .room-type-list-style,
-.room-status-list-style {
+.room-status-list-style,
+.nf-list-style {
     display: flex;
     flex-wrap: wrap;
     align-items: center;

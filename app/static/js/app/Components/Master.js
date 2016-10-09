@@ -10,6 +10,7 @@ import {yellow400} from 'material-ui/styles/colors';
 import FontIcon from 'material-ui/FontIcon';
 import Divider from 'material-ui/Divider';
 import Subheader from 'material-ui/Subheader';
+import NotificationsIcon from 'material-ui/svg-icons/social/notifications';
 import FlatButton from 'material-ui/FlatButton';
 
 require('./CSS/animate.css');
@@ -120,6 +121,10 @@ export default class Master extends Component {
     this.redirectUrl(event, "/user/booked-room-console");
   };
 
+  notificationConsole = (event) => {
+    this.redirectUrl(event, "/user/notification-console");
+  };  
+
   userConsole = (event) => {
     this.redirectUrl(event, "/user/user-console");
   };
@@ -135,6 +140,10 @@ export default class Master extends Component {
   userBookedRoomConsole = (event) => {
     this.redirectUrl(event, "/user/booked-room");
   };
+
+  userNotificationConsole = (event) => {
+    this.redirectUrl(event, "/user/notifications");
+  }
 
   downloadAccommodation = (event) => {
     event.preventDefault();
@@ -452,18 +461,24 @@ export default class Master extends Component {
                 />,
                 <ListItem
                   key={6}
+                  primaryText="Notifications"
+                  leftIcon={<FontIcon className="fa fa-bell" />}
+                  onTouchTap={this.notificationConsole}
+                />,
+                <ListItem
+                  key={7}
                   primaryText="User"
                   leftIcon={<FontIcon className="fa fa-users" />}
                   onTouchTap={this.userConsole}
                 />,
                 <ListItem
-                  key={7}
+                  key={8}
                   primaryText="Admin"
                   leftIcon={<FontIcon className="fa fa-eye" />}
                   onTouchTap={this.adminConsole}
                 />,                
                 <ListItem
-                  key={8}
+                  key={9}
                   primaryText="Sign Out"
                   onTouchTap={this.logout}
                   leftIcon={<FontIcon className="fa fa-sign-out" />}
@@ -488,30 +503,36 @@ export default class Master extends Component {
               nestedItems = {[
                 <ListItem
                   key={1}
+                  primaryText="Notifications"
+                  leftIcon={<FontIcon className="fa fa-bell" />}
+                  onTouchTap={this.userNotificationConsole}
+                />,
+                <ListItem
+                  key={2}
                   primaryText="Account"
                   onTouchTap={this.accessUserAccount}
                   leftIcon={<FontIcon className="fa fa-user" />}
                 />,
                 <ListItem
-                  key={2}
+                  key={3}
                   primaryText="Booking Form"
                   leftIcon={<FontIcon className="fa fa-file-text" />}
                   href="/user/booking-form"
                 />,
                 <ListItem
-                  key={3}
+                  key={4}
                   primaryText="Request"
                   leftIcon={<FontIcon className="fa fa-list-ul" />}
                   onTouchTap={this.userRequestConsole}
                 />,
                 <ListItem
-                  key={4}
+                  key={5}
                   primaryText="Booked Room"
                   leftIcon={<FontIcon className="fa fa-bed" />}
                   onTouchTap={this.userBookedRoomConsole}
                 />,
                 <ListItem
-                  key={5}
+                  key={6}
                   primaryText="Sign Out"
                   onTouchTap={this.logout}
                   leftIcon={<FontIcon className="fa fa-sign-out" />}

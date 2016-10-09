@@ -503,7 +503,7 @@ func (r *Room) Available() (errMsg string) {
 
 type Request struct {
 	Id               int
-	DateRequest      time.Time `orm:"auto_now_add;type(date)"`
+	DateRequest      time.Time `orm:"auto_now_add;type(datetime)"`
 	Session          string
 	Campus           string
 	TypesOfRooms     string
@@ -511,7 +511,7 @@ type Request struct {
 	Payment          float64
 	Deposit          float64
 	RatesPerPerson   float64
-	DicisionMadeDate time.Time `orm:"null;type(date)"`
+	DicisionMadeDate time.Time `orm:"null;type(datetime)"`
 	User             *User     `orm:"rel(fk);"`
 }
 
@@ -1216,4 +1216,57 @@ func (a *Admin) GetAdminId() (id int, errMsg string) {
 	var acp Admin
 	r.One(&acp)
 	return acp.Id, ""
+}
+
+type Notification struct {
+	Id          int
+	DateReceive time.Time `orm:"auto_now_add;type(datetime)"`
+	Campus      string
+	Title       string
+	Message     string
+}
+
+func (n *Notification) Insert() (err error) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("notification")
+
+	i, err := qs.PrepareInsert()
+	if err != nil {
+		return err
+	}
+	defer i.Close()
+	_, err = i.Insert(n)
+	return err
+}
+
+func (n *Notification) Remove() (errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("notification").Filter("id", n.Id)
+	_, err := qs.Delete()
+	if err != nil {
+		errMsg = "Cannot Remove Notification."
+		beego.Debug()
+	}
+	return
+}
+
+func (u *User) GetNotificationList() (errMsg string, notifications []*Notification) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("notification")
+
+	if u.Campus != "ALL" {
+		qs = qs.Filter("campus", u.Campus)
+	}
+
+	n, _ := qs.Count()
+	if n == 0 {
+		errMsg = "No Notification Available."
+		return errMsg, nil
+	}
+	_, err := qs.RelatedSel().All(&notifications)
+	if err != nil {
+		errMsg = "Oops...Something happened when find the notification list."
+		return errMsg, nil
+	}
+	return
 }

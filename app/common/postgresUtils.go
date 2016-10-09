@@ -52,6 +52,7 @@ func initDB() {
 		new(models.RoomTypes),
 		new(models.Room),
 		new(models.Ip),
+		new(models.Notification),
 	)
 
 	// Database alias.

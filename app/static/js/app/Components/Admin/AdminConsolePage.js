@@ -360,7 +360,7 @@ export default class AdminConsolePage extends Component {
         }
       }
     });
-  }  
+  }
 
   render() {
     const actions = [
