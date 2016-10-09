@@ -73,6 +73,7 @@ func (self *AdminRoomTypeController) Post() {
 		Deposit:        deposit,
 		RatesPerPerson: rpp,
 		Twin:           twin,
+		Gender:         self.GetString("gender"),
 	}
 
 	err := roomTypes.Insert()
@@ -107,6 +108,7 @@ func (self *AdminRoomTypeController) Put() {
 		Deposit:        deposit,
 		RatesPerPerson: rpp,
 		Twin:           twin,
+		Gender:         self.GetString("edit-gdr"),
 	}
 
 	err := roomTypes.Update()

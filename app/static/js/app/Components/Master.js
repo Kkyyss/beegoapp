@@ -256,6 +256,7 @@ export default class Master extends Component {
             var username = userInfo.name;
             var gender = userInfo.gender;
             var contactNo = userInfo.contactNo;
+            var balance = userInfo.balance;
             var status = (activated) ? "Activated" : "Inactivated";
             var userType = (isAdmin) ? "Admin" : "Student";
             var fillUpProfile = userInfo.fillUpProfile;
@@ -284,7 +285,7 @@ export default class Master extends Component {
               case '/user/account':
                 if (isAdmin) {
                   $('#student-id').parent().next().remove();
-                  $('#student-id, #gender-section').parent().remove();
+                  $('#student-id, #gender-section, #user-balance').parent().remove();
                   $('#admin-id').val(adminId);
                 } else {
                   $('#admin-id').parent().next().remove();

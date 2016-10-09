@@ -258,7 +258,7 @@ export default class UserRequestConsolePage extends Component {
     $.when().then(function() {
       userData = window.UserData;
       thisObj.updateRequestList();
-      $('#payment-submit').on('click', madePayment);
+      $('#payment-submit, #clear-off-submit').on('click', madePayment);
     });
 
     $(window).resize(function() {
@@ -298,7 +298,7 @@ export default class UserRequestConsolePage extends Component {
       });
 
       var paymentForm = $('#payment-form');
-      $('#nap').val($('net-amount-payable').text());
+      $('#nap').val($('#net-amount-payable').text());
       ajax({
         url: "/user/request",
         method: "POST",
@@ -498,104 +498,117 @@ export default class UserRequestConsolePage extends Component {
           </div>
           <div className="dialog-content">
             <div className="table-hero">
-              <div className="tableWrapperPay">
               <form id="payment-form">
-                <input id="req-id" name="req-id" type="text" style={styles.hide} />
-                <input id="usr-id" name="usr-id" type="text" style={styles.hide} />
-                <input id="nap" name="nap" type="text" style={styles.hide} />              
-                <table className="tableBody">
-                  <tbody>
-                      <tr>
-                        <td colSpan="2" style={styles.textCenter}>
-                          <span style={styles.textGray}>Pay with Credit Card</span>
-                          &nbsp;&nbsp;&nbsp;<img src="../static/img/credit-cards.png" width="128x128" />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style={styles.textLeft}>
-                          <TextField
-                            id="card-no"
-                            name="card-no"
-                            floatingLabelText="Card Number"
-                            style={styles.textField}
-                          />
-                        </td>
-                        <td style={styles.textRight}>
-                          <TextField
-                            id="card-name"
-                            name="card-name"
-                            floatingLabelText="Name On Card"
-                            style={styles.textField}
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style={styles.dateAlign}>
-                          <DatePicker 
-                            id="card-exp"
-                            name="card-exp"
-                            hintText="Expire Date" 
-                            formatDate={formatDate}
-                            mode="landscape"
-                            minDate={this.state.minDate}
-                            maxDate={this.state.maxDate}
-                          />
-                        </td>
-                        <td style={styles.textRight}>
-                          <TextField
-                            id="card-cvv"
-                            name="card-cvv"
-                            floatingLabelText="CVV"
-                            style={styles.textField}
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td colSpan="2" style={styles.textCenter}>
-                          <RaisedButton 
-                            id="payment-submit"
-                            label="Go"
-                            primary={true}
-                            fullWidth={true}
-                            disabled={this.state.disabled}
-                          />
-                        </td>                        
-                      </tr>
+                <div className="tableWrapperPay hide">
+                  <input id="req-id" name="req-id" type="text" style={styles.hide} />
+                  <input id="usr-id" name="usr-id" type="text" style={styles.hide} />
+                  <input id="nap" name="nap" type="text" style={styles.hide} />
+                  <table className="tableBody">
+                    <tbody>
+                        <tr>
+                          <td colSpan="2" style={styles.textCenter}>
+                            <span style={styles.textGray}>Pay with Credit Card</span>
+                            &nbsp;&nbsp;&nbsp;<img src="../static/img/credit-cards.png" width="128x128" />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={styles.textLeft}>
+                            <TextField
+                              id="card-no"
+                              name="card-no"
+                              floatingLabelText="Card Number"
+                              style={styles.textField}
+                            />
+                          </td>
+                          <td style={styles.textRight}>
+                            <TextField
+                              id="card-name"
+                              name="card-name"
+                              floatingLabelText="Name On Card"
+                              style={styles.textField}
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={styles.dateAlign}>
+                            <DatePicker 
+                              id="card-exp"
+                              name="card-exp"
+                              hintText="Expire Date" 
+                              formatDate={formatDate}
+                              mode="landscape"
+                              minDate={this.state.minDate}
+                              maxDate={this.state.maxDate}
+                            />
+                          </td>
+                          <td style={styles.textRight}>
+                            <TextField
+                              id="card-cvv"
+                              name="card-cvv"
+                              floatingLabelText="CVV"
+                              style={styles.textField}
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="2" style={styles.textCenter}>
+                            <RaisedButton 
+                              id="payment-submit"
+                              label="Go"
+                              primary={true}
+                              fullWidth={true}
+                              disabled={this.state.disabled}
+                            />
+                          </td>                        
+                        </tr>
+                      </tbody>
+                  </table>
+                </div>
+                <div>
+                <div className="tableWrapperNap">
+                  <table className="tableBody">
+                    <tbody>
+                    <tr>
+                      <td></td>
+                      <td style={styles.textLeft}>Deposit</td>
+                      <td style={styles.textRight}><span id="payment-dp"></span></td>
+                    </tr>
+                    <tr style={styles.bottomLine}>
+                      <td style={styles.textLeft}><FontIcon className="fa fa-plus" /></td>
+                      <td style={styles.textLeft} >Rates Per Person</td>
+                      <td style={styles.textRight}><span id="payment-rpp"></span></td>
+                    </tr>
+                    <tr>
+                      <td></td>
+                      <td style={styles.textLeft} >Payment</td>
+                      <td style={styles.textRight}><span id="payment-amount"></span></td>
+                    </tr>
+                    <tr style={styles.bottomLine}>
+                      <td style={styles.textLeft}><FontIcon className="fa fa-plus" /></td>
+                      <td style={styles.textLeft} >Amount B/F</td>
+                      <td style={styles.textRight}><span id="user-balance"></span></td>
+                    </tr>
+                    <tr style={styles.bottomLine}>
+                      <td></td>
+                      <td style={styles.textLeft} >Net Amount Payable</td>
+                      <td style={styles.textRight}><span id="net-amount-payable"></span></td>
+                    </tr>
+                    <tr id="clear-tr" className="hide">
+                      <td colSpan="3" style={styles.textCenter}>
+                        <RaisedButton 
+                          id="clear-off-submit"
+                          label="Go"
+                          primary={true}
+                          fullWidth={true}
+                          disabled={this.state.disabled}
+                        />
+                      </td>                        
+                    </tr>                    
                     </tbody>
-                </table>
+                  </table>
+                </div>
+                </div>
               </form>
-              </div>
-              <div className="tableWrapperNap">
-                <table className="tableBody">
-                  <tbody>
-                  <tr>
-                    <td></td>
-                    <td style={styles.textLeft}>Deposit</td>
-                    <td style={styles.textRight}><span id="payment-dp"></span></td>
-                  </tr>
-                  <tr style={styles.bottomLine}>
-                    <td style={styles.textLeft}><FontIcon className="fa fa-plus" /></td>
-                    <td style={styles.textLeft} >Rates Per Person</td>
-                    <td style={styles.textRight}><span id="payment-rpp"></span></td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td style={styles.textLeft} >Payment</td>
-                    <td style={styles.textRight}><span id="payment-amount"></span></td>
-                  </tr>
-                  <tr style={styles.bottomLine}>
-                    <td style={styles.textLeft}><FontIcon className="fa fa-plus" /></td>
-                    <td style={styles.textLeft} >Amount B/F</td>
-                    <td style={styles.textRight}><span id="user-balance"></span></td>
-                  </tr>
-                  <tr style={styles.bottomLine}>
-                    <td></td>
-                    <td style={styles.textLeft} >Net Amount Payable</td>
-                    <td style={styles.textRight}><span id="net-amount-payable"></span></td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
             </div>
             <div className="clearfix"></div>
             <div style={styles.blockContent}>

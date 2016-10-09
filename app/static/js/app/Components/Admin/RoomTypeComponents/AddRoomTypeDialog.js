@@ -2,13 +2,10 @@ import React, {Component} from 'react';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import Dialog from 'material-ui/Dialog';
-import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
-import FontIcon from 'material-ui/FontIcon';
 import TextField from 'material-ui/TextField';
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import Toggle from 'material-ui/Toggle';
-import AutoComplete from 'material-ui/AutoComplete';
+import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 import IconButton from 'material-ui/IconButton';
 
 import swal from 'sweetalert2';
@@ -120,7 +117,9 @@ export default class AddRoomTypeDialog extends Component {
     var thisObj = this;
 
     var userState = {
-      userCampus: userData.campus
+      userIsAdmin: userData.isAdmin,
+      userCampus: userData.campus,
+      userGender: userData.gender
     };
 
     var searchBox = $('#search-box');
@@ -233,6 +232,18 @@ export default class AddRoomTypeDialog extends Component {
                 defaultToggled={false}
                 style={styles.toggle}
               />
+              <p className="form-paragraph">Gender</p>
+              <RadioButtonGroup name="gender">
+                <RadioButton
+                  value="Male"
+                  label="Male"
+                />
+                <RadioButton
+                  value="Female"
+                  label="Female"
+                />
+              </RadioButtonGroup>
+              <br/>
             </div>
           </form>
         </Dialog>

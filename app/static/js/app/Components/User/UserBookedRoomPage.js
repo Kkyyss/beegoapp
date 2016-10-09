@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
-import ReactDOM from 'react-dom';
-import {Card} from 'material-ui/Card';
+import Avatar from 'material-ui/Avatar';
 
 var $ = window.Jquery;
 var swal = window.SweetAlert;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var roommateData;
 
 const styles = {
   cardSize: {
@@ -20,6 +20,9 @@ const styles = {
   },
   textLeft: {
     textAlign: 'left',
+  },
+  textRight: {
+    textAlign: 'right',
   },
   errMsg: {
     paddingTop: 20,
@@ -72,7 +75,11 @@ export default class UserBookedRoomPage extends Component {
 
           if (res.roommate !== undefined) {
             console.log(res.roommate);
+            roommateData = res.roommate;
             $('#no-roommate').remove();
+            $('#roommate-img').attr('src', roommateData.AvatarUrl);
+          } else {
+            $('#roommate-content').remove();
           }
         }
         $('#card').removeClass('hide');
@@ -95,23 +102,23 @@ export default class UserBookedRoomPage extends Component {
                     <tbody>
                       <tr style={styles.bottomLine}>
                         <td style={styles.textLeft}>Campus</td>
-                        <td style={styles.textCenter}><b><span id="booked-cp"></span></b></td>
+                        <td style={styles.textRight}><b><span id="booked-cp"></span></b></td>
                       </tr>
                       <tr style={styles.bottomLine}>
                         <td style={styles.textLeft}>Types</td>
-                        <td style={styles.textCenter}><b><span id="booked-tor"></span></b></td>
+                        <td style={styles.textRight}><b><span id="booked-tor"></span></b></td>
                       </tr>
                       <tr style={styles.bottomLine}>
                         <td style={styles.textLeft}>No.</td>
-                        <td style={styles.textCenter}><b><span id="booked-no"></span></b></td>
+                        <td style={styles.textRight}><b><span id="booked-no"></span></b></td>
                       </tr>
                       <tr style={styles.bottomLine}>
                         <td style={styles.textLeft}>Deposit</td>
-                        <td style={styles.textCenter}><b><span id="booked-dp"></span></b></td>
+                        <td style={styles.textRight}><b><span id="booked-dp"></span></b></td>
                       </tr>
                       <tr>
                         <td style={styles.textLeft}>Rates</td>
-                        <td style={styles.textCenter}><b><span id="booked-r"></span></b></td>
+                        <td style={styles.textRight}><b><span id="booked-r"></span></b></td>
                       </tr>
                     </tbody>
                   </table>
@@ -121,6 +128,14 @@ export default class UserBookedRoomPage extends Component {
                 <h1 style={styles.textCenter}>Roommate</h1>
                 <div className="block-center">
                   <h1 style={styles.errMsg} id="no-roommate">N/A</h1>
+                  <div id="roommate-content">
+                    <Avatar
+                      id="roommate-img"
+                      src="/"
+                      size={128}
+                    />
+                    <br/><br/>
+                  </div>
                 </div>
               </div>
             </div>

@@ -831,7 +831,7 @@ function userRequestListTemplate(data) {
     '<span id="request-user-email" class="hide">' + item.User.Email + '</span>' +
     '<span id="request-user-contactno" class="hide">' + item.User.ContactNo + '</span>' +
     '<span id="request-user-avatar" class="hide">' + item.User.AvatarUrl + '</span>' +
-    '<span id="request-nap" class="hide">' + (item.Payment - item.User.Balance) + '</span>' +
+    '<span id="request-nap" class="hide">' + (item.Payment + item.User.Balance) + '</span>' +
     '<div class="rightAlignment">' +
     '<button type="button" class="viewRequestButton">View</button>' +
     Isprocess +
@@ -852,6 +852,7 @@ function roomTypeListTemplate(data) {
     '<span id="rt-dp" class="paraStyle">' + item.Deposit + '</span>' +
     '<span id="rt-rpp" class="paraStyle">' + item.RatesPerPerson + '</span>' +
     '<span id="rt-twin" class="paraStyle">' + twin + '</span>' +
+    '<span id="rt-gender" class="paraStyle">' + item.Gender + '</span>' +
     '<div class="rightAlignment">' +
     '<button type="button" class="editRoomTypeButton">Edit</button>' +
     '<button type="button" class="removeRoomTypeButton">Remove</button>' +
@@ -1546,6 +1547,13 @@ function updateAdminView() {
 function madePayment(e) {
   e.preventDefault();
   var thisObj = $(this).parent().parent();
+  var nap = thisObj.children('#request-nap').text();
+  if (parseFloat(nap) > 0) {
+    $('.tableWrapperPay').removeClass('hide');
+  } else {
+    $('#clear-tr').removeClass('hide');
+    $('.tableWrapperNap').parent().addClass('block-center');
+  }
   $('#bg-overlay, #payment-box').css('display', 'block');
   $('#req-id').val(thisObj.children('#request-id').text());
   $('#usr-id').val(thisObj.children('#request-user-id').text());
@@ -1553,7 +1561,7 @@ function madePayment(e) {
   $('#payment-rpp').text(thisObj.children('#request-rpp').text());
   $('#payment-amount').text(thisObj.children('#request-py').text());
   $('#user-balance').text(thisObj.children('#request-user-balance').text());
-  $('#net-amount-payable').text(thisObj.children('#request-nap').text());
+  $('#net-amount-payable').text(nap);
 }
 
 function cancelRequest(e) {
@@ -1561,6 +1569,7 @@ function cancelRequest(e) {
   var userData = window.UserData;
   var userState = {
     requestId: $(this).parent().parent().children("#request-id").text(),
+    balance: $(this).parent().parent().children("#request-user-balance").text(),
     userId: userData.id,
     status: "Cancelled"
   };
@@ -1629,6 +1638,7 @@ function editRoomType(e) {
   $('#edit-dp').val(thisObj.children("#rt-dp").text());
   $('#edit-rpp').val(thisObj.children("#rt-rpp").text());
   var twin = thisObj.children("#rt-twin").text();
+  var gender = thisObj.children("#rt-gender").text();
   if (twin !== 'Twin' &&
       $('#rt-twin:checked').length != 0) {
     $('#rt-twin').click();
@@ -1637,7 +1647,16 @@ function editRoomType(e) {
   if (twin === 'Twin' &&
       $('#rt-twin:checked').length == 0) {
     $('#rt-twin').click();
-  }  
+  }
+  switch (gender) {
+    case 'Male':
+      $('input[name=edit-gender]')[0].click();
+      break;
+    case 'Female':
+      $('input[name=edit-gender]')[1].click();
+      break;
+    default: break;
+  }
 }
 
 function removeRoomType(e) {

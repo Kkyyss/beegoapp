@@ -68,6 +68,7 @@ func GenerateUserJWT(userData map[string]interface{}) (tokenString string, err e
 		"fillUpProfile": userData["fillUpProfile"].(bool),
 		"studentId":     userData["studentId"].(string),
 		"campus":        userData["campus"].(string),
+		"isAdmin":       false,
 	}
 
 	claims["exp"] = time.Now().Add(time.Hour * 12).Unix()

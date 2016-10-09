@@ -220,13 +220,6 @@ export default class AddUserDialog extends Component {
                 type="email"
                 fullWidth={true}
               />
-              <TextField
-                id="user-location"
-                name="user-location"
-                floatingLabelText="Permanent Address"
-                type="text"
-                fullWidth={true}
-              />
               <br/><br/>
               <p className="form-paragraph">Gender</p>
               <RadioButtonGroup name="user-gender">
@@ -261,22 +254,6 @@ export default class AddUserDialog extends Component {
                 label="Filled Up Profile"
                 defaultToggled={false}
                 style={styles.toggle}
-              />
-              <Toggle
-                id="user-admin"
-                name="user-admin"
-                label="Admin"
-                defaultToggled={false}
-                style={styles.toggle}
-                onToggle={this.togglePermission}
-              />
-              <Toggle
-                id="user-permission"
-                name="user-permission"
-                label="Full Permission"
-                defaultToggled={false}
-                style={styles.toggle}
-                className="hide"
               />
               </div>
             </form>

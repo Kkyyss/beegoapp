@@ -135,8 +135,8 @@ export default class BookingFormPage extends Component {
       thisObj.setState({
         btnDisabled: true,
       });
+      $('#gender').val(userData.gender);
       $('#campus').val(thisObj.state.value);
-      console.log(thisObj.state.roomTypeValue);
       $('#types-of-rooms').val(thisObj.state.roomTypeValue);
       $('#deposit').val($('#r-deposit').val());
       $('#rates_per_person').val($('#r-rpp').val());
@@ -209,7 +209,9 @@ export default class BookingFormPage extends Component {
 
   getRoomTypeList() {
     var userState = {
-      userCampus: userData.campus
+      userIsAdmin: userData.isAdmin,
+      userCampus: userData.campus,
+      userGender: userData.gender
     };
 
     this.onAjaxRequest(userState);
@@ -346,7 +348,8 @@ export default class BookingFormPage extends Component {
                   fullWidth={true}
                   readOnly={true}
                 />
-                <input id="payment" name="payment" type="text" style={styles.hide} /> 
+                <input id="payment" name="payment" type="text" style={styles.hide} />
+                <input id="gender" name="gender" type="text" style={styles.hide} />
               </div>
               <RaisedButton 
                 label="GO!"

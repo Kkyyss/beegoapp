@@ -261,3 +261,55 @@ func GetAdminList() (errMsg string, users []*Admin) {
 	}
 	return
 }
+
+func GetRoomTypeList(isAdmin bool, campus, gender string) (errMsg string, roomTypes []*RoomTypes) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("room_types")
+
+	switch campus {
+	case "ALL":
+	default:
+		qs = qs.Filter("campus", campus)
+		if !isAdmin {
+			qs = qs.Filter("gender", gender)
+		}
+	}
+
+	num, _ := qs.Count()
+	if num == 0 {
+		errMsg = "No Room Type Available."
+		return errMsg, nil
+	}
+
+	_, err := qs.All(&roomTypes)
+	if err != nil {
+		beego.Debug(err)
+		errMsg = "Ooops...Something goes wrong when get the room type data."
+		return errMsg, nil
+	}
+	return
+}
+
+func GetRoomStatusList(isAdmin bool, campus, gender string) (errMsg string, roomTypeResults []*RoomTypeResults) {
+	o := orm.NewOrm()
+	qry := "SELECT campus, types_of_rooms, COUNT(types_of_rooms) AS total, SUM(is_available) AS available FROM room GROUP BY types_of_rooms"
+	rs := o.Raw(qry)
+
+	switch campus {
+	case "ALL":
+	default:
+		if isAdmin {
+			rs = o.Raw(qry+" HAVING campus = ?", campus)
+		} else {
+			rs = o.Raw(qry+" HAVING (campus = ? AND gender = ?)", campus, gender)
+		}
+	}
+
+	n, _ := rs.QueryRows(&roomTypeResults)
+	beego.Debug(len(roomTypeResults))
+	if n == 0 {
+		errMsg = "No Room Type Available."
+		return errMsg, nil
+	}
+	return
+}

@@ -19,19 +19,18 @@ func (self *RoomStatusListController) Post() {
 		rooms  []*models.RoomTypeResults
 		errMsg string
 		ob     interface{}
+		gender string
 	)
 
-	// roomId, _ := strconv.Atoi(self.GetString("jsoninfo"))
 	json.Unmarshal(self.Ctx.Input.RequestBody, &ob)
-	// userId, _ := strconv.Atoi(ob.(map[string]interface{})["userId"].(string))
-	// isAdmin, _ := strconv.ParseBool(ob.(map[string]interface{})["isAdmin"].(string))
-	user := models.User{
-		// Id:      userId,
-		Campus: ob.(map[string]interface{})["userCampus"].(string),
-		// IsAdmin: isAdmin,
-	}
 
-	errMsg, rooms = user.GetRoomStatusList()
+	isAdmin := ob.(map[string]interface{})["userIsAdmin"].(bool)
+	if !isAdmin {
+		gender = ob.(map[string]interface{})["userGender"].(string)
+	}
+	campus := ob.(map[string]interface{})["userCampus"].(string)
+
+	errMsg, rooms = models.GetRoomStatusList(isAdmin, campus, gender)
 	if errMsg != "" {
 		resMap["error"] = errMsg
 	} else {

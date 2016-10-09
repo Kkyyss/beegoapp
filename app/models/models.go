@@ -426,6 +426,7 @@ type Room struct {
 	TypesOfRooms   string
 	RatesPerPerson float64
 	Deposit        float64
+	Gender         string
 	Twin           bool
 	IsAvailable    bool
 	User           []*User `orm:"null;reverse(many);"`
@@ -442,7 +443,7 @@ func (r *Room) InsertRoom() (err error) {
 	if err != nil {
 		beego.Debug(err)
 	}
-
+	r.Gender = rt.Gender
 	r.Deposit = rt.Deposit
 	r.Twin = rt.Twin
 	r.RatesPerPerson = rt.RatesPerPerson
@@ -536,7 +537,7 @@ func (r *Request) RemoveRequest() (err error) {
 	return
 }
 
-func (r *Request) UpdateStatus(userId int) (errMsg string) {
+func (r *Request) UpdateStatus(userId int, balance float64) (errMsg string) {
 	var err error
 	status := r.Status
 	dmd := r.DicisionMadeDate
@@ -550,17 +551,18 @@ func (r *Request) UpdateStatus(userId int) (errMsg string) {
 		qs3 := o.QueryTable("room")
 		urObj := qs2.RelatedSel("room").Filter("room_id__isnull", false)
 
-		// err = rObj.one(r)
+		err = rObj.One(r)
 
-		// if err != nil {
-		// 	errMsg = "Oops...Something goes wrong when getting request data."
-		// 	beego.Debug(err)
-		// 	return
-		// }
+		if err != nil {
+			errMsg = "Oops...Something goes wrong when getting request data."
+			beego.Debug(err)
+			return
+		}
 
-		// if r.Status == "Payment Made" {
-
-		// }
+		if r.Status == "Paid Off" {
+			balance += -1 * r.Payment
+			beego.Debug(balance)
+		}
 
 		num, _ := urObj.Count()
 		if num != 0 {
@@ -568,7 +570,7 @@ func (r *Request) UpdateStatus(userId int) (errMsg string) {
 			err = urObj.One(&user)
 
 			_, err = qs2.Update(orm.Params{
-				"balance": 0,
+				"balance": balance,
 				"room":    nil,
 			})
 
@@ -640,9 +642,11 @@ func (r *Request) UpdateStatus(userId int) (errMsg string) {
 	case "Paid Off":
 
 		uObj := o.QueryTable("users").Filter("id", userId)
-
+		if balance > 0 {
+			balance = 0
+		}
 		_, err = uObj.Update(orm.Params{
-			"balance": 0,
+			"balance": balance,
 		})
 
 		if err != nil {
@@ -669,18 +673,28 @@ func (r *Request) UpdateStatus(userId int) (errMsg string) {
 
 func (u *User) GetRequestStatus() (errMsg string) {
 	o := orm.NewOrm()
-	cond := orm.NewCondition()
-	c1 := cond.And("status", "Processing").Or("status", "Approved").Or("status", "Paid Off")
+	// cond := orm.NewCondition()
+	// c1 := cond.AndNot("status", "Cancelled").AndNot("status", "Denied")
 	qs := o.QueryTable("request")
-	ux := qs.Filter("User__Id", u.Id).RelatedSel()
+	ux := qs.Filter("user__id", u.Id)
 
 	num, _ := ux.Count()
+	beego.Debug(num)
 
 	if num >= 1 {
-		num, _ = ux.SetCond(c1).Count()
+		num, _ = ux.Filter("status", "Processing").Count()
 		if num >= 1 {
-			errMsg = "Unable to request due to yours booking status was processing / Approved / Paid Off."
-			beego.Debug(num)
+			errMsg = "Unable to request due to yours booking status was Processing."
+			return
+		}
+		num, _ = ux.Filter("status", "Approved").Count()
+		if num >= 1 {
+			errMsg = "Unable to request due to yours booking status was Approved."
+			return
+		}
+		num, _ = ux.Filter("status", "Paid Off").Count()
+		if num >= 1 {
+			errMsg = "Unable to request due to yours booking status was Paid Off."
 			return
 		}
 	}
@@ -691,8 +705,6 @@ func (u *User) GetRequestStatus() (errMsg string) {
 	// 	beego.Debug(num)
 	// 	return
 	// }
-
-	beego.Debug(num)
 
 	return
 }
@@ -726,8 +738,8 @@ func (u *User) BookedRoom(room *Room) (errMsg string) {
 	}
 
 	_, err = uObj.Update(orm.Params{
-		"balance": 0,
-		"room":    room.Id,
+		// "balance": 0,
+		"room": room.Id,
 	})
 
 	if err != nil {
@@ -960,6 +972,7 @@ type RoomTypes struct {
 	RatesPerPerson float64
 	Deposit        float64
 	Twin           bool
+	Gender         string
 }
 
 func (rt *RoomTypes) Insert() (err error) {
@@ -983,6 +996,7 @@ func (rt *RoomTypes) Update() (err error) {
 		"deposit":          rt.Deposit,
 		"rates_per_person": rt.RatesPerPerson,
 		"twin":             rt.Twin,
+		"gender":           rt.Gender,
 	})
 	if err != nil {
 		beego.Debug(err)
@@ -1006,46 +1020,6 @@ type RoomTypeResults struct {
 	TypesOfRooms string
 	Total        int
 	Available    int
-}
-
-func (u *User) GetRoomStatusList() (errMsg string, roomTypeResults []*RoomTypeResults) {
-	o := orm.NewOrm()
-	qry := "SELECT campus, types_of_rooms, COUNT(types_of_rooms) AS total, SUM(is_available) AS available FROM room GROUP BY types_of_rooms"
-	rs := o.Raw(qry)
-	if u.Campus != "ALL" {
-		rs = o.Raw(qry+" HAVING campus = ?", u.Campus)
-	}
-
-	n, _ := rs.QueryRows(&roomTypeResults)
-	beego.Debug(len(roomTypeResults))
-	if n == 0 {
-		errMsg = "No Room Type Available."
-		return errMsg, nil
-	}
-	return
-}
-
-func (u *User) GetRoomTypeList() (errMsg string, roomTypes []*RoomTypes) {
-	o := orm.NewOrm()
-	qs := o.QueryTable("room_types")
-
-	if u.Campus != "ALL" {
-		qs = qs.Filter("campus", u.Campus)
-	}
-
-	num, _ := qs.Count()
-	if num == 0 {
-		errMsg = "No Room Type Available."
-		return errMsg, nil
-	}
-
-	_, err := qs.All(&roomTypes)
-	if err != nil {
-		beego.Debug(err)
-		errMsg = "Ooops...Something goes wrong when get the room type data."
-		return errMsg, nil
-	}
-	return
 }
 
 func (u *User) GetBookedRoom() (errMsg string, roommates User) {

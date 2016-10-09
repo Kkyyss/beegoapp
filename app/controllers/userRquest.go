@@ -64,7 +64,9 @@ func (self *UserRequestController) Post() {
 		Status: "Paid Off",
 	}
 
-	errMsg = request.UpdateStatus(userId)
+	balance, _ := strconv.ParseFloat(self.GetString("nap"), 64)
+
+	errMsg = request.UpdateStatus(userId, balance)
 
 	if errMsg != "" {
 		self.Data["json"] = errMsg
@@ -82,13 +84,14 @@ func (self *UserRequestController) Put() {
 	json.Unmarshal(self.Ctx.Input.RequestBody, &ob)
 	requestId, _ := strconv.Atoi(ob.(map[string]interface{})["requestId"].(string))
 	userId := int(ob.(map[string]interface{})["userId"].(float64))
+	balance, _ := strconv.ParseFloat(ob.(map[string]interface{})["balance"].(string), 64)
 	request := models.Request{
 		Id:               requestId,
 		DicisionMadeDate: time.Now(),
 		Status:           ob.(map[string]interface{})["status"].(string),
 	}
 
-	errMsg = request.UpdateStatus(userId)
+	errMsg = request.UpdateStatus(userId, balance)
 	self.Data["json"] = errMsg
 	self.ServeJSON()
 }

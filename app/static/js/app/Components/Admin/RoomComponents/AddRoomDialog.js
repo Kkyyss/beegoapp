@@ -183,7 +183,9 @@ export default class AddRoomDialog extends Component {
 
   getRoomTypeList() {
     var userState = {
-      userCampus: userData.campus
+      userIsAdmin: userData.isAdmin,
+      userCampus: userData.campus,
+      userGender: userData.gender
     };
 
     this.onAjaxRequest(userState);
@@ -191,7 +193,9 @@ export default class AddRoomDialog extends Component {
 
   getRoomByCampusOnChange(value) {
     var campusState = {
-      userCampus: value
+      userIsAdmin: userData.isAdmin,
+      userCampus: value,
+      userGender: userData.gender
     };
 
     this.onAjaxRequest(campusState);

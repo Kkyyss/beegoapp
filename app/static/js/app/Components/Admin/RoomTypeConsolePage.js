@@ -10,6 +10,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import Toggle from 'material-ui/Toggle';
 import TextField from 'material-ui/TextField';
 import IconButton from 'material-ui/IconButton';
+import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 import AddRoomTypeDialog from "./RoomTypeComponents/AddRoomTypeDialog.js";
 
 var $ = window.Jquery;
@@ -348,7 +349,9 @@ export default class RoomTypeConsolePage extends Component {
   updateRoomStatusList() {
     var thisObj = this;
     var userState = {
-      userCampus: userData.campus
+      userIsAdmin: userData.isAdmin,
+      userCampus: userData.campus,
+      userGender: userData.gender
     };
 
     ajax({
@@ -441,7 +444,19 @@ export default class RoomTypeConsolePage extends Component {
               label="Twin"
               defaultToggled={false}
               style={styles.toggle}
-            />            
+            />
+            <p className="form-paragraph">Gender</p>
+            <RadioButtonGroup name="edit-gender">
+              <RadioButton
+                value="Male"
+                label="Male"
+              />
+              <RadioButton
+                value="Female"
+                label="Female"
+              />
+            </RadioButtonGroup>
+            <br/>            
           </form>
           </div>
           </div>

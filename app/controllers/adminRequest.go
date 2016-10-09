@@ -91,7 +91,7 @@ func (self *AdminRequestController) Put() {
 		DicisionMadeDate: time.Now(),
 	}
 
-	errMsg = request.UpdateStatus(userId)
+	errMsg = request.UpdateStatus(userId, 0)
 	if errMsg != "" {
 		beego.Debug(errMsg)
 	}

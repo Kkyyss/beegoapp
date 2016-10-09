@@ -19,14 +19,18 @@ func (self *RoomTypeListController) Post() {
 		rooms  []*models.RoomTypes
 		errMsg string
 		ob     interface{}
+		gender string
 	)
 
 	json.Unmarshal(self.Ctx.Input.RequestBody, &ob)
-	user := models.User{
-		Campus: ob.(map[string]interface{})["userCampus"].(string),
-	}
 
-	errMsg, rooms = user.GetRoomTypeList()
+	isAdmin := ob.(map[string]interface{})["userIsAdmin"].(bool)
+	if !isAdmin {
+		gender = ob.(map[string]interface{})["userGender"].(string)
+	}
+	campus := ob.(map[string]interface{})["userCampus"].(string)
+
+	errMsg, rooms = models.GetRoomTypeList(isAdmin, campus, gender)
 	if errMsg != "" {
 		resMap["error"] = errMsg
 	} else {

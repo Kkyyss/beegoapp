@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
-import {Card, CardActions, CardTitle} from 'material-ui/Card';
-import AddUserDialog from "./UserComponents/AddUserDialog.js";
+import {Card} from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
@@ -13,6 +12,7 @@ import Divider from 'material-ui/Divider';
 import Checkbox from 'material-ui/Checkbox';
 import IconButton from 'material-ui/IconButton';
 import Avatar from 'material-ui/Avatar';
+import AddUserDialog from "./UserComponents/AddUserDialog.js";
 import "intl-tel-input/build/css/intlTelInput.css";
 
 var $ = window.Jquery;
@@ -134,10 +134,6 @@ export default class UserConsolePage extends Component {
     this.setState({
       sortValue: value,
     });
-  };
-
-  togglePermission = (e) => {
-    $('#edit-user-permission').parent().toggleClass('hide');
   };
 
   handleOptionDialogOpen = (e) => {
@@ -273,18 +269,21 @@ export default class UserConsolePage extends Component {
     function editUserResize() {
       var windowHeight = $(window).height();
       var editUserBox = $('#edit-user-box');
-      var viewUserBox = $('#view-user-box');
       var windowWidth = $(window).width();
       editUserBox.width(windowWidth * 0.6);
       editUserBox.height(windowHeight * 0.8);
-      viewUserBox.width(windowWidth * 0.8);
-      viewUserBox.height(windowHeight * 0.8);
       var dialogContentHeight = editUserBox.height() - 140;
       $('.dialog-content').height(dialogContentHeight);
     }
+    var dialogCollection = $('#bg-overlay, #edit-user-box');
     $('#bg-overlay, .cancel-btn').on('click', function() {
-      $('#bg-overlay, #edit-user-box, #view-user-box').css('display', 'none');
+      dialogCollection.css('display', 'none');
     });
+    $(document).on('keyup', function(e) {
+      if (e.keyCode == 27) {
+        dialogCollection.css('display', 'none');
+      }
+    });    
 
     $('#update-btn').on('click', updateUser);
 
@@ -451,22 +450,6 @@ export default class UserConsolePage extends Component {
               defaultToggled={false}
               style={styles.toggle}
             />
-            <Toggle
-              id="edit-user-admin"
-              name="edit-user-admin"
-              label="Admin"
-              defaultToggled={false}
-              style={styles.toggle}
-              onToggle={this.togglePermission}
-            />
-            <Toggle
-              id="edit-user-permission"
-              name="edit-user-permission"
-              label="Full Permission"
-              defaultToggled={false}
-              style={styles.toggle}
-              className="hide"
-            />              
             </div>
           </form>
           </div>
@@ -484,81 +467,6 @@ export default class UserConsolePage extends Component {
               secondary={true}
               style={styles.rightAlign}
             />
-          </div>
-        </div>
-        <div id="view-user-box">
-          <div className="dialog-header">
-            <h1 style={styles.textCenter}>Profile</h1>
-          </div>
-          <div className="dialog-content">
-            <div className="table-hero">
-              <Card className="half-content">
-                <table className="centerTable">
-                  <caption>
-                    <Avatar
-                      id="view-user-avatar"
-                      src="../"
-                      size={128} />
-                  </caption>
-                  <tbody>
-                  <tr colSpan="2">
-                    <td style={styles.textCenter}>
-                      <b>Joined On <span id="view-user-dj"></span></b>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </Card>
-              <Card className="half-content">
-                <table className="centerTable">
-                  <caption><h1>Role & Permissions</h1></caption>
-                  <tbody>
-                    <tr>
-                      <td>Activated</td>
-                      <td><b><span id="view-user-activated"></span></b></td>
-                    </tr>
-                    <tr>
-                      <td>Permission</td>
-                      <td><b><span id="view-user-pm"></span></b></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </Card>
-            </div>
-            <div style={styles.clearFix}></div>
-            <div className="table-hero">
-              <Card className="two-wrapper">
-                <table className="centerTable">
-                  <caption><h1>Basic Information</h1></caption>
-                  <tbody>
-                    <tr style={styles.bottomLine}>
-                      <td>Campus</td>
-                      <td style={styles.textLeft}><b><span id="view-user-campus"></span></b></td>
-                    </tr>
-                    <tr style={styles.bottomLine}>
-                      <td>Full Name</td>
-                      <td style={styles.textLeft}><b><span id="view-user-name"></span></b></td>
-                    </tr>
-                    <tr style={styles.bottomLine}>
-                      <td>Email</td>
-                      <td style={styles.textLeft}><b><span id="view-user-email"></span></b></td>
-                    </tr>
-                    <tr>
-                      <td>Contact No.</td>
-                      <td style={styles.textLeft}><b><span id="view-user-contact-no"></span></b></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </Card>
-            </div>
-          </div>
-          <div className="dialog-footer">
-            <RaisedButton
-              className="cancel-btn"
-              label="Cancel"
-              secondary={true}
-              style={styles.rightAlign}
-            />          
           </div>
         </div>
         <div id="card-wrapper" className="wrapper-margin">

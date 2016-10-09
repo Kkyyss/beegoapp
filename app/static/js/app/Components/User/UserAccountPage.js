@@ -4,12 +4,10 @@ import {Tabs, Tab} from 'material-ui/Tabs';
 import TextField from 'material-ui/TextField';
 import Divider from 'material-ui/Divider';
 import FontIcon from 'material-ui/FontIcon';
-import {Card, CardActions, CardTitle} from 'material-ui/Card';
-import {GridList, GridTile} from 'material-ui/GridList';
+import {Card, CardActions} from 'material-ui/Card';
 import Avatar from 'material-ui/Avatar';
 import RaisedButton from 'material-ui/RaisedButton';
 import {amber500} from 'material-ui/styles/colors';
-import IconButton from 'material-ui/IconButton';
 import Chip from 'material-ui/Chip';
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 
@@ -18,6 +16,7 @@ import "intl-tel-input/build/css/intlTelInput.css";
 var $ = window.Jquery;
 var swal = window.SweetAlert;
 var userData;
+var personalData;
 
 import intlTelInput from 'intl-tel-input';
 
@@ -124,23 +123,42 @@ export default class UserAccountPage extends Component {
           chipBgColor: "#D50000",
         });
       } else {
+        getUserPersonalData();
         thisObj.setState({
           chipBgColor: "#304FFE",
         });
       }
     });
 
-    function detectBrowser() {
-      var useragent = navigator.userAgent;
-      var mapdiv = $('#map');
-
-      if (useragent.indexOf('iPhone') != -1 || useragent.indexOf('Android') != -1 ) {
-        mapdiv.css('width', '80%');
-        mapdiv.css('height', '450px');
-      } else {
-        mapdiv.css('width', '80%');
-        mapdiv.css('height', '450px');
-      }
+    function getUserPersonalData() {
+      var userState = {
+        userId: userData.id
+      };
+      ajax({
+        url: '/api/personal-data',
+        method: 'POST',
+        data: JSON.stringify(userState),
+        cache: false,
+        beforeSend: function() {
+          wrapFunc.LoadingSwitch(true);
+        },
+        success: function(res) {
+          wrapFunc.LoadingSwitch(false);
+          if (res.error != null) {
+            wrapFunc.AlertStatus(
+              'Oops...',
+              res.error,
+              'error',
+              false,
+              false
+            );
+          } else {
+            console.log(res.data);
+            personalData = res.data;
+            $('#user-balance').val(personalData.Balance);
+          }
+        }
+      });
     }
 
     var userContactNo = $('#user-contact-no');
@@ -168,8 +186,6 @@ export default class UserAccountPage extends Component {
     var acForm = $('form[name="account"]');
     acBtn.click(submitAccount);
     wrapFunc.DisabledFormSubmitByEnterKeyDown(acForm);
-    
-    console
 
     function submitAccount(e) {
       e.preventDefault();
@@ -199,9 +215,13 @@ export default class UserAccountPage extends Component {
           if (!res) {
             var tokenString = JSON.parse(request.getResponseHeader("User"));
             var userInfo = tokenString.user;
+            wrapFunc.SetUpUser(userInfo);
+            if (!userInfo.isAdmin) {
+              getUserPersonalData();
+            }
             var avatarURL = userInfo.avatar;
             var username = userInfo.name;
-            var d = new Date();        
+            var d = new Date();
             $('#sidebar-user-avatar, #user-avatar').attr('src', avatarURL + '?' + d.getTime());
             $('#user-img').attr('src', avatarURL + '?' + d.getTime());
             // $('#user-name').val(username);
@@ -339,8 +359,6 @@ export default class UserAccountPage extends Component {
       }
       return false;
     }
-    
-    this.forceUpdate();
   }
 
   render() {
@@ -389,12 +407,16 @@ export default class UserAccountPage extends Component {
                             <Chip style={styles.chipStyle} id="status"></Chip>
                           </div>
                           <TextField
-                            style={styles.hide}
-                            id="user-provider"
-                            name="user-provider"
-                            type="hidden"
+                            floatingLabelText="Balance"
+                            floatingLabelFixed={true}
+                            fullWidth={true}
+                            id="user-balance"
+                            name="user-balance"
+                            type="text"
                             readOnly={true}
+                            floatingLabelStyle={styles.floatingLabelStyle}
                           />
+                          <br/>
                           <TextField
                             floatingLabelText="Campus"
                             floatingLabelFixed={true}

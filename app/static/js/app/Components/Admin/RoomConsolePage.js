@@ -150,7 +150,9 @@ export default class AdminConsolePage extends Component {
 
   getRoomByCampusOnChange(value) {
     var campusState = {
-      userCampus: value
+      userIsAdmin: userData.isAdmin,      
+      userCampus: value,
+      userGender: userData.gender      
     };
 
     this.onAjaxRequest(campusState);
@@ -158,7 +160,9 @@ export default class AdminConsolePage extends Component {
 
   getRoomTypeList() {
     var userState = {
-      userCampus: userData.campus
+      userIsAdmin: userData.isAdmin,
+      userCampus: userData.campus,
+      userGender: userData.gender
     };
 
     this.onAjaxRequest(userState);

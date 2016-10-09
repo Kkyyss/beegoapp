@@ -230,9 +230,10 @@ export default class RoomStatusPage extends Component {
   }
 
   updateRoomStatusList() {
-    console.log(userData.id);
     var userState = {
-      userCampus: userData.campus
+      userIsAdmin: userData.isAdmin,
+      userCampus: userData.campus,
+      userGender: userData.gender
     };
 
     ajax({

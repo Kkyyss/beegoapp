@@ -39,6 +39,7 @@ func init() {
 	beego.Router("/api/view-admin-list", &controllers.AdminListController{})
 	beego.Router("/api/user-request-list", &controllers.UserRequestListController{})
 	beego.Router("/api/user-booked-list", &controllers.UserBookedListController{})
+	beego.Router("/api/personal-data", &controllers.PersonalDataController{})
 	beego.Router("/404", &controllers.FourZeroFourController{})
 	beego.Router("/500", &controllers.FiveZeroZeroController{})
 	beego.Router("/401", &controllers.FourZeroOneController{})
