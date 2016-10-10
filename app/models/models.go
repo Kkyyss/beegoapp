@@ -20,8 +20,6 @@ type (
 		Email         string `orm:"size(100)"`
 		Campus        string `orm:"size(10)"`
 		StudentId     string `orm:"size(25)"`
-		Password      string `orm:"null"`
-		HashPassword  string `orm:"null;size(128)"`
 		AvatarUrl     string `orm:"null"`
 		Gender        string `orm:"default(none);size(20)"`
 		ContactNo     string `orm:"default(none)"`
@@ -61,15 +59,15 @@ func (u *User) IsValidEmail() (errMsg string) {
 	return
 }
 
-func (u *User) IsValidPassword() (errMsg string) {
-	valid := validation.Validation{}
-	if v := valid.Required(u.Password, "password").Message("Password is required"); !v.Ok {
-		errMsg = v.Error.Message
-	} else if v := valid.Match(u.Password, regexp.MustCompile(`[\w]{8,}$`), "password").Message("Invalid Password"); !v.Ok {
-		errMsg = v.Error.Message
-	}
-	return
-}
+// func (u *User) IsValidPassword() (errMsg string) {
+// 	valid := validation.Validation{}
+// 	if v := valid.Required(u.Password, "password").Message("Password is required"); !v.Ok {
+// 		errMsg = v.Error.Message
+// 	} else if v := valid.Match(u.Password, regexp.MustCompile(`[\w]{8,}$`), "password").Message("Invalid Password"); !v.Ok {
+// 		errMsg = v.Error.Message
+// 	}
+// 	return
+// }
 
 func (u *User) IsValidName() (errMsg string) {
 	valid := validation.Validation{}

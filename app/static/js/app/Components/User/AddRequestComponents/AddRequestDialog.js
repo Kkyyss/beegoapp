@@ -1,13 +1,11 @@
 import React, {Component} from 'react';
-import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
-import {redA700} from 'material-ui/styles/colors';
-import TextField from 'material-ui/TextField';
-import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
-import SelectField from 'material-ui/SelectField';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
-import RaisedButton from 'material-ui/RaisedButton';
-import AutoComplete from 'material-ui/AutoComplete';
+import Dialog from 'material-ui/Dialog';
+import TextField from 'material-ui/TextField';
+import Toggle from 'material-ui/Toggle';
+import IconButton from 'material-ui/IconButton';
+import FlatButton from 'material-ui/FlatButton';
 import DatePicker from 'material-ui/DatePicker';
 
 var $ = window.Jquery;
@@ -67,6 +65,7 @@ const styles = {
 
 var roomDataSource;
 var campusDataSource = [];
+var isValid = false;
 
 function disableMonths(date) {
   return date.getMonth() >= 10 && date.getMonth() <= 11;
@@ -76,7 +75,7 @@ function formatDate(date) {
   return moment(date).format('YYYY MMMM');
 }
 
-export default class BookingFormPage extends Component {
+export default class AddRequestDialog extends Component {
   constructor(props) {
     super(props);
 
@@ -94,7 +93,8 @@ export default class BookingFormPage extends Component {
       disabled: false,
       btnDisabled: false,
       roomTypeValue: "",
-      roomTypeDisabled: false,      
+      roomTypeDisabled: false,
+      open: false,
     };
   }
 
@@ -104,6 +104,173 @@ export default class BookingFormPage extends Component {
     });
     this.setPayment(roomDataSource, index);
   };
+
+  handleOpen = (e) => {
+    var thisObj = this;
+    if (!userData.fillUpProfile) {
+      swal({
+        title: '<i>Oops...</i>',
+        type: 'info',
+        html:
+          'You <b>must complete</b> the '+
+          '<a href="/user/account">Profile</a> ' +
+          'in order to send booking request.',
+         allowOutsideClick: false,
+         allowEscapeKey: false,  
+      });
+      return;
+    }
+
+    thisObj.setState({open: true}, afterOpened);
+
+    function afterOpened(){
+      $('#form-user-id').val(userData.id);
+      thisObj.setPayment(roomDataSource, 0);
+
+      var sessionDate = $('#session-date');
+      sessionDate.on('focusout', thisObj.vrfSession);
+    }
+  };
+
+  handleClose = (e) => {
+    this.setState({open: false});
+  };
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    var thisObj = this;
+    var requestForm = $('#request-form');
+    thisObj.setState({
+      btnDisabled: true,
+    });
+    var finalValidation = thisObj.validFunc(thisObj.vrfSession());
+
+    if (!finalValidation) {
+      thisObj.setState({
+        btnDisabled: false,
+      });
+      return false;
+    }
+
+    $('#campus').val(thisObj.state.value);
+    $('#gender').val(userData.gender);
+    $('#types-of-rooms').val(thisObj.state.roomTypeValue);
+    $('#deposit').val($('#r-deposit').val());
+    $('#rates_per_person').val($('#r-rpp').val());
+    $('#payment').val($('#r-payment').val());
+
+    ajax({
+      url: "/user/booking-form",
+      method : "POST",
+      data : requestForm.serialize(),
+      cache: false,
+      beforSend: function() {
+        wrapFunc.LoadingSwitch(true);
+      },
+      success: function(res) {
+        wrapFunc.LoadingSwitch(false);
+        if (res.length != 0) {
+          wrapFunc.AlertStatus(
+            'Oopps..',
+            res,
+            'error',
+            false,
+            false
+          );
+        } else {
+          wrapFunc.AlertStatus(
+            'Success',
+            'Your request has been submitted successfully.',
+            'success',
+            false,
+            false
+          );
+          thisObj.updateRequestList();
+        }
+        thisObj.setState({
+          open: false,
+          btnDisabled: false,
+        });
+      }
+    });
+  };
+
+  updateRequestList() {
+    var userState = {
+      userId: userData.id
+    };
+
+    ajax({
+      url: "/api/user-request-list",
+      method: "POST",
+      cache: false,
+      data: JSON.stringify(userState),
+      beforeSend: function() {
+        wrapFunc.LoadingSwitch(true);
+      },
+      success: function(res) {
+        wrapFunc.LoadingSwitch(false);
+        if (res.error != null) {
+          $('#errMsg').text(res.error);
+        } else {
+          console.log(res.data);
+          wrapFunc.SetUserRequestDataSource(res.data);
+          wrapFunc.PaginateUserRequestContent(res.data);
+        }
+      }
+    });
+  }  
+
+  vrfSession() {
+    var sessionDate = $('#session-date');
+    var ssdMsg = $('#ssdMsg');
+    var plainText = sessionDate.val().trim();
+    isValid = wrapFunc.BasicValidation(
+      (plainText.length != 0),
+      ssdMsg,
+      "Please don't leave it empty.",
+      sessionDate
+    );
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      sessionDate,
+      ssdMsg,
+      "Please don't leave it empty."
+    );
+  }
+
+  validFunc(func) {
+     func;
+     if (isValid) {
+       return true;
+     }
+     return false;
+  }
+
+  getUserList() {
+    var thisObj = this;
+
+    var searchBox = $('#search-box');
+    ajax({
+      url: "/api/view-admin-list",
+      method: "POST",
+      cache: false,
+      beforeSend: function() {
+        wrapFunc.LoadingSwitch(true);
+      },
+      success: function(res) {
+        wrapFunc.LoadingSwitch(false);
+        if (res.error != null) {
+          $('#errMsg').text(res.error);
+        } else {
+          wrapFunc.SetAdminDataSource(res.data);
+          wrapFunc.PaginateAdminContent(res.data);
+        }
+      }
+    });
+  }
 
   componentDidMount() {
     var thisObj = this;
@@ -118,93 +285,6 @@ export default class BookingFormPage extends Component {
         });
       }
     });
-
-    var reqeustForm = $('#request-form');
-    var isValid = false;
-    var submitRequstButton = $('#submit-request');
-    submitRequstButton.click(submitRequest);
-    wrapFunc.DisabledFormSubmitByEnterKeyDown(reqeustForm);
-    function submitRequest(ev) {
-      ev.preventDefault();
-
-      var finalValidation = validFunc(vrfSession());
-               
-      if (!finalValidation) {
-        return false;
-      }
-      thisObj.setState({
-        btnDisabled: true,
-      });
-      $('#gender').val(userData.gender);
-      $('#campus').val(thisObj.state.value);
-      $('#types-of-rooms').val(thisObj.state.roomTypeValue);
-      $('#deposit').val($('#r-deposit').val());
-      $('#rates_per_person').val($('#r-rpp').val());
-      $('#payment').val($('#r-payment').val());
-      ajax({
-        url: "/user/booking-form",
-        method : "POST",
-        data : reqeustForm.serialize(),
-        cache: false,
-        beforSend: function() {
-          wrapFunc.LoadingSwitch(true);
-        },
-        success: function(res) {
-          wrapFunc.LoadingSwitch(false);
-          if (res.length != 0) {
-            wrapFunc.AlertStatus(
-              'Oopps..',
-              res,
-              'error',
-              false,
-              false
-            );
-          } else {
-            swal({
-              title: 'Success',
-              text: 'Your request has been submitted successfully.',
-              type: 'success',
-              allowOutsideClick: false,
-              allowEscapeKey: false
-            }).then(function() {
-              $(location).prop('href', '/user/request');
-            });
-          }
-          thisObj.setState({
-            btnDisabled: false,
-          });           
-        }
-      });
-    }
-
-    var sessionDate = $('#session-date');
-    var ssdMsg = $('#ssdMsg');
-    sessionDate.on('focusout', vrfSession);
-    function vrfSession() {
-      var plainText = sessionDate.val().trim();
-      isValid = wrapFunc.BasicValidation(
-        (plainText.length != 0),
-        ssdMsg,
-        "Please don't leave it empty.",
-        sessionDate
-      );
-      if (!isValid) {
-        return;
-      }
-      wrapFunc.MeetRequirement(
-        sessionDate, 
-        ssdMsg, 
-        "Please don't leave it empty."
-      );
-    }
-
-    function validFunc(func) {
-     func;
-     if (isValid) {
-       return true;
-     }
-     return false;
-    }
   }
 
   getRoomTypeList() {
@@ -242,7 +322,6 @@ export default class BookingFormPage extends Component {
         } else {
           console.log(res.data);
           roomDataSource = res.data;
-          thisObj.setPayment(roomDataSource, 0);
           thisObj.getRoomTypes(res.data);
           thisObj.setState({
             roomTypeDisabled: false,
@@ -267,19 +346,41 @@ export default class BookingFormPage extends Component {
     this.setState({
       roomTypeValue: data[0].TypesOfRooms,
     });
-  }
+  }  
 
   render() {
-    return (
-      <div id="card-wrapper" style={styles.cardWrapper} className="wrapper-margin">
+    const actions = [
+      <FlatButton
+        label="Cancel"
+        primary={true}
+        onTouchTap={this.handleClose}
+      />,
+      <FlatButton
+        id="submit-btn"
+        label="Go!"
+        primary={true}
+        onClick={this.handleSubmit}
+        disabled={this.state.btnDisabled}
+      />,
+    ];
 
-        <Card id="card" name="iu-card" style={styles.cardSize}>
-          <div id="form-warning-profile">
-            <CardTitle title="Please complete user Profile" subtitle="Require complete the user profile..."/>
-            <a href="/user/account">Complete User Profile</a>
-          </div>
-          <div id="form-content">
-            <CardTitle title="ACOMMODATION APPLICATION FORM" subtitle="Please fill up the blanks."/>
+    return (
+      <div>
+          <IconButton
+            id="add-req-btn"
+            iconClassName="fa fa-plus"
+            style={styles.button}
+            onTouchTap={this.handleOpen}
+          />
+          <Dialog
+            title="Add Request"
+            className="add-req-dialog"
+            actions={actions}
+            modal={false}
+            open={this.state.open}
+            onRequestClose={this.handleClose}
+            autoScrollBodyContent={true}
+          >
             <form id="request-form">
               <input type="text" style={styles.hide} name="form-user-id" id="form-user-id" />
               <p style={styles.titleStyle}>Campus & Types of Rooms</p>
@@ -350,18 +451,10 @@ export default class BookingFormPage extends Component {
                 />
                 <input id="payment" name="payment" type="text" style={styles.hide} />
                 <input id="gender" name="gender" type="text" style={styles.hide} />
-              </div>
-              <RaisedButton 
-                label="GO!"
-                primary={true}
-                fullWidth={true}
-                id="submit-request"
-                disabled={this.state.btnDisabled}
-              />            
+              </div>          
             </form>
-          </div>        
-        </Card>
+          </Dialog>
       </div>
     );
   }
-} 
+}

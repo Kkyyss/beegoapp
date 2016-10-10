@@ -34,8 +34,6 @@ import IICSPage from './Components/INTI/IICSPage.js';
 import IICKLPage from './Components/INTI/IICKLPage.js';
 import IICPPage from './Components/INTI/IICPPage.js';
 
-import BookingFormPage from './Components/INTI/BookingFormPage.js';
-
 const AppRoutes = (
   <Route path="/" component={Master}>
   	<IndexRoute component={HomePage} />
@@ -45,7 +43,6 @@ const AppRoutes = (
     <Route path="user/inti-iics" component={IICSPage}/>
     <Route path="user/inti-iickl" component={IICKLPage}/>
     <Route path="user/inti-iicp" component={IICPPage}/>
-    <Route path="user/booking-form" component={BookingFormPage}/>
     <Route path="user/account" component={UserAccountPage} />
     <Route path="user/room-console" component={RoomConsolePage} />
     <Route path="user/request-console" component={RequestConsolePage} />

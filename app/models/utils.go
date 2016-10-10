@@ -1,13 +1,13 @@
 package models
 
 import (
-	"crypto/rand"
+	// "crypto/rand"
 	"crypto/tls"
-	"encoding/base64"
+	// "encoding/base64"
 	"encoding/json"
-	"golang.org/x/crypto/bcrypt"
+	// "golang.org/x/crypto/bcrypt"
 	"gopkg.in/gomail.v2"
-	"io"
+	// "io"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -65,57 +65,6 @@ func forgotPasswordMailBody(token, host, name string) (body string) {
 	return
 }
 
-func hashingPassword(password string) (hpass string, err error) {
-	byteHashPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return
-	}
-	hpass = string(byteHashPassword)
-	return
-}
-
-func generateEmailActivationToken() (token string, err error) {
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-	byteToken := make([]byte, EmailLength)
-
-RegenerateTOKEN:
-	_, err = io.ReadFull(rand.Reader, byteToken)
-	if err != nil {
-		return
-	}
-	token = base64.URLEncoding.EncodeToString(byteToken)
-	num, err := qs.Filter("activation_token", token).Count()
-	if err != nil {
-		return
-	}
-	if num > 0 {
-		goto RegenerateTOKEN
-	}
-	return
-}
-
-func generateForgotPasswordToken() (token string, err error) {
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-	byteToken := make([]byte, PasswordLength)
-
-RegenerateTOKEN:
-	_, err = io.ReadFull(rand.Reader, byteToken)
-	if err != nil {
-		return
-	}
-	token = base64.URLEncoding.EncodeToString(byteToken)
-	num, err := qs.Filter("forgot_password_token", token).Count()
-	if err != nil {
-		return
-	}
-	if num > 0 {
-		goto RegenerateTOKEN
-	}
-	return
-}
-
 // Email
 func goSendMail(recipient, subject, body string) error {
 	m := gomail.NewMessage()
@@ -138,30 +87,6 @@ func goSendMail(recipient, subject, body string) error {
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	err = d.DialAndSend(m)
 	return err
-}
-
-func isPasswordEqual(hpass, password string) error {
-	err := bcrypt.CompareHashAndPassword([]byte(hpass), []byte(password))
-	return err
-}
-
-func IsOldPassword(provider, email, oldPassword string) string {
-	var err error
-	var u User
-
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-	r := qs.Filter("provider", provider).Filter("email", email)
-	num, _ := r.Count()
-	if num < 1 {
-		return "Provider or email issue"
-	}
-	err = r.One(&u)
-
-	if err = isPasswordEqual(u.HashPassword, oldPassword); err != nil {
-		return "Invalid old password."
-	}
-	return ""
 }
 
 // Do verification of ReCaptcha
@@ -188,21 +113,6 @@ func ReCaptchaVerification(remoteip, gRecaptchaResponse string) bool {
 		beego.Debug("Read error:%s", err)
 	}
 	return r.Success
-}
-
-func IsForgotPasswordUser(token string) bool {
-	o := orm.NewOrm()
-	qs := o.QueryTable("users")
-	beego.Debug(token)
-	num, err := qs.Filter("forgot_password_token", token).Count()
-	if err != nil {
-		beego.Debug(err)
-		return false
-	}
-	if num < 1 {
-		return false
-	}
-	return true
 }
 
 func CheckingPathExist(url string) error {

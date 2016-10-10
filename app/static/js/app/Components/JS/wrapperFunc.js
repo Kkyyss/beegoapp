@@ -726,16 +726,17 @@ function requestListTemplate(data) {
   $.each(data, function(index, item){
     var Isprocess = (item.Status === 'Processing') ? '<button type="button" class="deniedRequestButton">Denied</button>' +
     '<button type="button" class="approveRequestButton">Approve</button>' : "";
+    var dmd = (item.DicisionMadeDate < item.DateRequest) ? "" : moment(item.DicisionMadeDate).format('DD/MM/YYYY HH:mm:ss a');
     html += '<div class="request-list-style">'+
     '<span id="request-id" class="hide">' + item.Id + '</span>' +
-    '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('DD/MM/YYYY h:mm:ss a') + '</span>' +
+    '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('DD/MM/YYYY HH:mm:ss a') + '</span>' +
     '<span id="request-ss" class="hide">' + item.Session + '</span>' +
     '<span id="request-tp" class="hide">' + item.TypesOfRooms + '</span>' +
     '<span id="request-dp" class="hide">' + item.Deposit + '</span>' +
     '<span id="request-rpp" class="hide">' + item.RatesPerPerson + '</span>' +
     '<span id="request-py" class="hide">' + item.Payment + '</span>' +
     '<span id="request-s" class="paraStyle">' + item.Status + '</span>' +
-    '<span id="request-dmd" class="hide">' + moment(item.DicisionMadeDate).format('DD/MM/YYYY h:mm:ss a') + '</span>' +
+    '<span id="request-dmd" class="hide">' + dmd + '</span>' +
     '<span id="request-user-id" class="hide">' + item.User.Id + '</span>' +
     '<span id="request-user-name" class="paraStyle">' + item.User.Name + '</span>' +
     '<span id="request-user-si" class="paraStyle">' + item.User.StudentId + '</span>' +
@@ -877,16 +878,17 @@ function userRequestListTemplate(data) {
   $.each(data, function(index, item){
     var Isprocess = (item.Status === 'Approved') ? '<button type="button" class="paymentButton">Payment</button>' : "";
     Isprocess += (item.Status === 'Processing' || item.Status === 'Approved' || item.Status === 'Paid Off') ? '<button type="button" class="cancelRequestButton">Cancel</button>' : "";
+    var dmd = (item.DicisionMadeDate < item.DateRequest) ? "" : moment(item.DicisionMadeDate).format('DD/MM/YYYY HH:mm:ss a');
     html += '<div class="request-list-style">'+
     '<span id="request-id" class="hide">' + item.Id + '</span>' +
-    '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('DD/MM/YYYY h:mm:ss a') + '</span>' +
+    '<span id="request-rd" class="paraStyle">' + moment(item.DateRequest).format('DD/MM/YYYY HH:mm:ss a') + '</span>' +
     '<span id="request-ss" class="hide">' + item.Session + '</span>' +
     '<span id="request-tp" class="hide">' + item.TypesOfRooms + '</span>' +
     '<span id="request-dp" class="hide">' + item.Deposit + '</span>' +
     '<span id="request-rpp" class="hide">' + item.RatesPerPerson + '</span>' +
     '<span id="request-py" class="hide">' + item.Payment + '</span>' +
     '<span id="request-s" class="paraStyle">' + item.Status + '</span>' +
-    '<span id="request-dmd" class="hide">' + moment(item.DicisionMadeDate).format('DD/MM/YYYY h:mm:ss a') + '</span>' +
+    '<span id="request-dmd" class="hide">' + dmd  + '</span>' +
     '<span id="request-user-id" class="hide">' + item.User.Id + '</span>' +
     '<span id="request-user-name" class="hide">' + item.User.Name + '</span>' +
     '<span id="request-user-si" class="paraStyle">' + item.User.StudentId + '</span>' +

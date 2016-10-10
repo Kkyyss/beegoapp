@@ -14,6 +14,7 @@ module.exports = {
      './app/Components/User/UserRequestConsolePage.js',
      './app/Components/User/UserBookedRoomPage.js',
      './app/Components/User/RoomStatusPage.js',
+     './app/Components/User/AddRequestComponents/AddRequestDialog.js',
      './app/Components/Admin/RoomConsolePage.js',
      './app/Components/Admin/RequestConsolePage.js',
      './app/Components/Admin/BookedRoomConsolePage.js',
@@ -33,7 +34,6 @@ module.exports = {
      './app/Components/INTI/IICSPage.js',
      './app/Components/INTI/IICKLPage.js',
      './app/Components/INTI/IICPPage.js',
-     './app/Components/INTI/BookingFormPage.js',
    ],
     output: {
         path: __dirname,

@@ -11,6 +11,8 @@ import FlatButton from 'material-ui/FlatButton';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import Dialog from 'material-ui/Dialog';
+import AddRequestDialog from './AddRequestComponents/AddRequestDialog.js';
+
 
 
 var $ = window.Jquery;
@@ -680,6 +682,7 @@ export default class UserRequestConsolePage extends Component {
                   tooltip="Refresh"
                   touch={true}
                 />
+                <AddRequestDialog />
                 <div style={styles.wall}>
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>

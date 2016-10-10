@@ -256,7 +256,7 @@ export default class Master extends Component {
             var userId  = userInfo.id;
             var avatarURL = userInfo.avatar;
             var isAccount = request.getResponseHeader('IsAccount');
-            var isForm = request.getResponseHeader("IsForm");
+            // var isForm = request.getResponseHeader("IsForm");
             var email = userInfo.email;
             var campus = userInfo.campus;
             var studentId = userInfo.studentId;
@@ -352,9 +352,9 @@ export default class Master extends Component {
               document.title += ' ' + username;
               $('#sidebar-user-avatar, #sidebar-admin-avatar, #user-avatar, #menu-avatar').attr('src', avatarURL);
 
-              if (isForm === 'TRUE') {
-                $('#form-user-id').val(userId);
-              }
+              // if (isForm === 'TRUE') {
+              //   $('#form-user-id').val(userId);
+              // }
             }
           }
         },
@@ -515,24 +515,18 @@ export default class Master extends Component {
                 />,
                 <ListItem
                   key={3}
-                  primaryText="Booking Form"
-                  leftIcon={<FontIcon className="fa fa-file-text" />}
-                  href="/user/booking-form"
-                />,
-                <ListItem
-                  key={4}
                   primaryText="Request"
                   leftIcon={<FontIcon className="fa fa-list-ul" />}
                   onTouchTap={this.userRequestConsole}
                 />,
                 <ListItem
-                  key={5}
+                  key={4}
                   primaryText="Booked Room"
                   leftIcon={<FontIcon className="fa fa-bed" />}
                   onTouchTap={this.userBookedRoomConsole}
                 />,
                 <ListItem
-                  key={6}
+                  key={5}
                   primaryText="Sign Out"
                   onTouchTap={this.logout}
                   leftIcon={<FontIcon className="fa fa-sign-out" />}
