@@ -14,6 +14,7 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var isValid = false;
 
 const styles = {
   hide: {
@@ -48,12 +49,6 @@ const iuRoomTypes = [
   'SP(AC-2) RM1,380',
 ];
 
-const iicsRoomTypes = [
-  'Room A',
-];
-
-var campusDataSource = iuRoomTypes;
-
 export default class AddRoomTypeDialog extends Component {
   state = {
     open: false,
@@ -67,8 +62,170 @@ export default class AddRoomTypeDialog extends Component {
   };
 
   handleOpen = (e) => {
-    this.setState({open: true});
+    var thisObj = this;
+    this.setState({open: true}, afterOpened);
+
+    function afterOpened() {
+      var eTor = $('#types-of-rooms');
+      eTor.on('input focusout', thisObj.vrfEditTor);
+
+      var eDp = $('#deposit');
+      eDp.on('input focusout', thisObj.dpNumeric);
+
+      var eRpp = $('#rates-per-person');
+      eRpp.on('input focusout', thisObj.rppNumeric);
+
+      var gdr = $('input[name=gender]');
+      gdr.on('click', thisObj.genderVrf);
+    }
   };
+
+  genderVrf() {
+    var gdr = $('input[name=gender]');
+    var gdrMsg = $('#gdrMsg');      
+    if ($('input[name=gender]:checked').length == 0) {
+      isValid = wrapFunc.BasicValidation(
+        false,
+        gdrMsg,
+        "Please select room gender.",
+        gdr
+      );
+      return;
+    } else {
+      isValid = true;
+      wrapFunc.MeetRequirement(
+        gdr, 
+        gdrMsg, 
+        "Please select room gender."
+      );
+    }
+  }  
+
+  rppNumeric() {
+    var thisObj = this;
+    var eRppMsg = $('#rppMsg');
+    var eRpp = $('#rates-per-person');    
+    eRpp.val(eRpp.val().replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'));
+    var plainText = eRpp.val().trim();
+    isValid = wrapFunc.BasicValidation(
+      (plainText.length != 0),
+      eRppMsg,
+      "Please don't leave it empty.",
+      eRpp
+    );
+    if (!isValid) {
+      return;
+    }
+    isValid = wrapFunc.BasicValidation(
+      (plainText.match(/^\d+(\.\d+)?$/)),
+      eRppMsg,
+      "Please key in valid amount.",
+      eRpp
+    );
+    if (!isValid) {
+      return;
+    }      
+    wrapFunc.MeetRequirement(
+      eRpp,
+      eRppMsg,
+      "Please don't leave it empty."
+    );
+
+    if (decimalPlac(plainText) > 2) {
+      eRpp.val(roundToTwo(eRpp.val()));
+    }
+
+    function roundToTwo(num) {
+        return +(Math.round(num + "e+2")  + "e-2");
+    }
+
+    function decimalPlac(num) {
+      var match = (''+num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+      if (!match) { return 0; }
+      return Math.max(
+           0,
+           // Number of digits right of decimal point.
+           (match[1] ? match[1].length : 0)
+           // Adjust for scientific notation.
+           - (match[2] ? +match[2] : 0));
+    }    
+  }
+
+  dpNumeric() {
+    var thisObj = this;
+    var eDpMsg = $('#dpMsg');
+    var eDp = $('#deposit');   
+    eDp.val(eDp.val().replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'));
+    var plainText = eDp.val().trim();
+    isValid = wrapFunc.BasicValidation(
+      (plainText.length != 0),
+      eDpMsg,
+      "Please don't leave it empty.",
+      eDp
+    );
+    if (!isValid) {
+      return;
+    }
+    isValid = wrapFunc.BasicValidation(
+      (plainText.match(/^\d+(\.\d+)?$/)),
+      eDpMsg,
+      "Please key in valid amount.",
+      eDp
+    );
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      eDp,
+      eDpMsg,
+      "Please don't leave it empty."
+    );
+    if (decimalPlac(plainText) > 2) {
+      eDp.val(roundToTwo(eDp.val()));
+    }
+
+    function roundToTwo(num) {
+        return +(Math.round(num + "e+2")  + "e-2");
+    }
+
+    function decimalPlac(num) {
+      var match = (''+num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+      if (!match) { return 0; }
+      return Math.max(
+           0,
+           // Number of digits right of decimal point.
+           (match[1] ? match[1].length : 0)
+           // Adjust for scientific notation.
+           - (match[2] ? +match[2] : 0));
+    }    
+  }
+
+  validFunc(func) {
+    func;
+    if (isValid) {
+      return true;
+    }
+    return false;
+  }
+
+  vrfEditTor() {
+    var eTorMsg = $('#torMsg');
+    var eTor = $('#types-of-rooms');    
+    isValid = wrapFunc.BasicValidation(
+      $.trim(eTor.val()),
+      eTorMsg,
+      "Please don't leave it empty.",
+      eTor
+    );
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      eTor,
+      eTorMsg,
+      "Please don't leave it empty."
+    );
+  } 
 
   handleClose = (e) => {
     this.setState({open: false});
@@ -79,7 +236,19 @@ export default class AddRoomTypeDialog extends Component {
     var thisObj = this;
     thisObj.setState({
       btnDisabled: true,
-    });    
+    });
+    var finalValidation = thisObj.validFunc(thisObj.vrfEditTor()) &
+                          thisObj.validFunc(thisObj.dpNumeric()) &
+                          thisObj.validFunc(thisObj.rppNumeric()) &
+                          thisObj.validFunc(thisObj.genderVrf());
+
+    if (!finalValidation) {
+      thisObj.setState({
+        btnDisabled: false,
+      });      
+      return;
+    }
+
     $('#campus').val(this.state.value);
     var addRoomTypeForm = $('#add-room-type-form');
     ajax({
@@ -136,12 +305,19 @@ export default class AddRoomTypeDialog extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
+          res.data.sort(thisObj.sortByLatest);
           wrapFunc.SetRoomTypeDataSource(res.data);
           wrapFunc.PaginateRoomTypeContent(res.data);
         }
       }
     });
   }
+
+  sortByLatest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }  
 
   componentDidMount() {
     var thisObj = this;
@@ -208,7 +384,7 @@ export default class AddRoomTypeDialog extends Component {
                 type="text"
                 fullWidth={true}  
               />
-              <br/>
+              <div id="torMsg">Please don't leave it empty.</div>
               <TextField
                 id="deposit"
                 name="deposit"
@@ -216,7 +392,7 @@ export default class AddRoomTypeDialog extends Component {
                 type="text"
                 fullWidth={true}
               />
-              <br/>
+              <div id="dpMsg">Please don't leave it empty.</div>
               <TextField
                 id="rates-per-person"
                 name="rates-per-person"
@@ -224,7 +400,8 @@ export default class AddRoomTypeDialog extends Component {
                 type="text"
                 fullWidth={true}
               />
-              <br/><br/>
+              <div id="rppMsg">Please don't leave it empty.</div>
+              <br/>
               <Toggle
                 id="twin"
                 name="twin"
@@ -243,6 +420,8 @@ export default class AddRoomTypeDialog extends Component {
                   label="Female"
                 />
               </RadioButtonGroup>
+              <br/>
+              <div id="gdrMsg">Please select room gender.</div>
               <br/>
             </div>
           </form>

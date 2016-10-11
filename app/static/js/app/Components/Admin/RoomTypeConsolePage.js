@@ -17,6 +17,7 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var tempOptionIndex = [1];
 var options = [];
 var optionsIndex = [1];
 
@@ -152,6 +153,7 @@ export default class RoomTypeConsolePage extends Component {
     });
   };
   handleOptionDialogClose = (e) => {
+    optionsIndex = tempOptionIndex;    
     this.setState({
       optionDialogOpen: false,
     });
@@ -160,7 +162,8 @@ export default class RoomTypeConsolePage extends Component {
   handleSearchOptionSubmit = (e) => {
     this.setState({
       optionsButton: true,
-    })
+    });
+    tempOptionIndex = optionsIndex;    
     options = [];
     optionsIndex = [];
     if ($("#crt-cp").is(":checked")) {
@@ -190,7 +193,7 @@ export default class RoomTypeConsolePage extends Component {
       });
       return;
     } 
-    
+    tempOptionIndex = optionsIndex;
     wrapFunc.SetUpRoomTypeSearchOption(options);
     this.resetButton();
   };
@@ -222,14 +225,26 @@ export default class RoomTypeConsolePage extends Component {
       case 'Campus':
         ds.sort(thisObj.sortByCampus);
       break;
+      case 'Latest':
+        ds.sort(thisObj.sortByLatest);
+      break;
+      case 'Oldest':
+        ds.sort(thisObj.sortByOldest);
+      break;
       case 'Types Of Rooms':
         ds.sort(thisObj.sortByTypesOfRooms);
       break;
-      case 'Deposit':
-        ds.sort(thisObj.sortByDeposit);
+      case 'Lowest Deposit':
+        ds.sort(thisObj.sortByLowestDeposit);
       break;
-      case 'Rates':
-        ds.sort(thisObj.sortByRates);
+      case 'Lowest Rates':
+        ds.sort(thisObj.sortByLowestRates);
+      break;
+      case 'Highest Deposit':
+        ds.sort(thisObj.sortByHighestDeposit);
+      break;
+      case 'Highest Rates':
+        ds.sort(thisObj.sortByHighestRates);
       break;
       default: return;
     }
@@ -244,28 +259,51 @@ export default class RoomTypeConsolePage extends Component {
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
   }
 
+  sortByLatest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }
+
+  sortByOldest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }   
+
   sortByTypesOfRooms(a, b) {
     var av = a.TypesOfRooms.toLowerCase();
     var bv = b.TypesOfRooms.toLowerCase();
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
   }
 
-  sortByDeposit(a, b) {
+  sortByLowestDeposit(a, b) {
     var av = a.Deposit;
     var bv = b.Deposit;
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
   }
+  sortByHighestDeposit(a, b) {
+    var av = a.Deposit;
+    var bv = b.Deposit;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }
 
-  sortByRates(a, b) {
+  sortByLowestRates(a, b) {
     var av = a.RatesPerPerson;
     var bv = b.RatesPerPerson;
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
-  }  
+  }
+  sortByHighestRates(a, b) {
+    var av = a.RatesPerPerson;
+    var bv = b.RatesPerPerson;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }
 
   componentDidMount() {
     var thisObj = this;
     $.when().then(function() {
       userData = window.UserData;
+      console.log("Yes");
       if (userData.campus !== 'ALL') {
         var userCampus = userData.campus;
         thisObj.setState({
@@ -292,22 +330,36 @@ export default class RoomTypeConsolePage extends Component {
       editRoomTypeBox.height(windowHeight * 0.8);
       var dialogContentHeight = editRoomTypeBox.height() - 140;
       $('.dialog-content').height(dialogContentHeight);
-    }    
-
+    }
+    var dialogCollection = $('#bg-overlay, #edit-room-type-box');
     $('#bg-overlay, .cancel-btn').on('click', function() {
-      $('#bg-overlay, #edit-room-type-box').css('display', 'none');
+      dialogCollection.css('display', 'none');
+    });
+
+    $(document).on('keyup', function(e) {
+      if (e.keyCode == 27) {
+        dialogCollection.css('display', 'none');
+      }
     });
 
     $('#update-btn').on('click', updateRoomType);
+
+    var isValid = false;
+    var editRoomTypeForm = $('#edit-rt-form');
 
     function updateRoomType(e) {
       e.preventDefault();
       thisObj.setState({
         btnDisabled: true,
       });
-      var editRoomTypeForm = $('#edit-rt-form');
-      $('#edit-rt-camp').val(thisObj.state.value);
+      var finalValidation = validFunc(vrfEditTor()) &
+                            validFunc(dpNumeric());
+      if (!finalValidation) {
+        console.log(finalValidation);
+        return;
+      }
 
+      $('#edit-rt-camp').val(thisObj.state.value);
       ajax({
         url: "/user/room-type-console",
         method: "PUT",
@@ -342,7 +394,120 @@ export default class RoomTypeConsolePage extends Component {
             btnDisabled: false,
           });          
         }
-      });      
+      });
+    }
+
+    var eTorMsg = $('#e-torMsg');
+    var eTor = $('#edit-tor');
+    eTor.on('input focusout', vrfEditTor);
+    function vrfEditTor() {
+      isValid = wrapFunc.BasicValidation(
+        $.trim(eTor.val()),
+        eTorMsg,
+        "Please don't leave it empty.",
+        eTor
+      );
+      if (!isValid) {
+        return;
+      }
+      wrapFunc.MeetRequirement(
+        eTor,
+        eTorMsg,
+        "Please don't leave it empty."
+      );
+    }
+
+    var eDpMsg = $('#e-dpMsg');
+    var eDp = $('#edit-dp');
+    eDp.on('input focusout', dpNumeric);
+
+    function dpNumeric() {
+      eDp.val(eDp.val().replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'));
+      var plainText = eDp.val().trim();
+      isValid = wrapFunc.BasicValidation(
+        (plainText.length != 0),
+        eDpMsg,
+        "Please don't leave it empty.",
+        eDp
+      );
+      if (!isValid) {
+        return;
+      }
+      isValid = wrapFunc.BasicValidation(
+        (plainText.match(/^\d+(\.\d+)?$/)),
+        eDpMsg,
+        "Please key in valid amount.",
+        eDp
+      );
+      if (!isValid) {
+        return;
+      }
+      wrapFunc.MeetRequirement(
+        eDp,
+        eDpMsg,
+        "Please don't leave it empty."
+      );
+      if (decimalPlaces(plainText) > 2) {
+        eDp.val(roundToTwo(eDp.val()));
+      }
+    }
+
+    var eRppMsg = $('#e-rppMsg');
+    var eRpp = $('#edit-rpp');
+    eRpp.on('input focusout', rppNumeric);
+
+    function rppNumeric() {
+      eRpp.val(eRpp.val().replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'));
+      var plainText = eRpp.val().trim();
+      isValid = wrapFunc.BasicValidation(
+        (plainText.length != 0),
+        eRppMsg,
+        "Please don't leave it empty.",
+        eRpp
+      );
+      if (!isValid) {
+        return;
+      }
+      isValid = wrapFunc.BasicValidation(
+        (plainText.match(/^\d+(\.\d+)?$/)),
+        eRppMsg,
+        "Please key in valid amount.",
+        eRpp
+      );
+      if (!isValid) {
+        return;
+      }      
+      wrapFunc.MeetRequirement(
+        eRpp,
+        eRppMsg,
+        "Please don't leave it empty."
+      );
+      if (decimalPlaces(plainText) > 2) {
+        eRpp.val(roundToTwo(eRpp.val()));
+      }
+    }
+
+    function decimalPlaces(num) {
+      var match = (''+num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+      if (!match) { return 0; }
+      return Math.max(
+           0,
+           // Number of digits right of decimal point.
+           (match[1] ? match[1].length : 0)
+           // Adjust for scientific notation.
+           - (match[2] ? +match[2] : 0));
+    }    
+
+    function roundToTwo(num) {    
+        return +(Math.round(num + "e+2")  + "e-2");
+    }
+
+    function validFunc(func) {
+      func;
+      if (isValid) {
+        return true;
+      }
+      return false;
     }    
   }
 
@@ -368,9 +533,12 @@ export default class RoomTypeConsolePage extends Component {
           $('#errMsg').text(res.error);
         } else {
           console.log(res.data);
-          res.data.sort(thisObj.sortByCampus);
+          res.data.sort(thisObj.sortByLatest);
           wrapFunc.SetRoomTypeDataSource(res.data);
           wrapFunc.PaginateRoomTypeContent(res.data);
+          console.log(optionsIndex);
+          console.log(options);
+          console.log(tempOptionIndex);
         }
       }
     });
@@ -419,7 +587,7 @@ export default class RoomTypeConsolePage extends Component {
               fullWidth={true}
               floatingLabelFixed={true}
             />
-            <br/>
+            <div id="e-torMsg">Please don't leave it empty.</div>
             <TextField
               id="edit-dp"
               name="edit-dp"
@@ -428,7 +596,7 @@ export default class RoomTypeConsolePage extends Component {
               fullWidth={true}
               floatingLabelFixed={true}
             />
-            <br/>
+            <div id="e-dpMsg">Please don't leave it empty.</div>
             <TextField
               id="edit-rpp"
               name="edit-rpp"
@@ -437,7 +605,8 @@ export default class RoomTypeConsolePage extends Component {
               fullWidth={true}
               floatingLabelFixed={true}
             />
-            <br/><br/>
+           <div id="e-rppMsg">Please don't leave it empty.</div>
+           <br/>
             <Toggle
               id="edit-twin"
               name="edit-twin"
@@ -446,7 +615,7 @@ export default class RoomTypeConsolePage extends Component {
               style={styles.toggle}
             />
             <p className="form-paragraph">Gender</p>
-            <RadioButtonGroup name="edit-gender">
+            <RadioButtonGroup name="edit-gdr">
               <RadioButton
                 value="Male"
                 label="Male"
@@ -456,7 +625,7 @@ export default class RoomTypeConsolePage extends Component {
                 label="Female"
               />
             </RadioButtonGroup>
-            <br/>            
+            <br/>
           </form>
           </div>
           </div>
@@ -530,9 +699,13 @@ export default class RoomTypeConsolePage extends Component {
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
                   <MenuItem value={"Campus"} primaryText="Campus" />
+                  <MenuItem value={"Latest"} primaryText="Latest" />
+                  <MenuItem value={"Oldest"} primaryText="Oldest" />
                   <MenuItem value={"Types Of Rooms"} primaryText="Types Of Rooms" />
-                  <MenuItem value={"Deposit"} primaryText="Deposit" />
-                  <MenuItem value={"Rates"} primaryText="Rates" />
+                  <MenuItem value={"Lowest Deposit"} primaryText="Lowest Deposit" />
+                  <MenuItem value={"Lowest Rates"} primaryText="Lowest Rates" />
+                  <MenuItem value={"Highest Deposit"} primaryText="Highest Deposit" />
+                  <MenuItem value={"Highest Rates"} primaryText="Highest Rates" />
                 </DropDownMenu>
                 </div>
               </div>

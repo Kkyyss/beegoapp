@@ -666,6 +666,15 @@
     float: left;    
 }
 
+.kp-wrapper {
+    width: 40%;
+    background-color: white;
+    margin: 10px;
+    padding: 20px;
+    box-shadow: rgb(136, 136, 136) 0px 2px 5px;
+    float: left;
+}
+
 table {
    border-collapse: collapse;
 }

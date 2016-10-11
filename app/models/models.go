@@ -484,6 +484,19 @@ func (r *Room) RemoveRoom() (err error) {
 	return
 }
 
+func (r *Room) IsRoomNoAvailable() (errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("room").
+		Filter("campus", r.Campus).
+		Filter("types_of_rooms", r.TypesOfRooms).
+		Filter("room_no", r.RoomNo).Exclude("id", r.Id)
+	n, _ := qs.Count()
+	if n >= 1 {
+		errMsg = "Room No Exist!"
+	}
+	return
+}
+
 func (r *Room) Available() (errMsg string) {
 	o := orm.NewOrm()
 	qs := o.QueryTable("room")
@@ -883,7 +896,7 @@ func (u *User) GetRoomList() (errMsg string, rooms []*Room) {
 func (u *User) GetUsersList() (errMsg string, users []*User) {
 	o := orm.NewOrm()
 	cond := orm.NewCondition()
-	c1 := cond.And("campus", u.Campus).Or("is_admin", true)
+	c1 := cond.And("campus", u.Campus)
 	qs := o.QueryTable("users")
 
 	if u.Campus != "ALL" {
@@ -1012,6 +1025,18 @@ func (rt *RoomTypes) Remove() (err error) {
 	_, err = qs.Delete()
 	if err != nil {
 		beego.Debug(err)
+	}
+	return
+}
+
+func (rt *RoomTypes) IsAvailable() (errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("room_types").
+		Filter("campus", rt.Campus).
+		Filter("types_of_rooms", rt.TypesOfRooms).Exclude("id", rt.Id)
+	n, _ := qs.Count()
+	if n >= 1 {
+		errMsg = "Type of room exist!"
 	}
 	return
 }

@@ -152,7 +152,7 @@ export default class UserNotificationConsolePage extends Component {
     });
   };
   handleOptionDialogClose = (e) => {
-    optionsIndex = tempOptionIndex;    
+    optionsIndex = tempOptionIndex;
     this.setState({
       optionDialogOpen: false,
     });

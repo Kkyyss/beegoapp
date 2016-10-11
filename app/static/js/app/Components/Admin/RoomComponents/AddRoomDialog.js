@@ -9,8 +9,6 @@ import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
 import IconButton from 'material-ui/IconButton';
 
-import RoomTypeDropdownList from '../RoomTypeDropdownList.js';
-
 import swal from 'sweetalert2';
 
 var $ = window.Jquery;
@@ -18,6 +16,7 @@ var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
 var items = [];
+var isValid = false;
 
 const styles = {
   hide: {
@@ -61,7 +60,8 @@ export default class AddRoomDialog extends Component {
   };
 
   handleOpen = (e) => {
-    if (this.state.roomTypeDisabled) {
+    var thisObj = this;
+    if (thisObj.state.roomTypeDisabled) {
       wrapFunc.AlertStatus(
         "Oops...",
         "Don't have room types.",
@@ -69,11 +69,43 @@ export default class AddRoomDialog extends Component {
         false,
         false
       );
-
       return;
     }
-    this.setState({open: true});
+    thisObj.setState({open: true}, afterOpened);
+
+    function afterOpened() {
+      var rn = $('#room-no');
+      rn.on('input focusout', thisObj.vrfRoomNo);
+    }
   };
+
+  vrfRoomNo() {
+    var rnMsg = $('#rnMsg');
+    var rn = $('#room-no');
+    isValid = wrapFunc.BasicValidation(
+      $.trim(rn.val()),
+      rnMsg,
+      "Please don't leave it empty.",
+      rn
+    );
+    console.log(isValid);
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      rn,
+      rnMsg,
+      "Please don't leave it empty."
+    );
+  }
+
+  validFunc(func) {
+    func;
+    if (isValid) {
+      return true;
+    }
+    return false;
+  }  
 
   handleClose = (e) => {
     this.setState({open: false});
@@ -103,7 +135,17 @@ export default class AddRoomDialog extends Component {
     var thisObj = this;
     thisObj.setState({
       btnDisabled: true,
-    });    
+    });
+
+    var finalValidation = thisObj.validFunc(thisObj.vrfRoomNo());
+
+    if (!finalValidation) {
+      thisObj.setState({
+        btnDisabled: false,
+      });      
+      return;
+    }
+
     $('#campus').val(this.state.campusValue);
     $('#types-of-rooms').val(this.state.roomTypeValue);
     var addRoomForm = $('#add-room-form');
@@ -174,11 +216,19 @@ export default class AddRoomDialog extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
+          console.log(res.data);
+          res.data.sort(thisObj.sortByLatest);
           wrapFunc.SetRoomDataSource(res.data);
           wrapFunc.PaginateRoomContent(res.data);
         }
       }
     });
+  }
+
+  sortByLatest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
   }
 
   getRoomTypeList() {
@@ -292,7 +342,8 @@ export default class AddRoomDialog extends Component {
                 type="text"
                 fullWidth={true}
               />
-              <br/><br/>
+              <div id="rnMsg">Please don't leave it empty.</div>
+              <br/>
               <Toggle
                 id="available"
                 name="available"

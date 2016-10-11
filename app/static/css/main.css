@@ -124,19 +124,20 @@ input[name="card-cvv"] {
   background-position: right 10px center;
 }
 
-#userMsg, 
-#pwdMsg, 
-#emailMsg, 
-#oldPwdMsg, 
-#newPwdMsg,
+#userMsg,
+#emailMsg,
 #icMsg,
 #genderMsg,
 #contactMsg,
-#locationMsg,
-#permanentAddressMsg,
-#monthMsg,
-#yearMsg,
 #torMsg,
+#dpMsg,
+#rppMsg,
+#gdrMsg,
+#e-torMsg,
+#e-dpMsg,
+#e-rppMsg,
+#rnMsg,
+#e-rnMsg,
 #ssdMsg {
   font-size: 12px;
   line-height: 12px;

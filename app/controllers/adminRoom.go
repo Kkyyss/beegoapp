@@ -57,6 +57,7 @@ func (self *AdminRoomController) Post() {
 	var (
 		available bool
 		errMsg    string
+		err       error
 	)
 	if self.GetString("available") == "on" {
 		available = true
@@ -70,12 +71,18 @@ func (self *AdminRoomController) Post() {
 		IsAvailable:  available,
 	}
 
-	err := room.InsertRoom()
+	errMsg = room.IsRoomNoAvailable()
+	if errMsg != "" {
+		goto Response
+	}
+
+	err = room.InsertRoom()
 	if err != nil {
 		beego.Debug(err)
 		errMsg = err.Error()
 	}
 
+Response:
 	self.Data["json"] = errMsg
 	self.ServeJSON()
 }
@@ -103,6 +110,7 @@ func (self *AdminRoomController) Put() {
 	var (
 		errMsg    string
 		available bool
+		err       error
 	)
 
 	if self.GetString("edit-available") == "on" {
@@ -119,12 +127,18 @@ func (self *AdminRoomController) Put() {
 		IsAvailable:  available,
 	}
 
-	err := room.UpdateRoom()
+	errMsg = room.IsRoomNoAvailable()
+	if errMsg != "" {
+		goto Response
+	}
+
+	err = room.UpdateRoom()
 	if err != nil {
 		errMsg = "Not Update"
 		beego.Debug(err)
 	}
 
+Response:
 	self.Data["json"] = errMsg
 	self.ServeJSON()
 }

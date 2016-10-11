@@ -758,13 +758,13 @@ function roomListTemplate(data) {
     var available = item.IsAvailable ? 'Available' : 'Not Available';
     var twin = item.Twin ? 'Twin' : 'Single';
     html += '<div class="room-list-style">'+ 
-    '<span id="room-id" class="hide">' + item.Id + '</span>' +
-    '<span id="room-pmf" class="hide">' + item.PerMonthFee + '</span>' +
-    '<span id="room-cp" class="paraStyle">' + item.Campus + '</span>' + 
-    '<span id="room-no" class="paraStyle">' + item.RoomNo + '</span>' +
-    '<span id="room-tp" class="paraStyle">' + item.TypesOfRooms + '</span>' +
-    '<span id="room-a" class="paraStyle">' + available + '</span>' +
-    '<span id="room-t" class="paraStyle">' + twin + '</span>' +
+    '<span id="r-id" class="hide">' + item.Id + '</span>' +
+    '<span id="r-pmf" class="hide">' + item.PerMonthFee + '</span>' +
+    '<span id="r-cp" class="paraStyle">' + item.Campus + '</span>' + 
+    '<span id="r-no" class="paraStyle">' + item.RoomNo + '</span>' +
+    '<span id="r-tp" class="paraStyle">' + item.TypesOfRooms + '</span>' +
+    '<span id="r-a" class="paraStyle">' + available + '</span>' +
+    '<span id="r-t" class="paraStyle">' + twin + '</span>' +
     '<div class="rightAlignment">' +
     '<button type="button" class="editRoomButton">Edit</button>' +
     '<button type="button" class="removeRoomButton">Remove</button>' +
@@ -1069,11 +1069,11 @@ function editRoom(e) {
   e.preventDefault();
   var thisObj = $(this).parent().parent();
   $('#bg-overlay, #edit-room-box').css('display', 'block');
-  $('#edit-room-id').val(thisObj.children("#room-id").text());
-  $('#current-campus').text(thisObj.children("#room-cp").text());
-  $('#current-tor').text(thisObj.children("#room-tp").text());
-  $('#current-no').text(thisObj.children("#room-no").text());
-  var available = thisObj.children("#room-a").text();
+  $('#edit-room-id').val(thisObj.children("#r-id").text());
+  $('#current-campus').text(thisObj.children("#r-cp").text());
+  $('#current-tor').text(thisObj.children("#r-tp").text());
+  $('#current-no').text(thisObj.children("#r-no").text());
+  var available = thisObj.children("#r-a").text();
   if (available === 'Available') {
     $('#current-av').text("Yes");
   } else {
@@ -1803,10 +1803,10 @@ function editRoomType(e) {
   }
   switch (gender) {
     case 'Male':
-      $('input[name=edit-gender]')[0].click();
+      $('input[name=edit-gdr]')[0].click();
       break;
     case 'Female':
-      $('input[name=edit-gender]')[1].click();
+      $('input[name=edit-gdr]')[1].click();
       break;
     default: break;
   }

@@ -218,7 +218,7 @@ func GetRoomStatusList(isAdmin bool, campus, gender string) (errMsg string, room
 	n, _ := rs.QueryRows(&roomTypeResults)
 	beego.Debug(len(roomTypeResults))
 	if n == 0 {
-		errMsg = "No Room Type Available."
+		errMsg = "No Room Available."
 		return errMsg, nil
 	}
 	return

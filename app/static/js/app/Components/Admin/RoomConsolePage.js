@@ -20,6 +20,7 @@ var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
 var items = [];
+var tempOptionIndex = [1];
 var options = [];
 var optionsIndex = [1];
 
@@ -97,6 +98,9 @@ const styles = {
   },
   textRight: {
     textAlign: 'right',
+  },
+  clearFix: {
+    clear: 'both',
   },
 };
 
@@ -231,6 +235,7 @@ export default class AdminConsolePage extends Component {
     });
   };
   handleOptionDialogClose = (e) => {
+    optionsIndex = tempOptionIndex;    
     this.setState({
       optionDialogOpen: false,
     });
@@ -239,7 +244,8 @@ export default class AdminConsolePage extends Component {
   handleSearchOptionSubmit = (e) => {
     this.setState({
       optionsButton: true,
-    })
+    });
+    tempOptionIndex = optionsIndex;
     options = [];
     optionsIndex = [];
 
@@ -277,7 +283,7 @@ export default class AdminConsolePage extends Component {
       });
       return;
     }    
-
+    tempOptionIndex = optionsIndex;
     wrapFunc.SetUpRoomSearchOption(options);
     this.setState({
       optionDialogOpen: false,
@@ -308,14 +314,26 @@ export default class AdminConsolePage extends Component {
       case 'Types Of Rooms':
         ds.sort(thisObj.sortByTypesOfRooms);
       break;
-      case 'Deposit':
-        ds.sort(thisObj.sortByDeposit);
-      break;
-      case 'Rates':
-        ds.sort(thisObj.sortByRates);
-      break;
       case 'Available':
         ds.sort(thisObj.sortByAvailable);
+      break;
+      case 'Latest':
+        ds.sort(thisObj.sortByLatest);
+      break;
+      case 'Oldest':
+        ds.sort(thisObj.sortByOldest);
+      break;
+      case 'Lowest Deposit':
+        ds.sort(thisObj.sortByLowestDeposit);
+      break;
+      case 'Lowest Rates':
+        ds.sort(thisObj.sortByLowestRates);
+      break;
+      case 'Highest Deposit':
+        ds.sort(thisObj.sortByHighestDeposit);
+      break;
+      case 'Highest Rates':
+        ds.sort(thisObj.sortByHighestRates);
       break;
       default: return;
     }
@@ -335,16 +353,44 @@ export default class AdminConsolePage extends Component {
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
   }
 
-  sortByDeposit(a, b) {
+  sortByLatest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }
+
+  sortByOldest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }   
+
+  sortByTypesOfRooms(a, b) {
+    var av = a.TypesOfRooms.toLowerCase();
+    var bv = b.TypesOfRooms.toLowerCase();
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByLowestDeposit(a, b) {
     var av = a.Deposit;
     var bv = b.Deposit;
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
   }
+  sortByHighestDeposit(a, b) {
+    var av = a.Deposit;
+    var bv = b.Deposit;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }
 
-  sortByRates(a, b) {
+  sortByLowestRates(a, b) {
     var av = a.RatesPerPerson;
     var bv = b.RatesPerPerson;
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+  sortByHighestRates(a, b) {
+    var av = a.RatesPerPerson;
+    var bv = b.RatesPerPerson;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
   }
 
   sortByAvailable(a, b) {
@@ -388,18 +434,38 @@ export default class AdminConsolePage extends Component {
       var dialogContentHeight = editRoomBox.height() - 140;
       $('.dialog-content').height(dialogContentHeight);
     }
+
+    var dialogCollection = $('#bg-overlay, #edit-room-box');
     $('#bg-overlay, #cancel-btn').on('click', function() {
       clearEditForm();
-      $('#bg-overlay, #edit-room-box').css('display', 'none');
+      dialogCollection.css('display', 'none');
+    });
+
+    $(document).on('keyup', function(e) {
+      if (e.keyCode == 27) {
+        dialogCollection.css('display', 'none');
+      }
     });
 
     $('#update-btn').on('click', updateRoom);
+
+    var isValid = false;
 
     function updateRoom(e) {
       e.preventDefault();
       thisObj.setState({
         editUpdate: true,
       });
+
+      var finalValidation = validFunc(vrfRoomNo());
+
+      if (!finalValidation) {
+        thisObj.setState({
+          editUpdate: false,
+        });
+        return;
+      }
+
       var editRoomForm = $('#edit-room-form');
       var editCampus = $('#edit-campus');
       editCampus.val(thisObj.state.value);
@@ -442,6 +508,35 @@ export default class AdminConsolePage extends Component {
       });
     }
 
+    var eRnMsg = $('#e-rnMsg');
+    var eRn = $('#edit-room-no');
+    eRn.on('input focusout', vrfRoomNo);
+    function vrfRoomNo() {
+      isValid = wrapFunc.BasicValidation(
+        $.trim(eRn.val()),
+        eRnMsg,
+        "Please don't leave it empty.",
+        eRn
+      );
+      console.log(isValid);
+      if (!isValid) {
+        return;
+      }
+      wrapFunc.MeetRequirement(
+        eRn,
+        eRnMsg,
+        "Please don't leave it empty."
+      );
+    }
+
+    function validFunc(func) {
+      func;
+      if (isValid) {
+        return true;
+      }
+      return false;
+    }
+
     function clearEditForm() {
       console.log(items);
       if (!$('#edit-available').is(":checked")) {
@@ -470,7 +565,7 @@ export default class AdminConsolePage extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
-          res.data.sort(thisObj.sortByCampus);
+          res.data.sort(thisObj.sortByLatest);
           wrapFunc.SetRoomDataSource(res.data);
           wrapFunc.PaginateRoomContent(res.data);
         }
@@ -502,8 +597,9 @@ export default class AdminConsolePage extends Component {
           </div>      
           <div className="dialog-content">
             <div className="table-hero">
-              <div className="current-wrapper">
-                <table className="tableBody">
+              <div className="kp-wrapper">
+                <div className="block-center">
+                <table>
                   <tbody>
                     <tr>
                       <td>Campus</td>
@@ -523,8 +619,9 @@ export default class AdminConsolePage extends Component {
                     </tr>                                        
                   </tbody>
                 </table>
+                </div>
               </div>
-              <div className="edit-form-wrapper">
+              <div className="kp-wrapper">
                 <form id="edit-room-form">
                   <div>
                     <input id="edit-room-id" name="edit-room-id" style={styles.hide} />
@@ -554,19 +651,21 @@ export default class AdminConsolePage extends Component {
                       underlineFocusStyle={styles.underlineFocusStyle} 
                       floatingLabelStyle={styles.floatingLabelStyle}
                     />
-                    <br/><br/>
+                    <div id="e-rnMsg">Please don't leave it empty.</div>
+                    <br/>
                     <Toggle
                       id="edit-available"
                       name="edit-available"
                       label="Available"
                       defaultToggled={true}
                       style={styles.toggle}
-                    />              
+                    />
                   </div>
                 </form>
               </div>
             </div>
           </div>
+          <div style={styles.clearFix}></div>
           <div className="dialog-footer">
               <RaisedButton 
                 id="update-btn"
@@ -645,9 +744,13 @@ export default class AdminConsolePage extends Component {
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
                   <MenuItem value={"Campus"} primaryText="Campus" />
                   <MenuItem value={"Types Of Rooms"} primaryText="Types Of Rooms" />
-                  <MenuItem value={"Deposit"} primaryText="Deposit" />
-                  <MenuItem value={"Rates"} primaryText="Rates" />
                   <MenuItem value={"Available"} primaryText="Available" />
+                  <MenuItem value={"Latest"} primaryText="Latest" />
+                  <MenuItem value={"Oldest"} primaryText="Oldest" />
+                  <MenuItem value={"Lowest Deposit"} primaryText="Lowest Deposit" />
+                  <MenuItem value={"Lowest Rates"} primaryText="Lowest Rates" />
+                  <MenuItem value={"Highest Deposit"} primaryText="Highest Deposit" />
+                  <MenuItem value={"Highest Rates"} primaryText="Highest Rates" />
                 </DropDownMenu>
                 </div>
               </div>

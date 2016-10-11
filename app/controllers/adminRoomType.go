@@ -55,6 +55,7 @@ func (self *AdminRoomTypeController) Get() {
 
 func (self *AdminRoomTypeController) Post() {
 	var (
+		err    error
 		errMsg string
 		twin   bool
 	)
@@ -76,11 +77,18 @@ func (self *AdminRoomTypeController) Post() {
 		Gender:         self.GetString("gender"),
 	}
 
-	err := roomTypes.Insert()
+	errMsg = roomTypes.IsAvailable()
+	if errMsg != "" {
+		goto Response
+	}
+
+	err = roomTypes.Insert()
 	if err != nil {
 		beego.Debug(err)
 		errMsg = "Ooops...something goes wrong when insert room types."
 	}
+
+Response:
 	self.Data["json"] = errMsg
 	self.ServeJSON()
 }
@@ -89,6 +97,7 @@ func (self *AdminRoomTypeController) Put() {
 	var (
 		errMsg string
 		twin   bool
+		err    error
 	)
 
 	if self.GetString("edit-twin") == "on" {
@@ -111,11 +120,18 @@ func (self *AdminRoomTypeController) Put() {
 		Gender:         self.GetString("edit-gdr"),
 	}
 
-	err := roomTypes.Update()
+	errMsg = roomTypes.IsAvailable()
+	if errMsg != "" {
+		goto Response
+	}
+
+	err = roomTypes.Update()
 	if err != nil {
 		beego.Debug(err)
 		errMsg = "Ooops...something goes wrong when update room types."
 	}
+
+Response:
 	self.Data["json"] = errMsg
 	self.ServeJSON()
 }
