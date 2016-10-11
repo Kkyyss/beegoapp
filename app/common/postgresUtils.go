@@ -51,7 +51,6 @@ func initDB() {
 		new(models.Request),
 		new(models.RoomTypes),
 		new(models.Room),
-		new(models.Ip),
 		new(models.Notification),
 	)
 

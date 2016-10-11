@@ -3,18 +3,13 @@ package models
 import (
 	// "crypto/rand"
 	"crypto/tls"
-	// "encoding/base64"
-	"encoding/json"
 	// "golang.org/x/crypto/bcrypt"
 	"gopkg.in/gomail.v2"
-	// "io"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/httplib"
 	"github.com/astaxie/beego/orm"
 )
 
@@ -90,31 +85,6 @@ func goSendMail(recipient, subject, body string) error {
 }
 
 // Do verification of ReCaptcha
-func ReCaptchaVerification(remoteip, gRecaptchaResponse string) bool {
-	var r RecaptchaResponse
-	postURL := beego.AppConfig.String("reCAPTCHA_URL")
-
-	req := httplib.NewBeegoRequest(postURL, "POST")
-	req.Param("secret", beego.AppConfig.String("reCAPTCHA_SECRET_KEY"))
-	req.Param("response", gRecaptchaResponse)
-	req.Param("remoteip", remoteip)
-
-	// Get response
-	resp, err := req.DoRequest()
-	if err != nil {
-		beego.Debug("POST error:%s", err)
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		beego.Debug("Read error:%s", err)
-	}
-	err = json.Unmarshal(body, &r)
-	if err != nil {
-		beego.Debug("Read error:%s", err)
-	}
-	return r.Success
-}
-
 func CheckingPathExist(url string) error {
 	if _, err := os.Stat(url); os.IsNotExist(err) {
 		err = os.MkdirAll(url, 0777)

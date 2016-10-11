@@ -1,13 +1,9 @@
 package controllers
 
 import (
-	// "strconv"
-	"time"
-
 	"github.com/astaxie/beego"
 
 	"akgo/app/common"
-	"akgo/app/models"
 )
 
 type LoginRegisterController struct {
@@ -22,23 +18,6 @@ func (self *LoginRegisterController) Prepare() {
 
 	switch v {
 	case "": // Haven't logged in
-		ip := models.Ip{
-			Address: self.Ctx.Input.IP(),
-		}
-		err := ip.CheckingAvailable()
-		if err != nil {
-			beego.Debug(err)
-		}
-		if ip.Tried > 1 {
-			if time.Now().Before(ip.Expired) {
-				self.Ctx.Output.Header("recap", "TRUE")
-			} else {
-				err = ip.ResetTried()
-				if err != nil {
-					beego.Debug("Issue on set tried")
-				}
-			}
-		}
 		return
 	default: // Logged in, checking the Jwt token
 		_, errType = common.Authorize(v)
