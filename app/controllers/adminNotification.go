@@ -58,10 +58,9 @@ func (self *AdminNotificationController) Post() {
 	var errMsg string
 
 	notification := models.Notification{
-		Campus:      self.GetString("nf-campus"),
-		DateReceive: time.Now(),
-		Title:       self.GetString("nf-title"),
-		Message:     self.GetString("nf-message"),
+		Campus:  self.GetString("nf-campus"),
+		Title:   self.GetString("nf-title"),
+		Message: self.GetString("nf-message"),
 	}
 
 	err := notification.Insert()
@@ -95,20 +94,18 @@ func (self *AdminNotificationController) Delete() {
 func (self *AdminNotificationController) Put() {
 	var (
 		errMsg string
-		ob     interface{}
 	)
 
-	json.Unmarshal(self.Ctx.Input.RequestBody, &ob)
-	requestId, _ := strconv.Atoi(ob.(map[string]interface{})["requestId"].(string))
-	userId, _ := strconv.Atoi(ob.(map[string]interface{})["userId"].(string))
-
-	request := models.Request{
-		Id:               requestId,
-		Status:           ob.(map[string]interface{})["status"].(string),
-		DicisionMadeDate: time.Now(),
+	nfId, _ := strconv.Atoi(self.GetString("edit-nf-id"))
+	notification := models.Notification{
+		Id:          nfId,
+		Campus:      self.GetString("edit-nf-campus"),
+		DateReceive: time.Now(),
+		Title:       self.GetString("edit-nf-title"),
+		Message:     self.GetString("edit-nf-message"),
 	}
 
-	errMsg = request.UpdateStatus(userId, 0)
+	errMsg = notification.Update()
 	if errMsg != "" {
 		beego.Debug(errMsg)
 	}

@@ -132,12 +132,19 @@ export default class AddAdminDialog extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
+          res.data.sort(thisObj.sortByLatest);
           wrapFunc.SetAdminDataSource(res.data);
           wrapFunc.PaginateAdminContent(res.data);
         }
       }
     });
-  }  
+  }
+
+  sortByLatest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }   
 
   changeCampus(value) {
     this.setState({value});

@@ -399,27 +399,22 @@ window.Wrapper = {
         },
         afterRender: function() {
           var removeNfBtn = $('.removeNfButton'),
-          editNfBtn = $('.editNfButton'),
-          viewNfBtn = $('.viewNfButton');
+          editNfBtn = $('.editNfButton');
 
           searchBox.unbind('input', SearchNotificationQuery);
-          // removeNfBtn.unbind('click', removeNf);
-          // editNfBtn.unbind('click', editNf);
-          // viewNfBtn.unbind('click', viewNf);
+          removeNfBtn.unbind('click', removeNf);
+          editNfBtn.unbind('click', editNf);
 
           searchBox.bind('input', SearchNotificationQuery);
-          // removeNfBtn.bind('click', removeAdmin);
-          // editNfBtn.bind('click', editAdmin);
-          // viewNfBtn.bind('click', viewAdmin);
+          removeNfBtn.bind('click', removeNf);
+          editNfBtn.bind('click', editNf);
         },
         afterPaging: function() {
           var removeNfBtn = $('.removeNfButton'),
-          editNfBtn = $('.editAdminButton'),
-          viewNfBtn = $('.viewAdminButton');
+          editNfBtn = $('.editNfButton');
 
-          // removeNfBtn.on('click', removeAdmin);
-          // editNfBtn.on('click', editAdmin);
-          // viewNfBtn.on('click', viewAdmin);
+          removeNfBtn.on('click', removeNf);
+          editNfBtn.on('click', editNf);
         }
     });
   },  
@@ -949,12 +944,14 @@ function notificationListTemplate(data) {
   var html = '';
   $.each(data, function(index, item){
     html += '<div class="nf-list-style">'+
+    '<span id="nf-id" class="hide">' + item.Id + '</span>' +
     '<span id="nf-dr" class="paraStyle">' + moment(item.DateReceive).format('DD/MM/YYYY HH:mm:ss a') + '</span>' +
     '<span id="nf-cp" class="paraStyle">' + item.Campus + '</span>' +
     '<span id="nf-ttl" class="paraStyle">' + item.Title + '</span>' +
     '<span id="nf-msg" class="paraStyle">' + item.Message + '</span>' +
     '<div class="rightAlignment">' +
-    '<button type="button" class="viewNfButton">View</button>' +
+    '<button type="button" class="editNfButton">Edit</button>' +
+    '<button type="button" class="removeNfButton">Remove</button>' +
     '</div>' +
     '</div>';
   });
@@ -1846,4 +1843,74 @@ function SearchNotificationQuery() {
   var result = fuse.search(query);
   console.log(result);
   wrapFunc.PaginateNotificationContent(result);
+}
+
+function removeNf(e) {
+  e.preventDefault();
+  var nfId = {
+    notificationId: $(this).parent().parent().children("#nf-id").text()
+  };
+  ajax({
+    url: "/user/notification-console",
+    method: "DELETE",
+    data: JSON.stringify(nfId),
+    dataType: 'json',
+    cache: false,
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      wrapFunc.LoadingSwitch(false);
+      if (res.length != 0) {
+        wrapFunc.AlertStatus(
+          'Oops...',
+          res,
+          'error',
+          false,
+          false
+        );
+      } else {
+        updateNfView();
+      }
+    }
+  });
+}
+
+function editNf(e) {
+  e.preventDefault();
+  var thisObj = $(this).parent().parent();
+  $('#bg-overlay, #edit-nf-box').css('display', 'block');
+  // $('#edit-nf-campus').val(thisObj.children('#nf-cp').text());
+  $('#edit-nf-id').val(thisObj.children('#nf-id').text());
+  console.log($('#edit-nf-id').val());
+  $('#edit-nf-dr').val(thisObj.children('#nf-dr').text());
+  $('#edit-nf-title').val(thisObj.children('#nf-ttl').text());
+  $('#edit-nf-message').val(thisObj.children('#nf-msg').text());
+}
+
+function updateNfView() {
+  var userData = window.UserData;
+
+  var userState = {
+    userCampus: userData.campus
+  };
+  ajax({
+    url: "/api/view-notification-list",
+    method: "POST",
+    cache: false,
+    data: JSON.stringify(userState),
+    beforeSend: function() {
+      wrapFunc.LoadingSwitch(true);
+    },
+    success: function(res) {
+      if (res.error != null) {
+        wrapFunc.ClearContent();
+        $('#errMsg').text(res.error);
+      } else {
+        notificationDataSource = res.data;
+        wrapFunc.PaginateNotificationContent(notificationDataSource);
+      } 
+      wrapFunc.LoadingSwitch(false);
+    }
+  });
 }

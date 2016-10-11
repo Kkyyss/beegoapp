@@ -5,8 +5,8 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
-	// _ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/lib/pq"
+	// _ "github.com/mattn/go-sqlite3"
 
 	"akgo/app/models"
 )
@@ -14,8 +14,8 @@ import (
 func initDB() {
 	var dbConn string
 
-	// orm.RegisterDriver("postgres", orm.DRPostgres)
-	orm.RegisterDriver("sqlite3", orm.DRSqlite)
+	orm.RegisterDriver("postgres", orm.DRPostgres)
+	// orm.RegisterDriver("sqlite3", orm.DRSqlite)
 	// Docker
 	// if os.Getenv("DATABASE_URL") == "" {
 	// 	dbConn = fmt.Sprintf(
@@ -32,14 +32,14 @@ func initDB() {
 	// Online
 	dbConn = os.Getenv("DATABASE_URL")
 	if dbConn == "" {
-		// dbConn = "postgres://sqtthykhyavxrd:hzFNiXK-04hTkPPnsW0dbI3OlY@ec2-54-243-201-19.compute-1.amazonaws.com:5432/d5j0hpd61qruri"
-		dbConn = "testing.db"
+		dbConn = "postgres://sqtthykhyavxrd:hzFNiXK-04hTkPPnsW0dbI3OlY@ec2-54-243-201-19.compute-1.amazonaws.com:5432/d5j0hpd61qruri"
+		// dbConn = "testing.db"
 	}
 
 	orm.RegisterDataBase(
 		"default",
-		// "postgres",
-		"sqlite3",
+		"postgres",
+		// "sqlite3",
 		dbConn,
 		20,
 		20,

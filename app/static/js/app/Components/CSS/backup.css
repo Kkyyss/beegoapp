@@ -38,7 +38,8 @@
 #edit-room-type-box,
 #view-user-box,
 #view-admin-box,
-#view-nf-box {
+#view-nf-box,
+#edit-nf-box {
     /*padding: 15px;*/
     background:#FFFFFF;
 
@@ -219,7 +220,10 @@
         width: 80% !important;
         padding: 30px 10% 30px 10% !important;
     }
-    .edit-user-content, .edit-rt-content, .edit-admin-content {
+    .edit-user-content, 
+    .edit-rt-content, 
+    .edit-admin-content,
+    .edit-nf-content {
         width: 70% !important; 
     }
     .half-content {
@@ -359,7 +363,8 @@
 .removeBookedButton,
 .removeUserButton,
 .removeRoomTypeButton,
-.removeAdminButton {
+.removeAdminButton,
+.removeNfButton {
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
     -ms-transition: all 0.30s ease-in-out;
@@ -378,7 +383,8 @@
 .removeBookedButton:hover,
 .removeUserButton:hover,
 .removeRoomTypeButton:hover,
-.removeAdminButton:hover {
+.removeAdminButton:hover,
+.removeNfButton:hover {
     background-color: #B71C1C;
     color: white;
 }
@@ -390,7 +396,8 @@
 .editRoomTypeButton,
 .viewUserButton,
 .editAdminButton,
-.viewAdminButton {
+.viewAdminButton,
+.editNfButton {
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
     -ms-transition: all 0.30s ease-in-out;
@@ -412,7 +419,8 @@
 .editRoomTypeButton:hover,
 .viewUserButton:hover,
 .editAdminButton:hover,
-.viewAdminButton:hover {
+.viewAdminButton:hover,
+.editNfButton:hover {
     background-color: #1A237E;
     color: white;
 }
@@ -673,7 +681,10 @@ table, td, th {
 
 }
 
-.edit-user-content, .edit-rt-content, .edit-admin-content {
+.edit-user-content, 
+.edit-rt-content, 
+.edit-admin-content,
+.edit-nf-content {
     padding: 20px;
     background-color: white;
     box-shadow: rgb(136, 136, 136) 0px 2px 5px;    

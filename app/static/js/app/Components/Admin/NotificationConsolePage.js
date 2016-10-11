@@ -71,10 +71,6 @@ const styles = {
     cursor: 'pointer',
     color: 'white',
   },
-  floatingLabelStyle: {
-    color: '#1A237E',
-    fontStyle: 'normal',
-  },
   balanceStyle: {
     display: 'flex',
     marginBottom: 15,
@@ -113,10 +109,26 @@ const styles = {
     float: 'right',      
     margin: 10,
   },
+  floatingLabelStyle: {
+    color: '#1A237E',
+    fontStyle: 'normal',
+  },
+  underlineStyle: {
+    borderColor: '#1A237E',
+  },
+  underlineFocusStyle: {
+    borderColor: 'transparent',
+  },
+  hide: {
+    display: 'none',
+  },
 };
 
 export default class RequestConsolePage extends Component {
   state = {
+    value: "IU",
+    disabled: false,    
+    btnDisabled: false,    
     refreshBtnDisabled: false,
     optionDialogOpen: false,
     optionsButton: false,
@@ -257,40 +269,24 @@ export default class RequestConsolePage extends Component {
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
   }
 
-  sortByTypesOfRooms(a, b) {
-    var av = a.TypesOfRooms.toLowerCase();
-    var bv = b.TypesOfRooms.toLowerCase();
-    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
-  }
 
-  sortByDeposit(a, b) {
-    var av = a.Deposit;
-    var bv = b.Deposit;
-    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
-  }
-
-  sortByRates(a, b) {
-    var av = a.RatesPerPerson;
-    var bv = b.RatesPerPerson;
-    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
-  }
-
-  sortByPayment(a, b) {
-    var av = a.Payment;
-    var bv = b.Payment;
-    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
-  }
-
-  sortByProcessing(a, b) {
-    var av = a.Status;
-    var bv = b.Status;
-    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  sortByLatest(a, b) {
+    var av = a.DateReceive;
+    var bv = b.DateReceive;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
   }
 
   componentDidMount() {
     var thisObj = this;
     $.when().then(function() {
       userData = window.UserData;
+      if (userData.campus !== 'ALL') {
+        var userCampus = userData.campus;
+        thisObj.setState({
+          value: userCampus,
+          disabled: true,
+        });
+      }      
       thisObj.updateNotificationList();
     });
 
@@ -298,21 +294,21 @@ export default class RequestConsolePage extends Component {
       $(window).trigger("window:resize");
     });
 
-    viewRequestResize();
+    viewNfResize();
 
-    $(window).on('window:resize', viewRequestResize);
+    $(window).on('window:resize', viewNfResize);
 
-    function viewRequestResize() {
+    function viewNfResize() {
       var windowHeight = $(window).height();
-      var viewRequestBox = $('#view-nf-box'); 
+      var viewNftBox = $('#edit-nf-box'); 
       var windowWidth = $(window).width();      
-      viewRequestBox.width(windowWidth * 0.8);
-      viewRequestBox.height(windowHeight * 0.8);
-      var dialogContentHeight = viewRequestBox.height() - 140;
+      viewNftBox.width(windowWidth * 0.8);
+      viewNftBox.height(windowHeight * 0.8);
+      var dialogContentHeight = viewNftBox.height() - 140;
       $('.dialog-content').height(dialogContentHeight);        
     }
-    var dialogCollection = $('#bg-overlay, #view-nf-box');
-    $('#bg-overlay, #cancel-btn').on('click', function() {
+    var dialogCollection = $('#bg-overlay, #edit-nf-box');
+    $('#bg-overlay, .cancel-btn').on('click', function() {
       dialogCollection.css('display', 'none');
     });
 
@@ -321,6 +317,54 @@ export default class RequestConsolePage extends Component {
         dialogCollection.css('display', 'none');
       }
     });
+
+    $('#update-btn').on('click', updateNf);
+
+    function updateNf(e) {
+      e.preventDefault();
+      thisObj.setState({
+        btnDisabled: true,
+      });
+      var editNfForm = $('#edit-nf-form');
+      $('#edit-nf-campus').val(thisObj.state.value);
+      $('#edit-nf-message').val();
+      ajax({
+        url: "/user/notification-console",
+        method: "PUT",
+        data: editNfForm.serialize(),
+        cache: false,
+        beforeSend: function() {
+        wrapFunc.LoadingSwitch(true);
+        },
+        success: function(res) {
+          wrapFunc.LoadingSwitch(false);
+
+          if (res.length != 0) {
+            wrapFunc.AlertStatus(
+              "Oops...",
+              res,
+              "error",
+              false,
+              false
+            );
+          } else {
+            $('#bg-overlay, #edit-nf-box').css('display', 'none');
+            thisObj.updateNotificationList();
+            wrapFunc.AlertStatus(
+              "Success",
+              "Update successfully!",
+              "success",
+              true,
+              true
+            );
+          }
+          thisObj.setState({
+            btnDisabled: false,
+          });
+        }
+      });
+    }
+
   }
 
   updateNotificationList() {
@@ -343,7 +387,7 @@ export default class RequestConsolePage extends Component {
           $('#errMsg').text(res.error);
         } else {
           console.log(res.data);
-          res.data.sort(thisObj.sortByCampus);
+          res.data.sort(thisObj.sortByLatest);
           wrapFunc.SetNotificationDataSource(res.data);
           wrapFunc.PaginateNotificationContent(res.data);
         }
@@ -369,21 +413,74 @@ export default class RequestConsolePage extends Component {
     return (
       <div>
         <div id="bg-overlay"></div>
-        <div id="view-nf-box">
+        <div id="edit-nf-box">
           <div className="dialog-header">
-            <h1 style={styles.textCenter}>View Notification</h1>
+            <h1 style={styles.textCenter}>Edit Notification</h1>
           </div>
           <div className="dialog-content">
-          <div style={styles.blockContent}>
-            <p id="view-nf-dr"></p>
-            <p id="view-nf-title"></p>
-            <p id="view-nf-message"></p>
-
+            <div className="block-center">
+              <form id="edit-nf-form" className="edit-nf-content">
+                <input id="edit-nf-id" name="edit-nf-id" type="text" style={styles.hide} />
+                <div>Campus&nbsp;
+                <DropDownMenu id="campusDropDown" value={this.state.value} onChange={this.handleChange} disabled={this.state.disabled}>
+                  <MenuItem value={"ALL"} primaryText="ALL" />
+                  <MenuItem value={"IU"} primaryText="IU" />
+                  <MenuItem value={"IICS"} primaryText="IICS" />
+                  <MenuItem value={"IICKL"} primaryText="IICKL" />
+                  <MenuItem value={"IICP"} primaryText="IICP" />
+                </DropDownMenu>
+                <input id="edit-nf-campus" name="edit-nf-campus" type="text" style={styles.hide} />
+                </div>
+                <TextField 
+                  id="edit-nf-dr"
+                  name="edit-nf-dr"
+                  floatingLabelText="Date Receive"
+                  type="text"
+                  fullWidth={true}
+                  floatingLabelFixed={true}
+                  readOnly={true}
+                  underlineStyle={styles.underlineStyle}
+                  underlineFocusStyle={styles.underlineFocusStyle}
+                  floatingLabelStyle={styles.floatingLabelStyle}
+                />
+                <TextField 
+                  id="edit-nf-title"
+                  name="edit-nf-title"
+                  floatingLabelText="Title"
+                  type="text"
+                  fullWidth={true}
+                  floatingLabelFixed={true}
+                  underlineStyle={styles.underlineStyle}
+                  underlineFocusStyle={styles.underlineFocusStyle}
+                  floatingLabelStyle={styles.floatingLabelStyle}
+                />
+                <TextField 
+                  id="edit-nf-message"
+                  name="edit-nf-message"
+                  floatingLabelText="Message"
+                  type="text"
+                  fullWidth={true}
+                  floatingLabelFixed={true}
+                  underlineStyle={styles.underlineStyle}
+                  underlineFocusStyle={styles.underlineFocusStyle}
+                  floatingLabelStyle={styles.floatingLabelStyle}
+                  multiLine={true}
+                  rowsMax={4}
+                  rows={2}
+                />
+              </form>
             </div>
-            </div>
+          </div>
             <div className="dialog-footer">
               <RaisedButton
-                id="cancel-btn"
+                id="update-btn"
+                label="Update"
+                primary={true}
+                style={styles.rightAlign}
+                disabled={this.state.btnDisabled}
+              />
+              <RaisedButton
+                className="cancel-btn"
                 label="Cancel"
                 secondary={true}
                 style={styles.rightAlign}
@@ -420,7 +517,7 @@ export default class RequestConsolePage extends Component {
               onRequestClose={this.handleOptionDialogClose}
               autoScrollBodyContent={true}
             >
-            <div id="options-group" style={styles.optionContentStyle}>      
+            <div id="options-group" style={styles.optionContentStyle}>
               <Checkbox
                 label="Status"
                 id="creq-status"

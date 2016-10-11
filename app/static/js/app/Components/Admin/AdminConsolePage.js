@@ -227,6 +227,12 @@ export default class AdminConsolePage extends Component {
     return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
   }
 
+  sortByLatest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }   
+
   changeCampus(value) {
     this.setState({value});
   }
@@ -354,7 +360,7 @@ export default class AdminConsolePage extends Component {
           $('#errMsg').text(res.error);
         } else {
           console.log(res.data);
-          res.data.sort(thisObj.sortByCampus);
+          res.data.sort(thisObj.sortByLatest);
           wrapFunc.SetAdminDataSource(res.data);
           wrapFunc.PaginateAdminContent(res.data);
         }

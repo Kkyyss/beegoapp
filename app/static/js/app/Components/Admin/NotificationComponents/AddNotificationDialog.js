@@ -129,16 +129,23 @@ export default class AddNotificationDialog extends Component {
           $('#errMsg').text(res.error);
         } else {
           console.log(res.data);
+          res.data.sort(thisObj.sortByLatest);
           wrapFunc.SetNotificationDataSource(res.data);
           wrapFunc.PaginateNotificationContent(res.data);
         }
       }
     });
+  }
+
+  sortByLatest(a, b) {
+    var av = a.DateReceive;
+    var bv = b.DateReceive;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
   }  
 
   changeCampus(value) {
     this.setState({value});
-  }  
+  }
 
   componentDidMount() {
     var thisObj = this;

@@ -16,13 +16,14 @@ import (
 type (
 	User struct {
 		Id            int
-		Name          string `orm:"size(255);"`
-		Email         string `orm:"size(100)"`
-		Campus        string `orm:"size(10)"`
-		StudentId     string `orm:"size(25)"`
-		AvatarUrl     string `orm:"null"`
-		Gender        string `orm:"default(none);size(20)"`
-		ContactNo     string `orm:"default(none)"`
+		TimeStamp     time.Time `orm:"auto_now_add;type(datetime)"`
+		Name          string    `orm:"size(255);"`
+		Email         string    `orm:"size(100)"`
+		Campus        string    `orm:"size(10)"`
+		StudentId     string    `orm:"size(25)"`
+		AvatarUrl     string    `orm:"null"`
+		Gender        string    `orm:"default(none);size(20)"`
+		ContactNo     string    `orm:"default(none)"`
 		Balance       float64
 		Activated     bool
 		FillUpProfile bool
@@ -419,6 +420,7 @@ func (ip *Ip) ResetTried() (err error) {
 
 type Room struct {
 	Id             int
+	TimeStamp      time.Time `orm:"auto_now_add;type(datetime)"`
 	Campus         string
 	RoomNo         string
 	TypesOfRooms   string
@@ -965,6 +967,7 @@ func (u *User) GetUserRequestList() (errMsg string, requests []*Request) {
 
 type RoomTypes struct {
 	Id             int
+	TimeStamp      time.Time `orm:"auto_now_add;type(datetime)"`
 	Campus         string
 	TypesOfRooms   string
 	RatesPerPerson float64
@@ -1059,12 +1062,13 @@ func (u *User) GetBookedRoom() (errMsg string, roommates User) {
 
 type Admin struct {
 	Id             int
-	Name           string `orm:"size(255);"`
-	Email          string `orm:"size(100)"`
-	AvatarUrl      string `orm:"null"`
-	Campus         string `orm:"size(10)"`
-	ContactNo      string `orm:"default(none)"`
-	AdminId        string `orm:"size(100)"`
+	TimeStamp      time.Time `orm:"auto_now_add;type(datetime)"`
+	Name           string    `orm:"size(255);"`
+	Email          string    `orm:"size(100)"`
+	AvatarUrl      string    `orm:"null"`
+	Campus         string    `orm:"size(10)"`
+	ContactNo      string    `orm:"default(none)"`
+	AdminId        string    `orm:"size(100)"`
 	Activated      bool
 	FullPermission bool
 }
@@ -1235,6 +1239,22 @@ func (n *Notification) Insert() (err error) {
 	defer i.Close()
 	_, err = i.Insert(n)
 	return err
+}
+
+func (n *Notification) Update() (errMsg string) {
+	o := orm.NewOrm()
+	qs := o.QueryTable("notification").Filter("id", n.Id)
+	_, err := qs.Update(orm.Params{
+		"campus":       n.Campus,
+		"date_receive": n.DateReceive,
+		"title":        n.Title,
+		"message":      n.Message,
+	})
+	if err != nil {
+		errMsg = "Cannot update notification."
+		beego.Debug()
+	}
+	return
 }
 
 func (n *Notification) Remove() (errMsg string) {

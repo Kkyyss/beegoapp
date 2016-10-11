@@ -460,6 +460,7 @@ export default class UserConsolePage extends Component {
               label="Update"
               primary={true}
               style={styles.rightAlign}
+              disabled={this.state.btnDisabled}
             />
             <RaisedButton
               className="cancel-btn"
