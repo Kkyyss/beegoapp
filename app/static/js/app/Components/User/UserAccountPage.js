@@ -165,7 +165,7 @@ export default class UserAccountPage extends Component {
     userContactNo.intlTelInput({
       initialCountry: "auto",
       geoIpLookup: function(callback) {
-        $.get('http://ipinfo.io', function() {}, "jsonp").always(function(resp) {
+        $.get('https://ipinfo.io', function() {}, "jsonp").always(function(resp) {
           var countryCode = (resp && resp.country) ? resp.country : "";
           callback(countryCode);
         });
@@ -249,31 +249,7 @@ export default class UserAccountPage extends Component {
       });
       return;
     }
-
-    // var username = $('#user-name');
-    // var userMsg = $('#userMsg');
-    // username.on({
-    //   'input focusout': usernameVrf,
-    // });
-
-    // function usernameVrf() {
-    //   var plainText = username.val().trim();
-    //   isValid = wrapFunc.BasicValidation(
-    //     (plainText).match(/^[a-zA-Z\s]{1,}$/),
-    //     userMsg,
-    //     "Please don't leave it empty.",
-    //     username
-    //   );
-    //   if (!isValid) {
-    //     return;
-    //   }
-    //   wrapFunc.MeetRequirement(
-    //     username, 
-    //     userMsg, 
-    //     "Please don't leave it empty."
-    //   );
-    // }
-
+    
     var userGender = $('input[name=user-gender]');
     var genderMsg = $('#genderMsg');
     userGender.on({

@@ -17,7 +17,8 @@ var roomDataSource,
     roomTypeDataSource,
     roomStatusDataSource,
     userBookedDataSource,
-    notificationDataSource;
+    notificationDataSource,
+    userNotificationDataSource;
 
 var searchRoomOption = ["RoomNo"],
 searchRequestOption = ["Status"],
@@ -27,7 +28,8 @@ searchRoomTypeOption = ["Campus"],
 searchUserOption = ["StudentId"],
 searchAdminOption = ["AdminId"],
 searchRoomStatusOption = ["Campus"],
-searchNotificationOption = ["Campus"];
+searchNotificationOption = ["Campus"],
+searchUserNotificationOption = ["Campus"];
 
 require('./pagination.min.js');
 
@@ -417,6 +419,51 @@ window.Wrapper = {
           editNfBtn.on('click', editNf);
         }
     });
+  },
+  PaginateUserNotificationContent: function(ds) {
+    var container = $('#pagination-container');
+    var content = $('#pagination-content');
+    var searchBox = $('#search-box');
+
+    if (ds.length == 0) {
+      content.empty();
+      container.pagination('destroy');
+      $('#errMsg').text('No Results Found.');
+      return;
+    }
+    container.pagination({
+        dataSource: ds,
+        pageSize: 5,
+        // autoHidePrevious: true,
+        // autoHideNext: true,
+        threshold: 0.6,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        showGoInput: true,
+        showGoButton: true,
+        className: 'paginationjs-theme-red paginationjs-big',
+        formatGoInput: 'Go to <%= input %>',
+        callback: function(data, pagination) {
+          $('#errMsg').text('');
+          var html = userNotificationListTemplate(data);
+          content.html(html);
+        },
+        afterRender: function() {
+          var viewNfBtn = $('.viewNfButton');
+
+          searchBox.unbind('input', SearchUserNotificationQuery);
+          viewNfBtn.unbind('click', viewNf);
+
+          searchBox.bind('input', SearchUserNotificationQuery);
+          viewNfBtn.bind('click', viewNf);
+        },
+        afterPaging: function() {
+          var viewNfBtn = $('.viewNfButton');
+
+          viewNfBtn.on('click', viewNf);
+        }
+    });
   },  
   PaginateUserRequestContent: function(ds) {
     var container = $('#pagination-container');
@@ -583,6 +630,9 @@ window.Wrapper = {
   SetNotificationDataSource: function(ds) {
     notificationDataSource = ds;
   },
+  SetUserNotificationDataSource: function(ds) {
+    userNotificationDataSource = ds;
+  },  
   SetUserBookedDataSource: function(ds) {
     userBookedDataSource = ds;
   },
@@ -595,6 +645,9 @@ window.Wrapper = {
   GetNotificationDataSource: function(ds) {
     return notificationDataSource;
   },
+  GetUserNotificationDataSource: function(ds) {
+    return userNotificationDataSource;
+  },  
   GetRoomDataSource: function() {
     return roomDataSource;
   },
@@ -663,6 +716,10 @@ window.Wrapper = {
   SetUpNotificationSearchOption: function(ds) {
     searchNotificationOption = ds;
     SearchNotificationQuery();
+  },
+  SetUpUserNotificationSearchOption: function(ds) {
+    searchUserNotificationOption = ds;
+    SearchUserNotificationQuery();
   },
 }
 
@@ -948,10 +1005,27 @@ function notificationListTemplate(data) {
     '<span id="nf-dr" class="paraStyle">' + moment(item.DateReceive).format('DD/MM/YYYY HH:mm:ss a') + '</span>' +
     '<span id="nf-cp" class="paraStyle">' + item.Campus + '</span>' +
     '<span id="nf-ttl" class="paraStyle">' + item.Title + '</span>' +
-    '<span id="nf-msg" class="paraStyle">' + item.Message + '</span>' +
+    '<span id="nf-msg" class="hide">' + item.Message + '</span>' +
     '<div class="rightAlignment">' +
     '<button type="button" class="editNfButton">Edit</button>' +
     '<button type="button" class="removeNfButton">Remove</button>' +
+    '</div>' +
+    '</div>';
+  });
+  return html;
+}
+
+function userNotificationListTemplate(data) {
+  var html = '';
+  $.each(data, function(index, item){
+    html += '<div class="nf-list-style">'+
+    '<span id="nf-id" class="hide">' + item.Id + '</span>' +
+    '<span id="nf-dr" class="paraStyle">' + moment(item.DateReceive).format('DD/MM/YYYY HH:mm:ss a') + '</span>' +
+    '<span id="nf-cp" class="paraStyle">' + item.Campus + '</span>' +
+    '<span id="nf-ttl" class="paraStyle">' + item.Title + '</span>' +
+    '<span id="nf-msg" class="hide">' + item.Message + '</span>' +
+    '<div class="rightAlignment">' +
+    '<button type="button" class="viewNfButton">View</button>' +
     '</div>' +
     '</div>';
   });
@@ -1843,6 +1917,41 @@ function SearchNotificationQuery() {
   var result = fuse.search(query);
   console.log(result);
   wrapFunc.PaginateNotificationContent(result);
+}
+
+function SearchUserNotificationQuery() {
+  console.log(userNotificationDataSource);
+  var query = $('#search-box').val();
+  console.log(query.length);
+  if (query.length == 0) {
+    wrapFunc.PaginateUserNotificationContent(userNotificationDataSource);
+    return;
+  }
+  var options = {
+    caseSensitive: false,
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    keys: searchUserNotificationOption
+  };
+  console.log(userNotificationDataSource);
+  var fuse = new Fuse(userNotificationDataSource, options);
+  var result = fuse.search(query);
+  console.log(result);
+  wrapFunc.PaginateUserNotificationContent(result);
+}
+
+function viewNf(e) {
+  e.preventDefault();
+  var thisObj = $(this).parent().parent();
+  $('#bg-overlay, #view-nf-box').css('display', 'block');
+  // $('#edit-nf-campus').val(thisObj.children('#nf-cp').text());
+  // $('#view-nf-id').text(thisObj.children('#nf-id').text());
+  $('#view-nf-dr').text(thisObj.children('#nf-dr').text());
+  $('#view-nf-title').text(thisObj.children('#nf-ttl').text());
+  $('#view-nf-message').text(thisObj.children('#nf-msg').text());
 }
 
 function removeNf(e) {

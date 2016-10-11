@@ -129,7 +129,7 @@
 }
 
 .home-page {
-    background-image:    url('/static/img/HomepageBg.jpg');
+    background-image:    url('/static/img/HomepageBG.jpg');
     background-size:     cover;
     background-repeat:   no-repeat;
     background-position: center center;
@@ -223,7 +223,8 @@
     .edit-user-content, 
     .edit-rt-content, 
     .edit-admin-content,
-    .edit-nf-content {
+    .edit-nf-content,
+    .view-nf-content {
         width: 70% !important; 
     }
     .half-content {
@@ -397,7 +398,8 @@
 .viewUserButton,
 .editAdminButton,
 .viewAdminButton,
-.editNfButton {
+.editNfButton,
+.viewNfButton {
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
     -ms-transition: all 0.30s ease-in-out;
@@ -420,7 +422,8 @@
 .viewUserButton:hover,
 .editAdminButton:hover,
 .viewAdminButton:hover,
-.editNfButton:hover {
+.editNfButton:hover,
+.viewNfButton:hover {
     background-color: #1A237E;
     color: white;
 }
@@ -684,7 +687,8 @@ table, td, th {
 .edit-user-content, 
 .edit-rt-content, 
 .edit-admin-content,
-.edit-nf-content {
+.edit-nf-content,
+.view-nf-content {
     padding: 20px;
     background-color: white;
     box-shadow: rgb(136, 136, 136) 0px 2px 5px;    

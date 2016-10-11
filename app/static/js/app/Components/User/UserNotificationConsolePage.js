@@ -9,7 +9,6 @@ import Checkbox from 'material-ui/Checkbox';
 import Dialog from 'material-ui/Dialog';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
-import AddNotificationDialog from "./NotificationComponents/AddNotificationDialog.js";
 
 var $ = window.Jquery;
 var ajax = $.ajax;
@@ -125,11 +124,9 @@ const styles = {
   },
 };
 
-export default class NotificationConsolePage extends Component {
+export default class UserNotificationConsolePage extends Component {
   state = {
-    value: "IU",
-    disabled: false,    
-    btnDisabled: false,    
+    btnDisabled: false,
     refreshBtnDisabled: false,
     optionDialogOpen: false,
     optionsButton: false,
@@ -155,7 +152,7 @@ export default class NotificationConsolePage extends Component {
     });
   };
   handleOptionDialogClose = (e) => {
-    optionsIndex = tempOptionIndex;
+    optionsIndex = tempOptionIndex;    
     this.setState({
       optionDialogOpen: false,
     });
@@ -202,9 +199,9 @@ export default class NotificationConsolePage extends Component {
         optionsButton: false,
       });
       return;
-    }
+    }    
     tempOptionIndex = optionsIndex;
-    wrapFunc.SetUpNotificationSearchOption(options);
+    wrapFunc.SetUpUserNotificationSearchOption(options);
     this.setState({
       optionDialogOpen: false,
       optionsButton: false,
@@ -226,7 +223,7 @@ export default class NotificationConsolePage extends Component {
 
   setSelectedValue(v) {
     var thisObj = this;
-    var ds = wrapFunc.GetNotificationDataSource();
+    var ds = wrapFunc.GetUserNotificationDataSource();
     switch (v) {
       case 'Campus':
         ds.sort(thisObj.sortByCampus);
@@ -242,8 +239,8 @@ export default class NotificationConsolePage extends Component {
       break;
       default: return;
     }
-    wrapFunc.SetNotificationDataSource(ds);
-    wrapFunc.PaginateNotificationContent(ds);
+    wrapFunc.SetUserNotificationDataSource(ds);
+    wrapFunc.PaginateUserNotificationContent(ds);
   }
 
   sortByCampus(a, b) {
@@ -268,7 +265,7 @@ export default class NotificationConsolePage extends Component {
     var av = a.DateReceive;
     var bv = b.DateReceive;
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
-  } 
+  }  
 
   componentDidMount() {
     var thisObj = this;
@@ -280,7 +277,7 @@ export default class NotificationConsolePage extends Component {
           value: userCampus,
           disabled: true,
         });
-      }      
+      }
       thisObj.updateNotificationList();
     });
 
@@ -294,14 +291,14 @@ export default class NotificationConsolePage extends Component {
 
     function viewNfResize() {
       var windowHeight = $(window).height();
-      var viewNftBox = $('#edit-nf-box'); 
+      var viewNftBox = $('#view-nf-box'); 
       var windowWidth = $(window).width();      
       viewNftBox.width(windowWidth * 0.8);
       viewNftBox.height(windowHeight * 0.8);
       var dialogContentHeight = viewNftBox.height() - 140;
-      $('.dialog-content').height(dialogContentHeight);        
+      $('.dialog-content').height(dialogContentHeight);
     }
-    var dialogCollection = $('#bg-overlay, #edit-nf-box');
+    var dialogCollection = $('#bg-overlay, #view-nf-box');
     $('#bg-overlay, .cancel-btn').on('click', function() {
       dialogCollection.css('display', 'none');
     });
@@ -311,54 +308,6 @@ export default class NotificationConsolePage extends Component {
         dialogCollection.css('display', 'none');
       }
     });
-
-    $('#update-btn').on('click', updateNf);
-
-    function updateNf(e) {
-      e.preventDefault();
-      thisObj.setState({
-        btnDisabled: true,
-      });
-      var editNfForm = $('#edit-nf-form');
-      $('#edit-nf-campus').val(thisObj.state.value);
-      $('#edit-nf-message').val();
-      ajax({
-        url: "/user/notification-console",
-        method: "PUT",
-        data: editNfForm.serialize(),
-        cache: false,
-        beforeSend: function() {
-        wrapFunc.LoadingSwitch(true);
-        },
-        success: function(res) {
-          wrapFunc.LoadingSwitch(false);
-
-          if (res.length != 0) {
-            wrapFunc.AlertStatus(
-              "Oops...",
-              res,
-              "error",
-              false,
-              false
-            );
-          } else {
-            $('#bg-overlay, #edit-nf-box').css('display', 'none');
-            thisObj.updateNotificationList();
-            wrapFunc.AlertStatus(
-              "Success",
-              "Update successfully!",
-              "success",
-              true,
-              true
-            );
-          }
-          thisObj.setState({
-            btnDisabled: false,
-          });
-        }
-      });
-    }
-
   }
 
   updateNotificationList() {
@@ -382,8 +331,8 @@ export default class NotificationConsolePage extends Component {
         } else {
           console.log(res.data);
           res.data.sort(thisObj.sortByLatest);
-          wrapFunc.SetNotificationDataSource(res.data);
-          wrapFunc.PaginateNotificationContent(res.data);
+          wrapFunc.SetUserNotificationDataSource(res.data);
+          wrapFunc.PaginateUserNotificationContent(res.data);
         }
       }
     });
@@ -407,72 +356,20 @@ export default class NotificationConsolePage extends Component {
     return (
       <div>
         <div id="bg-overlay"></div>
-        <div id="edit-nf-box">
+        <div id="view-nf-box">
           <div className="dialog-header">
-            <h1 style={styles.textCenter}>Edit Notification</h1>
+            <h1 style={styles.textCenter}>View Notification</h1>
           </div>
           <div className="dialog-content">
             <div className="block-center">
-              <form id="edit-nf-form" className="edit-nf-content">
-                <input id="edit-nf-id" name="edit-nf-id" type="text" style={styles.hide} />
-                <div>Campus&nbsp;
-                <DropDownMenu id="campusDropDown" value={this.state.value} onChange={this.handleChange} disabled={this.state.disabled}>
-                  <MenuItem value={"ALL"} primaryText="ALL" />
-                  <MenuItem value={"IU"} primaryText="IU" />
-                  <MenuItem value={"IICS"} primaryText="IICS" />
-                  <MenuItem value={"IICKL"} primaryText="IICKL" />
-                  <MenuItem value={"IICP"} primaryText="IICP" />
-                </DropDownMenu>
-                <input id="edit-nf-campus" name="edit-nf-campus" type="text" style={styles.hide} />
-                </div>
-                <TextField 
-                  id="edit-nf-dr"
-                  name="edit-nf-dr"
-                  floatingLabelText="Date Receive"
-                  type="text"
-                  fullWidth={true}
-                  floatingLabelFixed={true}
-                  readOnly={true}
-                  underlineStyle={styles.underlineStyle}
-                  underlineFocusStyle={styles.underlineFocusStyle}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />
-                <TextField 
-                  id="edit-nf-title"
-                  name="edit-nf-title"
-                  floatingLabelText="Title"
-                  type="text"
-                  fullWidth={true}
-                  floatingLabelFixed={true}
-                  underlineStyle={styles.underlineStyle}
-                  underlineFocusStyle={styles.underlineFocusStyle}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                />
-                <TextField 
-                  id="edit-nf-message"
-                  name="edit-nf-message"
-                  floatingLabelText="Message"
-                  type="text"
-                  fullWidth={true}
-                  floatingLabelFixed={true}
-                  underlineStyle={styles.underlineStyle}
-                  underlineFocusStyle={styles.underlineFocusStyle}
-                  floatingLabelStyle={styles.floatingLabelStyle}
-                  multiLine={true}
-                  rowsMax={4}
-                  rows={2}
-                />
-              </form>
+              <div className="view-nf-content">
+                <p>Date: <b><span id="view-nf-dr"></span></b></p>
+                <p>Title: <span id="view-nf-title"></span></p>
+                <p id="view-nf-message"></p>
+              </div>
             </div>
           </div>
             <div className="dialog-footer">
-              <RaisedButton
-                id="update-btn"
-                label="Update"
-                primary={true}
-                style={styles.rightAlign}
-                disabled={this.state.btnDisabled}
-              />
               <RaisedButton
                 className="cancel-btn"
                 label="Cancel"
@@ -516,7 +413,7 @@ export default class NotificationConsolePage extends Component {
                 label="Campus"
                 id="unf-cp"
                 style={styles.checkbox}
-              />
+              />                    
               <Checkbox
                 label="Title"
                 id="unf-title"
@@ -538,7 +435,6 @@ export default class NotificationConsolePage extends Component {
                   tooltip="Refresh"
                   touch={true}
                 />
-                <AddNotificationDialog />
                 <div style={styles.wall}>
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
@@ -547,7 +443,7 @@ export default class NotificationConsolePage extends Component {
                   <MenuItem value={"Latest"} primaryText="Latest" />
                   <MenuItem value={"Oldest"} primaryText="Oldest" />
                 </DropDownMenu>
-                </div>                 
+                </div>
             </div>
             <Divider />
             <br/>
