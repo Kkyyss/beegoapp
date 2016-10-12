@@ -153,7 +153,7 @@ export default class RoomTypeConsolePage extends Component {
     });
   };
   handleOptionDialogClose = (e) => {
-    optionsIndex = tempOptionIndex;    
+    optionsIndex = tempOptionIndex;
     this.setState({
       optionDialogOpen: false,
     });
@@ -163,7 +163,7 @@ export default class RoomTypeConsolePage extends Component {
     this.setState({
       optionsButton: true,
     });
-    tempOptionIndex = optionsIndex;    
+    tempOptionIndex = optionsIndex;
     options = [];
     optionsIndex = [];
     if ($("#crt-cp").is(":checked")) {
@@ -192,7 +192,7 @@ export default class RoomTypeConsolePage extends Component {
         optionsButton: false,
       });
       return;
-    } 
+    }
     tempOptionIndex = optionsIndex;
     wrapFunc.SetUpRoomTypeSearchOption(options);
     this.resetButton();

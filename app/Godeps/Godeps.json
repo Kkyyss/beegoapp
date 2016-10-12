@@ -81,16 +81,6 @@
 			"Rev": "a4e6dd28f9e9274729417506b9bd0a6c3edb91ce"
 		},
 		{
-			"ImportPath": "github.com/lib/pq",
-			"Comment": "go1.0-cutoff-117-g50761b0",
-			"Rev": "50761b0867bd1d9d069276790bcd4a3bccf2324a"
-		},
-		{
-			"ImportPath": "github.com/lib/pq/oid",
-			"Comment": "go1.0-cutoff-117-g50761b0",
-			"Rev": "50761b0867bd1d9d069276790bcd4a3bccf2324a"
-		},
-		{
 			"ImportPath": "github.com/markbates/goth",
 			"Rev": "8a213051ac20e107004a69ef22f1f2e1c4cdc273"
 		},
@@ -101,6 +91,11 @@
 		{
 			"ImportPath": "github.com/markbates/goth/providers/gplus",
 			"Rev": "8a213051ac20e107004a69ef22f1f2e1c4cdc273"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-sqlite3",
+			"Comment": "v1.1.0-69-g38ee283",
+			"Rev": "38ee283dabf11c9cbdb968eebd79b1fa7acbabe6"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",

@@ -197,7 +197,7 @@ export default class AddRoomTypeDialog extends Component {
            (match[1] ? match[1].length : 0)
            // Adjust for scientific notation.
            - (match[2] ? +match[2] : 0));
-    }    
+    }
   }
 
   validFunc(func) {

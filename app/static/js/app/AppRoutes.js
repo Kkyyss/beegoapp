@@ -3,7 +3,7 @@ import {
   Route,
   Redirect,
   IndexRoute,
-} from 'react-router'
+} from 'react-router';
 
 import Master from './Components/Master';
 import HomePage from './Components/Home/HomePage'

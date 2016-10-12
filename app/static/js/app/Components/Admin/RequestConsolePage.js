@@ -14,6 +14,7 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var tempOptionIndex = [1];
 var options = [];
 var optionsIndex = [1];
 
@@ -141,6 +142,7 @@ export default class RequestConsolePage extends Component {
     });
   };
   handleOptionDialogClose = (e) => {
+    optionsIndex = tempOptionIndex;    
     this.setState({
       optionDialogOpen: false,
     });
@@ -149,7 +151,8 @@ export default class RequestConsolePage extends Component {
   handleSearchOptionSubmit = (e) => {
     this.setState({
       optionsButton: true,
-    })
+    });
+    tempOptionIndex = optionsIndex;    
     options = [];
     optionsIndex = [];
 
@@ -201,7 +204,7 @@ export default class RequestConsolePage extends Component {
       });
       return;
     }    
-
+    tempOptionIndex = optionsIndex;
     wrapFunc.SetUpRequestSearchOption(options);
     this.setState({
       optionDialogOpen: false,
@@ -232,17 +235,29 @@ export default class RequestConsolePage extends Component {
       case 'Types Of Rooms':
         ds.sort(thisObj.sortByTypesOfRooms);
       break;
-      case 'Deposit':
-        ds.sort(thisObj.sortByDeposit);
+      case 'Latest':
+        ds.sort(thisObj.sortByLatest);
       break;
-      case 'Rates':
-        ds.sort(thisObj.sortByRates);
+      case 'Oldest':
+        ds.sort(thisObj.sortByOldest);
       break;
-      case 'Payment':
-        ds.sort(thisObj.sortByPayment);
+      case 'Lowest Deposit':
+        ds.sort(thisObj.sortByLowestDeposit);
       break;
-      case 'Status':
-        ds.sort(thisObj.sortByPayment);
+      case 'Lowest Rates':
+        ds.sort(thisObj.sortByLowestRates);
+      break;
+      case 'Lowest Payment':
+        ds.sort(thisObj.sortByLowestPayment);
+      break;
+      case 'Highest Deposit':
+        ds.sort(thisObj.sortByLowestDeposit);
+      break;
+      case 'Highest Rates':
+        ds.sort(thisObj.sortByLowestRates);
+      break;
+      case 'Highest Payment':
+        ds.sort(thisObj.sortByHighestPayment);
       break;
       default: return;
     }
@@ -262,27 +277,49 @@ export default class RequestConsolePage extends Component {
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
   }
 
-  sortByDeposit(a, b) {
+  sortByLatest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }
+
+  sortByOldest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
+  sortByLowestDeposit(a, b) {
     var av = a.Deposit;
     var bv = b.Deposit;
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
   }
+  sortByHighestDeposit(a, b) {
+    var av = a.Deposit;
+    var bv = b.Deposit;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }
 
-  sortByRates(a, b) {
+  sortByLowestRates(a, b) {
     var av = a.RatesPerPerson;
     var bv = b.RatesPerPerson;
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
   }
+  sortByHighestRates(a, b) {
+    var av = a.RatesPerPerson;
+    var bv = b.RatesPerPerson;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }
 
-  sortByPayment(a, b) {
+  sortByLowestPayment(a, b) {
     var av = a.Payment;
     var bv = b.Payment;
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
   }
 
-  sortByProcessing(a, b) {
-    var av = a.Status;
-    var bv = b.Status;
+  sortByHighestPayment(a, b) {
+    var av = a.Payment;
+    var bv = b.Payment;
     return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
   }
 
@@ -303,12 +340,12 @@ export default class RequestConsolePage extends Component {
 
     function viewRequestResize() {
       var windowHeight = $(window).height();
-      var viewRequestBox = $('#view-request-box'); 
-      var windowWidth = $(window).width();      
+      var viewRequestBox = $('#view-request-box');
+      var windowWidth = $(window).width();
       viewRequestBox.width(windowWidth * 0.8);
       viewRequestBox.height(windowHeight * 0.8);
       var dialogContentHeight = viewRequestBox.height() - 140;
-      $('.dialog-content').height(dialogContentHeight);        
+      $('.dialog-content').height(dialogContentHeight);
     }
     var dialogCollection = $('#bg-overlay, #view-request-box');
     $('#bg-overlay, #cancel-btn').on('click', function() {
@@ -341,7 +378,7 @@ export default class RequestConsolePage extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
-          res.data.sort(thisObj.sortByCampus);
+          res.data.sort(thisObj.sortByLatest);
           wrapFunc.SetRequestDataSource(res.data);
           wrapFunc.PaginateRequestContent(res.data);
         }
@@ -541,10 +578,14 @@ export default class RequestConsolePage extends Component {
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
                   <MenuItem value={"Campus"} primaryText="Campus" />
                   <MenuItem value={"Types Of Rooms"} primaryText="Types Of Rooms" />
-                  <MenuItem value={"Deposit"} primaryText="Deposit" />
-                  <MenuItem value={"Rates"} primaryText="Rates" />
-                  <MenuItem value={"Payment"} primaryText="Payment" />
-                  <MenuItem value={"Status"} primaryText="Status" />
+                  <MenuItem value={"Latest"} primaryText="Latest" />
+                  <MenuItem value={"Oldest"} primaryText="Oldest" />
+                  <MenuItem value={"Lowest Deposit"} primaryText="Lowest Deposit" />
+                  <MenuItem value={"Lowest Rates"} primaryText="Lowest Rates" />
+                  <MenuItem value={"Lowest Payment"} primaryText="Lowest Payment" />
+                  <MenuItem value={"Highest Deposit"} primaryText="Highest Deposit" />
+                  <MenuItem value={"Highest Rates"} primaryText="Highest Rates" />
+                  <MenuItem value={"Highest Payment"} primaryText="Highest Payment" />
                 </DropDownMenu>
                 </div>                 
             </div>

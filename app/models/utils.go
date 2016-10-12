@@ -151,6 +151,10 @@ func GetRoomTypeList(isAdmin bool, campus, gender string) (errMsg string, roomTy
 	default:
 		qs = qs.Filter("campus", campus)
 		if !isAdmin {
+			if gender == "" {
+				errMsg = "Please specify user gender!"
+				return errMsg, nil
+			}
 			qs = qs.Filter("gender", gender)
 		}
 	}
@@ -174,7 +178,8 @@ func GetRoomStatusList(isAdmin bool, campus, gender string) (errMsg string, room
 	o := orm.NewOrm()
 	qry := "SELECT campus, types_of_rooms, COUNT(types_of_rooms) AS total, SUM(is_available) AS available FROM room GROUP BY types_of_rooms"
 	rs := o.Raw(qry)
-
+	n, _ := rs.QueryRows(&roomTypeResults)
+	beego.Debug(len(roomTypeResults))
 	switch campus {
 	case "ALL":
 	default:
@@ -185,7 +190,7 @@ func GetRoomStatusList(isAdmin bool, campus, gender string) (errMsg string, room
 		}
 	}
 
-	n, _ := rs.QueryRows(&roomTypeResults)
+	n, _ = rs.QueryRows(&roomTypeResults)
 	beego.Debug(len(roomTypeResults))
 	if n == 0 {
 		errMsg = "No Room Available."

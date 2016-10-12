@@ -12,6 +12,11 @@ import Divider from 'material-ui/Divider';
 import Subheader from 'material-ui/Subheader';
 import NotificationsIcon from 'material-ui/svg-icons/social/notifications';
 import FlatButton from 'material-ui/FlatButton';
+import {
+  IndexRoute,
+  IndexLink,
+  Link
+} from 'react-router';
 
 require('./CSS/animate.css');
 require('./CSS/sweetalert2.min.css');
@@ -604,8 +609,8 @@ export default class Master extends Component {
             </ListItem>
           </Drawer>
           <AppBar
-            title={<span 
-              style={styles.clickableItem} 
+            title={<span
+              style={styles.clickableItem}
               onClick={this.accessHome}
               id="appbar-title"
             >

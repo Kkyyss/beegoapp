@@ -52,8 +52,8 @@ func init() {
 		gplus.New(
 			beego.AppConfig.String("GAPP_CLIENT_ID"),
 			beego.AppConfig.String("GAPP_CLIENT_SECRET"),
-			// beego.AppConfig.String("GAPP_ONLINE"),
-			beego.AppConfig.String("GAPP_LOCALHOST"),
+			beego.AppConfig.String("GAPP_ONLINE"),
+			// beego.AppConfig.String("GAPP_LOCALHOST"),
 		),
 	)
 	beego.Router("/auth/:provider/callback", &controllers.AuthProviderCallbackController{})
