@@ -138,6 +138,10 @@ input[name="card-cvv"] {
 #e-rppMsg,
 #rnMsg,
 #e-rnMsg,
+#nfTitleMsg,
+#nfmsgMsg,
+#e-nfTitleMsg,
+#e-nfmsgMsg,
 #ssdMsg {
   font-size: 12px;
   line-height: 12px;

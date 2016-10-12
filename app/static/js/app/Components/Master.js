@@ -25,6 +25,8 @@ require('./JS/wrapperFunc.js');
 
 var $ = window.Jquery;
 var moment = window.Moment;
+var ajax = $.ajax;
+var wrapFunc = window.Wrapper;
 
 require('./JS/jquery.fittext.js');
 require('./JS/jquery.lettering.js');
@@ -172,8 +174,16 @@ export default class Master extends Component {
 
   logout = (event) => {
     event.preventDefault();
+    wrapFunc.LoadingSwitch(true);
     this.delete_cookie("_AUTH");
-    $(location).prop('href', '/');
+    var ifrm=document.createElement('iframe');
+    ifrm.setAttribute("src", "https://accounts.google.com/logout");
+    ifrm.style.display = "none";
+    document.body.appendChild(ifrm);
+    // ifrm.parentNode.removeChild(ifrm);
+    setTimeout(function() {
+      $(location).prop('href', '/');
+    }, 2000);
   };
 
   delete_cookie = (cookieName) => {
@@ -213,8 +223,7 @@ export default class Master extends Component {
     
     var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd ' +
                'oanimationend animationend';
-    var ajax = $.ajax;
-    var wrapFunc = window.Wrapper;
+
     var url_path = $(location).attr('pathname');
     var thisObj = this;
 
@@ -366,8 +375,9 @@ export default class Master extends Component {
         error:function (request, ajaxOptions, thrownError){
         },
         complete: function() {
-          $(".preload").addClass("animated bounceOut").one(animationEnd, function() {
-            $(this).remove();         
+          wrapFunc.LoadingSwitch(true);
+          $(".preload").addClass("animated fadeOut").one(animationEnd, function() {
+            $(this).remove();
             $(".universe").removeClass('universe').addClass('animated fadeIn').one(animationEnd, function() {
               $(this).removeClass('animated fadeIn');
               var cookieValue = getLoginErrorCookieValue();
@@ -376,17 +386,21 @@ export default class Master extends Component {
                 ifrm.setAttribute("src", "https://accounts.google.com/logout");
                 ifrm.style.display = "none";
                 document.body.appendChild(ifrm);
-                ifrm.parentNode.removeChild(ifrm);
                 thisObj.delete_cookie('_gothic_session');
-                wrapFunc.AlertStatus(
-                  'Oopss...',
-                  cookieValue,
-                  'error',
-                  false,
-                  false
-                );
                 thisObj.delete_cookie('LOGIN_ERROR');
+                setTimeout(function() {
+                  wrapFunc.LoadingSwitch(false);
+                  ifrm.parentNode.removeChild(ifrm);
+                  wrapFunc.AlertStatus(
+                    'Oopss...',
+                    cookieValue,
+                    'error',
+                    false,
+                    false
+                  );
+                }, 2000);
               }
+              wrapFunc.LoadingSwitch(false);
             });
           });
         }
@@ -472,7 +486,7 @@ export default class Master extends Component {
                 />,
                 <ListItem
                   key={7}
-                  primaryText="User"
+                  primaryText="Student"
                   leftIcon={<FontIcon className="fa fa-users" />}
                   onTouchTap={this.userConsole}
                 />,
@@ -491,7 +505,7 @@ export default class Master extends Component {
               ]}
             >
               Admin
-            </ListItem>     
+            </ListItem>
             <Divider />
             <Subheader>User</Subheader>
             <ListItem

@@ -138,11 +138,17 @@ export default class AddUserDialog extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
+          res.data.sort(thisObj.sortByLatest);
           wrapFunc.SetUsersDataSource(res.data);
           wrapFunc.PaginateUsersContent(res.data);
         }
       }
     });
+  }
+  sortByLatest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
   }  
 
   changeCampus(value) {

@@ -13,6 +13,7 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var tempOptionIndex = [1];
 var options = [];
 var optionsIndex = [1];
 
@@ -104,6 +105,7 @@ export default class BookedRoomConsolePage extends Component {
     });
   };
   handleOptionDialogClose = (e) => {
+    optionsIndex = tempOptionIndex;
     this.setState({
       optionDialogOpen: false,
     });
@@ -112,7 +114,8 @@ export default class BookedRoomConsolePage extends Component {
   handleSearchOptionSubmit = (e) => {
     this.setState({
       optionsButton: true,
-    })
+    });
+    tempOptionIndex = optionsIndex;
     options = [];
     optionsIndex = [];
 
@@ -165,6 +168,7 @@ export default class BookedRoomConsolePage extends Component {
       return;
     }    
 
+    tempOptionIndex = optionsIndex;
     wrapFunc.SetUpBookedSearchOption(options);
     this.setState({
       optionDialogOpen: false,

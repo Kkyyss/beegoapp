@@ -8,6 +8,7 @@ import Avatar from 'material-ui/Avatar';
 import FontIcon from 'material-ui/FontIcon';
 require('../JS/wrapperFunc.js');
 var $ = window.Jquery;
+var wrapFunc = window.Wrapper;
 var AvatarUrl;
 var Show;
 
@@ -67,8 +68,17 @@ export default class UserDropDownMenu extends Component {
   };
 
   logout = (event) => {
-    this.delete_cookie('_AUTH');
-    this.redirectUrl(event, "/");
+    var thisObj = this;
+    wrapFunc.LoadingSwitch(true);
+    thisObj.delete_cookie('_AUTH');    
+    var ifrm=document.createElement('iframe');
+    ifrm.setAttribute("src", "https://accounts.google.com/logout");
+    ifrm.style.display = "none";
+    document.body.appendChild(ifrm);
+    // ifrm.parentNode.removeChild(ifrm);
+    setTimeout(function() {
+      thisObj.redirectUrl(event, "/");
+    }, 3000);
   };
 
   delete_cookie = (cookieName) => {

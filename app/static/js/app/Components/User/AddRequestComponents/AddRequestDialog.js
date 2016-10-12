@@ -309,13 +309,13 @@ export default class AddRequestDialog extends Component {
       success: function(res) {
         wrapFunc.LoadingSwitch(false);
         if (res.error != null) {
-          wrapFunc.AlertStatus(
-            "Oops...",
-            res.error,
-            "error",
-            false,
-            false
-          );
+          swal({
+            title: '<i>Oops...</i>',
+            type: 'info',
+            html: res.error,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+          });
           thisObj.setState({
             roomTypeDisabled: true,
           });

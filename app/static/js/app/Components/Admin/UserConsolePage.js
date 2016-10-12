@@ -19,6 +19,7 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var tempOptionIndex = [1];
 var options = [];
 var optionsIndex = [1];
 
@@ -127,10 +128,13 @@ export default class UserConsolePage extends Component {
   };
 
   handleChange = (event, index, value) => {
-    this.changeCampus(value);
+    this.setState({
+      value: value,
+    });
   };
 
   handleSortTypeChange = (event, index, value) => {
+    this.setSelectedValue(value);    
     this.setState({
       sortValue: value,
     });
@@ -148,6 +152,7 @@ export default class UserConsolePage extends Component {
     });
   };
   handleOptionDialogClose = (e) => {
+    optionsIndex = tempOptionIndex;    
     this.setState({
       optionDialogOpen: false,
     });
@@ -156,56 +161,58 @@ export default class UserConsolePage extends Component {
   handleSearchOptionSubmit = (e) => {
     this.setState({
       optionsButton: true,
-    })
+    });
+    tempOptionIndex = optionsIndex;
     options = [];
     optionsIndex = [];
-    if ($("#sr-id").is(":checked")) {
+    if ($("#s-id").is(":checked")) {
       options.push("StudentId");
       optionsIndex.push(1);
     } else {
       optionsIndex.push(0);
     }
 
-    if ($("#sr-campus").is(":checked")) {
+    if ($("#s-campus").is(":checked")) {
       options.push("Campus");
       optionsIndex.push(1);
     } else {
       optionsIndex.push(0);
     }
 
-    if ($('#sr-permission').is(":checked")) {
-      options.push("FullPermission");
-      optionsIndex.push(1);
-    } else {
-      optionsIndex.push(0);
-    }
-
-    if ($('#sr-name').is(':checked')) {
+    if ($('#s-name').is(':checked')) {
       options.push("Name");
       optionsIndex.push(1);
     } else {
       optionsIndex.push(0);
     }
 
-    if ($('#sr-location').is(':checked')) {
-      options.push("Location");
-      optionsIndex.push(1);
-    } else {
-      optionsIndex.push(0);
-    }
-
-    if ($('#sr-contactNo').is(':checked')) {
+    if ($('#s-contactNo').is(':checked')) {
       options.push("ContactNo");
       optionsIndex.push(1);
     } else {
       optionsIndex.push(0);
     }
 
+    if (optionsIndex.indexOf(1) < 0) {
+      wrapFunc.AlertStatus(
+        "Oopps...",
+        "Please select at least 1 option.",
+        "error",
+        false,
+        false
+      );
+      this.setState({
+        optionsButton: false,
+      });
+      return;
+    }
+
+    tempOptionIndex = optionsIndex;
     wrapFunc.SetUpUserSearchOption(options);
     this.setState({
       optionDialogOpen: false,
       optionsButton: false,
-    });    
+    });
   };
 
   refreshList = (e) => {
@@ -219,7 +226,27 @@ export default class UserConsolePage extends Component {
         refreshBtnDisabled: false,
       });
     });
-  }  
+  }
+
+  setSelectedValue(v) {
+    var thisObj = this;
+    var ds = wrapFunc.GetUsersDataSource();
+    switch (v) {
+      case 'Campus':
+        ds.sort(thisObj.sortByCampus);
+      break;
+      case 'Latest':
+        ds.sort(thisObj.sortByLatest);
+      break;
+      case 'Oldest':
+        ds.sort(thisObj.sortByOldest);
+      break;      
+      default: return;
+    }
+
+    wrapFunc.SetUsersDataSource(ds);
+    wrapFunc.PaginateUsersContent(ds);
+  }
 
   sortByCampus(a, b) {
     var aCampus = a.Campus.toLowerCase();
@@ -227,9 +254,17 @@ export default class UserConsolePage extends Component {
     return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
   }
 
-  changeCampus(value) {
-    this.setState({value});
+  sortByLatest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
   }
+
+  sortByOldest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }  
 
   componentDidMount() {
     var thisObj = this;
@@ -350,7 +385,7 @@ export default class UserConsolePage extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
-          res.data.sort(thisObj.sortByCampus);
+          res.data.sort(thisObj.sortByLatest);
           wrapFunc.SetUsersDataSource(res.data);
           wrapFunc.PaginateUsersContent(res.data);
         }
@@ -386,7 +421,6 @@ export default class UserConsolePage extends Component {
             <input id="edit-user-id" name="edit-user-id" type="text" style={styles.hide} />
             <div>Campus&nbsp;
             <DropDownMenu id="campusDropDown" value={this.state.value} onChange={this.handleChange} disabled={this.state.disabled}>
-              <MenuItem value={"ALL"} primaryText="ALL" />
               <MenuItem value={"IU"} primaryText="IU" />
               <MenuItem value={"IICS"} primaryText="IICS" />
               <MenuItem value={"IICKL"} primaryText="IICKL" />
@@ -472,7 +506,7 @@ export default class UserConsolePage extends Component {
         </div>
         <div id="card-wrapper" className="wrapper-margin">
           <Card id="card" style={styles.cardSize}>
-            <h1 style={styles.title}>User Console</h1>
+            <h1 style={styles.title}>Student Console</h1>
             <div style={styles.balanceStyle}>
               <input
                 id="search-box"
@@ -499,32 +533,22 @@ export default class UserConsolePage extends Component {
                 <div id="options-group" style={styles.optionContentStyle}>
                   <Checkbox
                     label="Student Id"
-                    id="sr-id"
+                    id="s-id"
                     style={styles.checkbox}
                   />
                   <Checkbox
                     label="Campus"
-                    id="sr-campus"
-                    style={styles.checkbox}
-                  />
-                  <Checkbox
-                    label="Permission"
-                    id="sr-permission"
+                    id="s-campus"
                     style={styles.checkbox}
                   />
                   <Checkbox
                     label="Name"
-                    id="sr-name"
-                    style={styles.checkbox}
-                  />
-                  <Checkbox
-                    label="Address"
-                    id="sr-location"
+                    id="s-name"
                     style={styles.checkbox}
                   />
                   <Checkbox
                     label="Contact No."
-                    id="sr-contactNo"
+                    id="s-contactNo"
                     style={styles.checkbox}
                   />
                   </div>
@@ -541,6 +565,8 @@ export default class UserConsolePage extends Component {
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
                   <MenuItem value={"Campus"} primaryText="Campus" />
+                  <MenuItem value={"Latest"} primaryText="Latest" />
+                  <MenuItem value={"Oldest"} primaryText="Oldest" />
                 </DropDownMenu>
                 </div>
               </div>

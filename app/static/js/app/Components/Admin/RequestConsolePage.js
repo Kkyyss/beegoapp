@@ -587,7 +587,7 @@ export default class RequestConsolePage extends Component {
                   <MenuItem value={"Highest Rates"} primaryText="Highest Rates" />
                   <MenuItem value={"Highest Payment"} primaryText="Highest Payment" />
                 </DropDownMenu>
-                </div>                 
+                </div>
             </div>
             <Divider />
             <br/>

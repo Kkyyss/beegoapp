@@ -15,7 +15,7 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
-var tempOptionIndex;
+var tempOptionIndex = [1];
 var options = [];
 var optionsIndex = [1];
 
@@ -313,12 +313,21 @@ export default class NotificationConsolePage extends Component {
     });
 
     $('#update-btn').on('click', updateNf);
-
+    var isValid = false;
     function updateNf(e) {
       e.preventDefault();
       thisObj.setState({
         btnDisabled: true,
       });
+
+      var finalValidation = validFunc(vrfTitle()) &
+                            validFunc(vrfMessage());
+      if (!finalValidation) {
+        thisObj.setState({
+          btnDisabled: false,
+        });
+        return;
+      }
       var editNfForm = $('#edit-nf-form');
       $('#edit-nf-campus').val(thisObj.state.value);
       $('#edit-nf-message').val();
@@ -357,6 +366,56 @@ export default class NotificationConsolePage extends Component {
           });
         }
       });
+    }
+
+    var eNfTitleMsg = $('#e-nfTitleMsg');
+    var eNfTitle = $('#edit-nf-title');
+    eNfTitle.on("input focusout", vrfTitle);
+    function vrfTitle() {
+      isValid = wrapFunc.BasicValidation(
+        $.trim(eNfTitle.val()),
+        eNfTitleMsg,
+        "Please don't leave it empty.",
+        eNfTitle
+      );
+      console.log(isValid);
+      if (!isValid) {
+        return;
+      }
+      wrapFunc.MeetRequirement(
+        eNfTitle,
+        eNfTitleMsg,
+        "Please don't leave it empty."
+      );
+    }
+
+    var eNfmsgMsg = $('#e-nfmsgMsg');
+    var eNfMessage = $('#edit-nf-message');
+    eNfMessage.on("input focusout", vrfMessage);
+    function vrfMessage() {
+      isValid = wrapFunc.BasicValidation(
+        $.trim(eNfMessage.val()),
+        eNfmsgMsg,
+        "Please don't leave it empty.",
+        eNfMessage
+      );
+      console.log(isValid);
+      if (!isValid) {
+        return;
+      }
+      wrapFunc.MeetRequirement(
+        eNfMessage,
+        eNfmsgMsg,
+        "Please don't leave it empty."
+      );
+    }
+
+    function validFunc(func) {
+      func;
+      if (isValid) {
+        return true;
+      }
+      return false;
     }
 
   }
@@ -428,7 +487,7 @@ export default class NotificationConsolePage extends Component {
                 <TextField 
                   id="edit-nf-dr"
                   name="edit-nf-dr"
-                  floatingLabelText="Date Receive"
+                  floatingLabelText="Date"
                   type="text"
                   fullWidth={true}
                   floatingLabelFixed={true}
@@ -437,7 +496,7 @@ export default class NotificationConsolePage extends Component {
                   underlineFocusStyle={styles.underlineFocusStyle}
                   floatingLabelStyle={styles.floatingLabelStyle}
                 />
-                <TextField 
+                <TextField
                   id="edit-nf-title"
                   name="edit-nf-title"
                   floatingLabelText="Title"
@@ -448,7 +507,8 @@ export default class NotificationConsolePage extends Component {
                   underlineFocusStyle={styles.underlineFocusStyle}
                   floatingLabelStyle={styles.floatingLabelStyle}
                 />
-                <TextField 
+                <div id="e-nfTitleMsg">Please don't leave it empty.</div>
+                <TextField
                   id="edit-nf-message"
                   name="edit-nf-message"
                   floatingLabelText="Message"
@@ -462,6 +522,7 @@ export default class NotificationConsolePage extends Component {
                   rowsMax={4}
                   rows={2}
                 />
+                <div id="e-nfmsgMsg">Please don't leave it empty.</div>
               </form>
             </div>
           </div>

@@ -642,10 +642,13 @@ window.Wrapper = {
   SetRoomStatusDataSource: function(ds) {
     roomStatusDataSource = ds;
   },
-  GetNotificationDataSource: function(ds) {
+  GetAdminDataSource: function() {
+    return adminDataSource;
+  },  
+  GetNotificationDataSource: function() {
     return notificationDataSource;
   },
-  GetUserNotificationDataSource: function(ds) {
+  GetUserNotificationDataSource: function() {
     return userNotificationDataSource;
   },  
   GetRoomDataSource: function() {

@@ -10,6 +10,7 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var isValid = false;
 
 const styles = {
   hide: {
@@ -43,26 +44,65 @@ export default class AddNotificationDialog extends Component {
   };
 
   handleOpen = (e) => {
+    var thisObj = this;
     this.setState({open: true}, afterOpened);
 
     function afterOpened(){
-      if (!userData.fullPermission) {
-        $('#admin-permission').parent().remove();
-      }
-      var userContactNo = $('#admin-contact-no');
-      userContactNo.intlTelInput({
-        initialCountry: "auto",
-        geoIpLookup: function(callback) {
-          $.get('http://ipinfo.io', function() {}, "jsonp").always(function(resp) {
-            var countryCode = (resp && resp.country) ? resp.country : "";
-            callback(countryCode);
-          });
-        },
-        utilsScript: "../static/js/utils.js", // just for formatting/placeholders etc
-        dropdownContainer: "body"
-      });
+      var nfTitle = $('#nf-title');
+      nfTitle.on("input focusout", thisObj.vrfTitle);
+
+      var nfMessage = $('#nf-message');
+      nfMessage.on("input focusout", thisObj.vrfMessage);
     }
   };
+
+  vrfTitle() {
+    var nfTitleMsg = $('#nfTitleMsg');
+    var nfTitle = $('#nf-title');
+    isValid = wrapFunc.BasicValidation(
+      $.trim(nfTitle.val()),
+      nfTitleMsg,
+      "Please don't leave it empty.",
+      nfTitle
+    );
+    console.log(isValid);
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      nfTitle,
+      nfTitleMsg,
+      "Please don't leave it empty."
+    );
+  }
+
+  vrfMessage() {
+    var nfmsgMsg = $('#nfmsgMsg');
+    var nfMessage = $('#nf-message');
+    isValid = wrapFunc.BasicValidation(
+      $.trim(nfMessage.val()),
+      nfmsgMsg,
+      "Please don't leave it empty.",
+      nfMessage
+    );
+    console.log(isValid);
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      nfMessage,
+      nfmsgMsg,
+      "Please don't leave it empty."
+    );
+  }
+
+  validFunc(func) {
+    func;
+    if (isValid) {
+      return true;
+    }
+    return false;
+  }
 
   handleClose = (e) => {
     this.setState({open: false});
@@ -74,6 +114,17 @@ export default class AddNotificationDialog extends Component {
     thisObj.setState({
       btnDisabled: true,
     });
+
+    var finalValidation = thisObj.validFunc(thisObj.vrfTitle()) &
+                          thisObj.validFunc(thisObj.vrfMessage());
+
+    if (!finalValidation) {
+      thisObj.setState({
+        btnDisabled: false,
+      });      
+      return;
+    }
+
     $('#nf-campus').val(thisObj.state.value);
     console.log($('#nf-campus').val());
     var addnfForm = $('#add-nf-form');
@@ -211,15 +262,17 @@ export default class AddNotificationDialog extends Component {
                 type="text"
                 fullWidth={true}
               />
+              <div id="nfTitleMsg">Please don't leave it empty.</div>
               <TextField
                 id="nf-message"
-                name="nf-message"              
+                name="nf-message"
                 floatingLabelText="Message"
                 multiLine={true}
                 fullWidth={true}
                 rowsMax={4}
                 rows={2}
               />
+              <div id="nfmsgMsg">Please don't leave it empty.</div>
               </div>
             </form>
           </Dialog>

@@ -7,7 +7,7 @@ import (
 type (
 	User struct {
 		Id            int
-		TimeStamp     time.Time `orm:"auto_now_add;type(datetime)"`
+		TimeStamp     time.Time `orm:"auto_now;type(datetime)"`
 		Name          string    `orm:"size(255);"`
 		Email         string    `orm:"size(100)"`
 		Campus        string    `orm:"size(10)"`
@@ -23,7 +23,7 @@ type (
 	}
 	Room struct {
 		Id             int
-		TimeStamp      time.Time `orm:"auto_now_add;type(datetime)"`
+		TimeStamp      time.Time `orm:"auto_now;type(datetime)"`
 		Campus         string
 		RoomNo         string
 		TypesOfRooms   string
@@ -36,7 +36,7 @@ type (
 	}
 	Request struct {
 		Id               int
-		DateRequest      time.Time `orm:"auto_now_add;type(datetime)"`
+		DateRequest      time.Time `orm:"auto_now;type(datetime)"`
 		Session          string
 		Campus           string
 		TypesOfRooms     string
@@ -49,7 +49,7 @@ type (
 	}
 	RoomTypes struct {
 		Id             int
-		TimeStamp      time.Time `orm:"auto_now_add;type(datetime)"`
+		TimeStamp      time.Time `orm:"auto_now;type(datetime)"`
 		Campus         string
 		TypesOfRooms   string
 		RatesPerPerson float64
@@ -65,7 +65,7 @@ type (
 	}
 	Admin struct {
 		Id             int
-		TimeStamp      time.Time `orm:"auto_now_add;type(datetime)"`
+		TimeStamp      time.Time `orm:"auto_now;type(datetime)"`
 		Name           string    `orm:"size(255);"`
 		Email          string    `orm:"size(100)"`
 		AvatarUrl      string    `orm:"null"`
@@ -77,7 +77,7 @@ type (
 	}
 	Notification struct {
 		Id          int
-		DateReceive time.Time `orm:"auto_now_add;type(datetime)"`
+		DateReceive time.Time `orm:"auto_now;type(datetime)"`
 		Campus      string
 		Title       string
 		Message     string

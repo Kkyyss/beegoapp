@@ -30,7 +30,7 @@ const styles = {
   },
   toggle: {
     marginBottom: 16,
-  },  
+  },
   contentStyle: {
     padding:'25px',
   },

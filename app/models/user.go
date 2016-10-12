@@ -59,14 +59,17 @@ func (u *User) IsUniqueDataDuplicated() (errMsg string) {
 	if num >= 1 {
 		errMsg = "User"
 	}
-	num, _ = qs.Filter("contact_no", u.ContactNo).Count()
-	if num >= 1 {
-		if errMsg != "" {
-			errMsg += " and Contact No."
-		} else {
-			errMsg = "Contact No."
+	if u.ContactNo != "" {
+		num, _ = qs.Filter("contact_no", u.ContactNo).Count()
+		if num >= 1 {
+			if errMsg != "" {
+				errMsg += " and Contact No."
+			} else {
+				errMsg = "Contact No."
+			}
 		}
 	}
+
 	if errMsg != "" {
 		errMsg += " exist!"
 	}
@@ -80,14 +83,17 @@ func (u *User) UpdateIsUniqueDataDuplicated() (errMsg string) {
 	if num >= 1 {
 		errMsg = "User"
 	}
-	num, _ = qs.Filter("contact_no", u.ContactNo).Count()
-	if num >= 1 {
-		if errMsg != "" {
-			errMsg += " and Contact No."
-		} else {
-			errMsg = "Contact No."
+	if u.ContactNo != "" {
+		num, _ = qs.Filter("contact_no", u.ContactNo).Count()
+		if num >= 1 {
+			if errMsg != "" {
+				errMsg += " and Contact No."
+			} else {
+				errMsg = "Contact No."
+			}
 		}
 	}
+
 	if errMsg != "" {
 		errMsg += " exist!"
 	}

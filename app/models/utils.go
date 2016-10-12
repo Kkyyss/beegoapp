@@ -152,7 +152,7 @@ func GetRoomTypeList(isAdmin bool, campus, gender string) (errMsg string, roomTy
 		qs = qs.Filter("campus", campus)
 		if !isAdmin {
 			if gender == "" {
-				errMsg = "Please specify user gender!"
+				errMsg = `You <b>must complete</b> the <a href="/user/account">Profile</a> in order to send booking request.`
 				return errMsg, nil
 			}
 			qs = qs.Filter("gender", gender)
