@@ -196,6 +196,7 @@ export default class AddRequestDialog extends Component {
   };
 
   updateRequestList() {
+    var thisObj = this;
     var userState = {
       userId: userData.id
     };
@@ -213,13 +214,18 @@ export default class AddRequestDialog extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
-          console.log(res.data);
+          res.data.sort(thisObj.sortByLatest);
           wrapFunc.SetUserRequestDataSource(res.data);
           wrapFunc.PaginateUserRequestContent(res.data);
         }
       }
     });
-  }  
+  }
+  sortByLatest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }
 
   vrfSession() {
     var sessionDate = $('#session-date');

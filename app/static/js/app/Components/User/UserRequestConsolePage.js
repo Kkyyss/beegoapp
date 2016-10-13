@@ -13,13 +13,12 @@ import MenuItem from 'material-ui/MenuItem';
 import Dialog from 'material-ui/Dialog';
 import AddRequestDialog from './AddRequestComponents/AddRequestDialog.js';
 
-
-
 var $ = window.Jquery;
 var ajax = $.ajax;
 var moment = window.Moment;
 var wrapFunc = window.Wrapper;
 var userData;
+var tempOptionIndex = [1];
 var options = [];
 var optionsIndex = [1];
 
@@ -174,11 +173,12 @@ export default class UserRequestConsolePage extends Component {
       refreshBtnDisabled: false,
       optionDialogOpen: false,
       optionsButton: false,
-      sortValue: "Processing",
+      sortValue: "Latest",
     };
   }
 
   handleSortTypeChange = (event, index, value) => {
+    this.setSelectedValue(value);
     this.setState({
       sortValue: value,
     });
@@ -196,6 +196,7 @@ export default class UserRequestConsolePage extends Component {
     });
   };
   handleOptionDialogClose = (e) => {
+    optionsIndex = tempOptionIndex;    
     this.setState({
       optionDialogOpen: false,
     });
@@ -205,6 +206,7 @@ export default class UserRequestConsolePage extends Component {
     this.setState({
       optionsButton: true,
     })
+    tempOptionIndex = optionsIndex;
     options = [];
     optionsIndex = [];
 
@@ -229,6 +231,20 @@ export default class UserRequestConsolePage extends Component {
       optionsIndex.push(0);
     }
 
+    if (optionsIndex.indexOf(1) < 0) {
+      wrapFunc.AlertStatus(
+        "Oopps...",
+        "Please select at least 1 option.",
+        "error",
+        false,
+        false
+      );
+      this.setState({
+        optionsButton: false,
+      });
+      return;
+    }
+    tempOptionIndex = optionsIndex;
     wrapFunc.SetUpUserRequestSearchOption(options);
     this.setState({
       optionDialogOpen: false,
@@ -248,12 +264,6 @@ export default class UserRequestConsolePage extends Component {
       });
     });
   };
-
-  sortByCampus(a, b) {
-    var aCampus = a.Campus.toLowerCase();
-    var bCampus = b.Campus.toLowerCase();
-    return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
-  }  
 
   componentDidMount() {
     var thisObj = this;
@@ -331,7 +341,36 @@ export default class UserRequestConsolePage extends Component {
     }
   }
 
+  setSelectedValue(v) {
+    var thisObj = this;
+    var ds = wrapFunc.GetUserRequestDataSource();
+    switch (v) {
+      case 'Latest':
+        ds.sort(thisObj.sortByLatest);
+      break;
+      case 'Oldest':
+        ds.sort(thisObj.sortByOldest);
+      break;
+      default: return;
+    }
+    wrapFunc.SetUserRequestDataSource(ds);
+    wrapFunc.PaginateUserRequestContent(ds);
+  }
+
+  sortByLatest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }
+
+  sortByOldest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
+
   updateRequestList() {
+    var thisObj = this;
     console.log(userData.id);
     var userState = {
       userId: userData.id
@@ -351,6 +390,7 @@ export default class UserRequestConsolePage extends Component {
           $('#errMsg').text(res.error);
         } else {
           console.log(res.data);
+          res.data.sort(thisObj.sortByLatest);
           wrapFunc.SetUserRequestDataSource(res.data);
           wrapFunc.PaginateUserRequestContent(res.data);
         }
@@ -686,7 +726,8 @@ export default class UserRequestConsolePage extends Component {
                 <div style={styles.wall}>
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
-                  <MenuItem value={"Processing"} primaryText="Processing" />
+                  <MenuItem value={"Latest"} primaryText="Latest" />
+                  <MenuItem value={"Oldest"} primaryText="Oldest" />
                 </DropDownMenu>
                 </div>  
             </div>

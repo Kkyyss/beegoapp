@@ -142,7 +142,7 @@ export default class RequestConsolePage extends Component {
     });
   };
   handleOptionDialogClose = (e) => {
-    optionsIndex = tempOptionIndex;    
+    optionsIndex = tempOptionIndex;
     this.setState({
       optionDialogOpen: false,
     });
@@ -152,7 +152,7 @@ export default class RequestConsolePage extends Component {
     this.setState({
       optionsButton: true,
     });
-    tempOptionIndex = optionsIndex;    
+    tempOptionIndex = optionsIndex;
     options = [];
     optionsIndex = [];
 
