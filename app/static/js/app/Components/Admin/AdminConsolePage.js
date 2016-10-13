@@ -6,7 +6,6 @@ import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
-import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
 import Divider from 'material-ui/Divider';
@@ -19,6 +18,7 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var tempOptionIndex = [1];
 var options = [];
 var optionsIndex = [1];
 
@@ -131,6 +131,7 @@ export default class AdminConsolePage extends Component {
   };
 
   handleSortTypeChange = (event, index, value) => {
+    this.setSelectedValue(value);
     this.setState({
       sortValue: value,
     });
@@ -148,6 +149,7 @@ export default class AdminConsolePage extends Component {
     });
   };
   handleOptionDialogClose = (e) => {
+    optionsIndex = tempOptionIndex;    
     this.setState({
       optionDialogOpen: false,
     });
@@ -156,7 +158,8 @@ export default class AdminConsolePage extends Component {
   handleSearchOptionSubmit = (e) => {
     this.setState({
       optionsButton: true,
-    })
+    });
+    tempOptionIndex = optionsIndex;
     options = [];
     optionsIndex = [];
     if ($("#sr-id").is(":checked")) {
@@ -201,7 +204,22 @@ export default class AdminConsolePage extends Component {
       optionsIndex.push(0);
     }
 
-    wrapFunc.SetUpUserSearchOption(options);
+    if (optionsIndex.indexOf(1) < 0) {
+      wrapFunc.AlertStatus(
+        "Oopps...",
+        "Please select at least 1 option.",
+        "error",
+        false,
+        false
+      );
+      this.setState({
+        optionsButton: false,
+      });
+      return;
+    }
+
+    tempOptionIndex = optionsIndex;
+    wrapFunc.SetUpAdminSearchOption(options);
     this.setState({
       optionDialogOpen: false,
       optionsButton: false,
@@ -219,7 +237,30 @@ export default class AdminConsolePage extends Component {
         refreshBtnDisabled: false,
       });
     });
-  }  
+  };
+
+  setSelectedValue(v) {
+    var thisObj = this;
+    var ds = wrapFunc.GetUsersDataSource();
+    switch (v) {
+      case 'Campus':
+        ds.sort(thisObj.sortByCampus);
+      break;
+      case 'Admin ID':
+        ds.sort(thisObj.sortByAdminId);
+      break;
+      case 'Latest':
+        ds.sort(thisObj.sortByLatest);
+      break;
+      case 'Oldest':
+        ds.sort(thisObj.sortByOldest);
+      break;
+      default: return;
+    }
+
+    wrapFunc.SetAdminDataSource(ds);
+    wrapFunc.PaginateAdminContent(ds);
+  }
 
   sortByCampus(a, b) {
     var aCampus = a.Campus.toLowerCase();
@@ -227,11 +268,23 @@ export default class AdminConsolePage extends Component {
     return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
   }
 
+  sortByAdminId(a, b) {
+    var aCampus = a.StudentId.toLowerCase();
+    var bCampus = b.StudentId.toLowerCase();
+    return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
+  }  
+
   sortByLatest(a, b) {
     var av = a.TimeStamp;
     var bv = b.TimeStamp;
     return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
-  }   
+  }
+
+  sortByOldest(a, b) {
+    var av = a.TimeStamp;
+    var bv = b.TimeStamp;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }    
 
   changeCampus(value) {
     this.setState({value});
@@ -295,12 +348,25 @@ export default class AdminConsolePage extends Component {
     });
 
     $('#update-btn').on('click', updateUser);
-
+    var isValid = false;
     function updateUser(e) {
       e.preventDefault();
       thisObj.setState({
         btnDisabled: true,
       });
+
+      var finalValidation = validFunc(vrfEditAdminName()) &
+                            validFunc(vrfEditAdminEmail()) &
+                            validFunc(vrfEditAdminId()) &
+                            validFunc(vrfEditAdminPhone());
+
+      if (!finalValidation) {
+        thisObj.setState({
+          btnDisabled: false,
+        });        
+        return;
+      }
+
       var editUserForm = $('#edit-admin-form');
       $('#edit-admin-campus').val(thisObj.state.value);
       ajax({
@@ -339,6 +405,111 @@ export default class AdminConsolePage extends Component {
         }
       });      
     }
+
+  var editAdminName = $('#edit-admin-name');
+  var editAdminNameMsg = $('#e-anMsg');
+  editAdminName.on("input focusout",vrfEditAdminName);
+  function vrfEditAdminName() {
+
+    isValid = wrapFunc.BasicValidation(
+      $.trim(editAdminName.val()),
+      editAdminNameMsg,
+      "Please don't leave it empty.",
+      editAdminName
+    );
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      editAdminName,
+      editAdminNameMsg,
+      "Please don't leave it empty."
+    );
+  }
+
+  var editAdminId = $('#edit-admin-uid');
+  var editAdminIdMsg = $('#e-aiMsg');
+  editAdminId.on("input focusout", vrfEditAdminId);
+  function vrfEditAdminId() {
+    isValid = wrapFunc.BasicValidation(
+      $.trim(editAdminId.val()),
+      editAdminIdMsg,
+      "Please don't leave it empty.",
+      editAdminId
+    );
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      editAdminId,
+      editAdminIdMsg,
+      "Please don't leave it empty."
+    );
+  }  
+
+  var editAdminEmail = $('#edit-admin-email');
+  var editAdminEmailMsg = $('#e-aeMsg');
+  editAdminEmail.on("input focusout", vrfEditAdminEmail);
+  function vrfEditAdminEmail() {
+    var plainText = editAdminEmail.val().trim();
+    isValid = wrapFunc.BasicValidation(
+      plainText.length != 0,
+      editAdminEmailMsg,
+      "Please don't leave it empty.",
+      editAdminEmail
+    );
+    if (!isValid) {
+      return;
+    }
+    isValid = wrapFunc.BasicValidation(
+      plainText.match(/^.+@.+$/),
+      editAdminEmailMsg,
+      "Please enter valid student email format.",
+      editAdminEmail
+    );
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      editAdminEmail,
+      editAdminEmailMsg,
+      "Please don't leave it empty."
+    );
+  }
+
+  var editAdminPhone = $('#edit-admin-contact-no');
+  var editAdminPhoneMsg = $('#e-apMsg');
+  editAdminPhone.on("input focusout", vrfEditAdminPhone);
+  function vrfEditAdminPhone() {
+    editAdminPhone.val(editAdminPhone.intlTelInput("getNumber"));
+    if ($.trim(editAdminPhone.val())) {
+      isValid = wrapFunc.BasicValidation(
+        editAdminPhone.intlTelInput("isValidNumber"),
+        editAdminPhoneMsg,
+        "Please enter valid phone number.",
+        editAdminPhone
+      );
+      if (!isValid) {
+        return;
+      }
+    } else {
+      isValid = true;
+    }
+
+    wrapFunc.MeetRequirement(
+      editAdminPhone,
+      editAdminPhoneMsg,
+      ""
+    );
+  }
+
+  function validFunc(func) {
+    func;
+    if (isValid) {
+      return true;
+    }
+    return false;
+  }    
   }
 
   updateUserList() {
@@ -414,6 +585,7 @@ export default class AdminConsolePage extends Component {
               underlineFocusStyle={styles.underlineFocusStyle}
               floatingLabelStyle={styles.floatingLabelStyle}
             />
+            <div id="e-anMsg">Please don't leave it empty.</div>
             <TextField
               id="edit-admin-email"
               name="edit-admin-email"
@@ -425,14 +597,28 @@ export default class AdminConsolePage extends Component {
               underlineFocusStyle={styles.underlineFocusStyle}
               floatingLabelStyle={styles.floatingLabelStyle}
             />
-            <br/><br/>
+            <div id="e-aeMsg">Please don't leave it empty.</div>
+            <TextField
+              id="edit-admin-uid"
+              name="edit-admin-uid"
+              floatingLabelText="Admin ID"
+              type="text"
+              fullWidth={true}
+              floatingLabelFixed={true}
+              underlineStyle={styles.underlineStyle}
+              underlineFocusStyle={styles.underlineFocusStyle}
+              floatingLabelStyle={styles.floatingLabelStyle}
+            />
+            <div id="e-aiMsg">Please don't leave it empty.</div>
+            <br/>
             <p className="form-paragraph">Contact No.</p>
             <input
               id="edit-admin-contact-no"
               name="edit-admin-contact-no"
               type="tel"
             />
-            <br/><br/>
+            <div id="e-apMsg"></div>
+            <br/>
             <p className="form-paragraph">Role & Permissions</p>
             <Toggle
               id="edit-admin-activated"
@@ -613,6 +799,9 @@ export default class AdminConsolePage extends Component {
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
                   <MenuItem value={"Campus"} primaryText="Campus" />
+                  <MenuItem value={"Admin ID"} primaryText="Admin ID" />
+                  <MenuItem value={"Latest"} primaryText="Latest" />
+                  <MenuItem value={"Oldest"} primaryText="Oldest" />
                 </DropDownMenu>
                 </div>
               </div>

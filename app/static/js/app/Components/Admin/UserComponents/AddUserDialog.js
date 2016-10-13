@@ -14,6 +14,7 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var isValid = false;
 
 import intlTelInput from 'intl-tel-input';
 
@@ -49,10 +50,20 @@ export default class AddUserDialog extends Component {
   };
 
   handleOpen = (e) => {
+    var thisObj = this;
     this.setState({open: true}, afterOpened);
 
     function afterOpened(){
+
+      var userName = $('#user-name');
+      userName.on("input focusout", thisObj.vrfUserName);
+
+      var userEmail = $('#user-email');
+      userEmail.on("input focusout", thisObj.vrfUserEmail);
+
       var userContactNo = $('#user-contact-no');
+      userContactNo.on("input focusout", thisObj.vrfUserPhone);
+
       userContactNo.intlTelInput({
         initialCountry: "auto",
         geoIpLookup: function(callback) {
@@ -77,6 +88,18 @@ export default class AddUserDialog extends Component {
     thisObj.setState({
       btnDisabled: true,
     });
+
+    var finalValidation = thisObj.validFunc(thisObj.vrfUserName()) &
+                          thisObj.validFunc(thisObj.vrfUserEmail()) &
+                          thisObj.validFunc(thisObj.vrfUserPhone());
+
+    if (!finalValidation){
+      thisObj.setState({
+        btnDisabled: false,
+      });      
+      return;
+    }
+
     $('#user-c').val(thisObj.state.value);
 
     var addUserForm = $('#add-user-form');
@@ -110,12 +133,90 @@ export default class AddUserDialog extends Component {
         });        
         return;
       }
-    });    
+    });
   };
 
-  togglePermission = (e) => {
-    $('#user-permission').parent().toggleClass('hide');
-  };
+  vrfUserName() {
+    var userName = $('#user-name');
+    var userMsg = $('#unMsg');
+    isValid = wrapFunc.BasicValidation(
+      $.trim(userName.val()),
+      userMsg,
+      "Please don't leave it empty.",
+      userName
+    );
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      userName,
+      userMsg,
+      "Please don't leave it empty."
+    );
+  }
+
+  vrfUserEmail() {
+    var userEmail = $('#user-email');
+    var emailMsg = $('#ueMsg');
+    var plainText = userEmail.val().trim();
+    isValid = wrapFunc.BasicValidation(
+      plainText.length != 0,
+      emailMsg,
+      "Please don't leave it empty.",
+      userEmail
+    );
+    if (!isValid) {
+      return;
+    }
+    isValid = wrapFunc.BasicValidation(
+      plainText.match(/^(i|j|p|l){1}[0-9]{5,}@student.newinti.edu.my$/),
+      emailMsg,
+      "Please enter valid student email format.",
+      userEmail
+    );
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      userEmail,
+      emailMsg,
+      "Please don't leave it empty."
+    );
+  }
+
+  vrfUserPhone() {
+    var userPhone = $('#user-contact-no');
+    var phoneMsg = $('#upMsg');
+
+    userPhone.val(userPhone.intlTelInput("getNumber"));
+    if ($.trim(userPhone.val())) {
+      isValid = wrapFunc.BasicValidation(
+        userPhone.intlTelInput("isValidNumber"),
+        phoneMsg,
+        "Please enter valid phone number.",
+        userPhone
+      );
+      if (!isValid) {
+        return;
+      }
+    } else {
+      isValid = true;
+    }
+
+    wrapFunc.MeetRequirement(
+      userPhone,
+      phoneMsg,
+      ""
+    );
+  }
+
+  validFunc(func) {
+    func;
+    if (isValid) {
+      return true;
+    }
+    return false;
+  }
 
   getUserList() {
     var thisObj = this;
@@ -149,11 +250,11 @@ export default class AddUserDialog extends Component {
     var av = a.TimeStamp;
     var bv = b.TimeStamp;
     return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
-  }  
+  }
 
   changeCampus(value) {
     this.setState({value});
-  }  
+  }
 
   componentDidMount() {
     var thisObj = this;
@@ -219,6 +320,7 @@ export default class AddUserDialog extends Component {
                 type="text"
                 fullWidth={true}
               />
+              <div id="unMsg">Please don't leave it empty.</div>
               <TextField
                 id="user-email"
                 name="user-email"
@@ -226,7 +328,8 @@ export default class AddUserDialog extends Component {
                 type="email"
                 fullWidth={true}
               />
-              <br/><br/>
+              <div id="ueMsg">Please don't leave it empty.</div>
+              <br/>
               <p className="form-paragraph">Gender</p>
               <RadioButtonGroup name="user-gender">
                 <RadioButton
@@ -245,7 +348,8 @@ export default class AddUserDialog extends Component {
                 name="user-contact-no"
                 type="tel"
               />
-              <br/><br/>
+              <div id="upMsg"></div>
+              <br/>
               <p className="form-paragraph">Role & Permissions</p>
               <Toggle
                 id="user-activated"

@@ -632,7 +632,7 @@ window.Wrapper = {
   },
   SetUserNotificationDataSource: function(ds) {
     userNotificationDataSource = ds;
-  },  
+  },
   SetUserBookedDataSource: function(ds) {
     userBookedDataSource = ds;
   },
@@ -644,13 +644,13 @@ window.Wrapper = {
   },
   GetAdminDataSource: function() {
     return adminDataSource;
-  },  
+  },
   GetNotificationDataSource: function() {
     return notificationDataSource;
   },
   GetUserNotificationDataSource: function() {
     return userNotificationDataSource;
-  },  
+  },
   GetRoomDataSource: function() {
     return roomDataSource;
   },
@@ -679,7 +679,7 @@ window.Wrapper = {
     var container = $('#pagination-container');
     var content = $('#pagination-content');
     content.empty();
-    container.pagination('destroy');    
+    container.pagination('destroy');
   },
   SetUpUser: function(ds) {
     window.UserData = ds;
@@ -691,7 +691,7 @@ window.Wrapper = {
   SetUpAdminSearchOption: function(ds) {
     searchAdminOption = ds;
     SearchAdminQuery();
-  },  
+  },
   SetUpRoomTypeSearchOption: function(ds) {
     searchRoomTypeOption = ds;
     SearchRoomTypeQuery();
@@ -900,7 +900,7 @@ function adminListTemplate(data) {
         }
         break;
     }
-    var admin_id = '<span class="paraStyle">ID - </span><span id="u-student-id">' + item.AdminId + '</span>' ;
+    var admin_id = '<span class="paraStyle">ID - </span><span id="a-admin-id">' + item.AdminId + '</span>' ;
 
     var activated = (item.Activated) ? "Activated" : "Inactivated";
     var fullPermission = (item.FullPermission) ? "Full" : "Normal";
@@ -1637,6 +1637,7 @@ function editAdmin(e) {
   $('#edit-admin-campus').val(thisObj.children("#a-campus").text());
   $('#edit-admin-name').val(thisObj.children("#a-name").text());
   $('#edit-admin-email').val(thisObj.children("#a-email").text());
+  $('#edit-admin-uid').val(thisObj.children("#a-admin-id").text());
   $('#edit-admin-contact-no').val(thisObj.children("#a-cn").text());
   var activated = thisObj.children("#a-activated").text();
   var fullPermission = thisObj.children('#a-fullPermission').text();

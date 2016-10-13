@@ -134,7 +134,7 @@ export default class UserConsolePage extends Component {
   };
 
   handleSortTypeChange = (event, index, value) => {
-    this.setSelectedValue(value);    
+    this.setSelectedValue(value);
     this.setState({
       sortValue: value,
     });
@@ -152,7 +152,7 @@ export default class UserConsolePage extends Component {
     });
   };
   handleOptionDialogClose = (e) => {
-    optionsIndex = tempOptionIndex;    
+    optionsIndex = tempOptionIndex;
     this.setState({
       optionDialogOpen: false,
     });
@@ -235,12 +235,15 @@ export default class UserConsolePage extends Component {
       case 'Campus':
         ds.sort(thisObj.sortByCampus);
       break;
+      case 'Student ID':
+        ds.sort(thisObj.sortByStudentId);
+      break;      
       case 'Latest':
         ds.sort(thisObj.sortByLatest);
       break;
       case 'Oldest':
         ds.sort(thisObj.sortByOldest);
-      break;      
+      break;
       default: return;
     }
 
@@ -253,6 +256,12 @@ export default class UserConsolePage extends Component {
     var bCampus = b.Campus.toLowerCase();
     return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
   }
+
+  sortByStudentId(a, b) {
+    var aCampus = a.StudentId.toLowerCase();
+    var bCampus = b.StudentId.toLowerCase();
+    return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
+  }  
 
   sortByLatest(a, b) {
     var av = a.TimeStamp;
@@ -321,12 +330,24 @@ export default class UserConsolePage extends Component {
     });    
 
     $('#update-btn').on('click', updateUser);
-
+    var isValid = false;
     function updateUser(e) {
       e.preventDefault();
       thisObj.setState({
         btnDisabled: true,
       });
+
+      var finalValidation = validFunc(vrfEditUserName()) &
+                            validFunc(vrfEditUserEmail()) &
+                            validFunc(vrfEditUserPhone());
+
+      if (!finalValidation) {
+        thisObj.setState({
+          btnDisabled: false,
+        });        
+        return;
+      }
+
       var editUserForm = $('#edit-user-form');
       $('#edit-user-campus').val(thisObj.state.value);
       ajax({
@@ -364,6 +385,90 @@ export default class UserConsolePage extends Component {
           });          
         }
       });      
+    }
+
+  var editUserName = $('#edit-user-name');
+  var editUserMsg = $('#e-unMsg');
+  editUserName.on("input focusout", vrfEditUserName);
+  function vrfEditUserName() {
+    isValid = wrapFunc.BasicValidation(
+      $.trim(editUserName.val()),
+      editUserMsg,
+      "Please don't leave it empty.",
+      editUserName
+    );
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      editUserName,
+      editUserMsg,
+      "Please don't leave it empty."
+    );
+  }
+
+    var editUserEmail = $('#edit-user-email');
+    var editEmailMsg = $('#e-ueMsg');
+    editUserEmail.on("input focusout", vrfEditUserEmail);
+  function vrfEditUserEmail() {
+    var plainText = editUserEmail.val().trim();
+    isValid = wrapFunc.BasicValidation(
+      plainText.length != 0,
+      editEmailMsg,
+      "Please don't leave it empty.",
+      editUserEmail
+    );
+    if (!isValid) {
+      return;
+    }
+    isValid = wrapFunc.BasicValidation(
+      plainText.match(/^(i|j|p|l){1}[0-9]{5,}@student.newinti.edu.my$/),
+      editEmailMsg,
+      "Please enter valid student email format.",
+      editUserEmail
+    );
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      editUserEmail,
+      editEmailMsg,
+      "Please don't leave it empty."
+    );
+  }
+
+  var editUserPhone = $('#edit-user-contact-no');
+  var editPhoneMsg = $('#e-upMsg');
+  editUserPhone.on("input focusout", vrfEditUserPhone);
+  function vrfEditUserPhone() {
+      editUserPhone.val(editUserPhone.intlTelInput("getNumber"));
+      if ($.trim(editUserPhone.val())) {
+        isValid = wrapFunc.BasicValidation(
+          editUserPhone.intlTelInput("isValidNumber"),
+          editPhoneMsg,
+          "Please enter valid phone number.",
+          editUserPhone
+        );
+        if (!isValid) {
+          return;
+        }
+      } else {
+        isValid = true;
+      }
+
+      wrapFunc.MeetRequirement(
+        editUserPhone,
+        editPhoneMsg,
+        ""
+      );
+    }  
+
+    function validFunc(func) {
+      func;
+      if (isValid) {
+        return true;
+      }
+      return false;
     }
   }
 
@@ -438,6 +543,7 @@ export default class UserConsolePage extends Component {
               underlineFocusStyle={styles.underlineFocusStyle}
               floatingLabelStyle={styles.floatingLabelStyle}
             />
+            <div id="e-unMsg">Please don't leave it empty.</div>
             <TextField
               id="edit-user-email"
               name="edit-user-email"
@@ -449,7 +555,8 @@ export default class UserConsolePage extends Component {
               underlineFocusStyle={styles.underlineFocusStyle}
               floatingLabelStyle={styles.floatingLabelStyle}
             />
-            <br/><br/>
+            <div id="e-ueMsg">Please don't leave it empty.</div>
+            <br/>
             <p className="form-paragraph">Gender</p>
             <RadioButtonGroup name="edit-user-gender">
               <RadioButton
@@ -468,7 +575,8 @@ export default class UserConsolePage extends Component {
               name="edit-user-contact-no"
               type="tel"
             />
-            <br/><br/>
+            <div id="e-upMsg"></div>
+            <br/>
             <p className="form-paragraph">Role & Permissions</p>
             <Toggle
               id="edit-user-activated"
@@ -565,6 +673,7 @@ export default class UserConsolePage extends Component {
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
                   <MenuItem value={"Campus"} primaryText="Campus" />
+                  <MenuItem value={"Student ID"} primaryText="Student ID" />
                   <MenuItem value={"Latest"} primaryText="Latest" />
                   <MenuItem value={"Oldest"} primaryText="Oldest" />
                 </DropDownMenu>

@@ -14,6 +14,7 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var isValid = false;
 
 import intlTelInput from 'intl-tel-input';
 
@@ -49,14 +50,26 @@ export default class AddAdminDialog extends Component {
   };
 
   handleOpen = (e) => {
+    var thisObj = this;
     this.setState({open: true}, afterOpened);
 
     function afterOpened(){
       if (!userData.fullPermission) {
         $('#admin-permission').parent().remove();
       }
-      var userContactNo = $('#admin-contact-no');
-      userContactNo.intlTelInput({
+
+      var adminName = $('#admin-name');
+      adminName.on("input focusout", thisObj.vrfAdminName);
+
+      var adminEmail = $('#admin-email');
+      adminEmail.on("input focusout", thisObj.vrfAdminEmail);
+
+      var adminId = $('#admin-uid');
+      adminId.on("input focusout", thisObj.vrfAdminId);
+
+      var adminContactNo = $('#admin-contact-no');
+      adminContactNo.on("input focusout", thisObj.vrfAdminPhone);
+      adminContactNo.intlTelInput({
         initialCountry: "auto",
         geoIpLookup: function(callback) {
           $.get('https://ipinfo.io', function() {}, "jsonp").always(function(resp) {
@@ -80,6 +93,19 @@ export default class AddAdminDialog extends Component {
     thisObj.setState({
       btnDisabled: true,
     });
+
+    var finalValidation = thisObj.validFunc(thisObj.vrfAdminName()) &
+                          thisObj.validFunc(thisObj.vrfAdminEmail()) &
+                          thisObj.validFunc(thisObj.vrfAdminId()) &
+                          thisObj.validFunc(thisObj.vrfAdminPhone());
+
+    if (!finalValidation) {
+      thisObj.setState({
+        btnDisabled: false,
+      });
+      return;
+    }
+
     $('#admin-c').val(thisObj.state.value);
 
     var addUserForm = $('#add-admin-form');
@@ -113,8 +139,109 @@ export default class AddAdminDialog extends Component {
         });        
         return;
       }
-    });    
+    });
   };
+
+  vrfAdminName() {
+    var adminName = $('#admin-name');
+    var adminNameMsg = $('#anMsg');
+    isValid = wrapFunc.BasicValidation(
+      $.trim(adminName.val()),
+      adminNameMsg,
+      "Please don't leave it empty.",
+      adminName
+    );
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      adminName,
+      adminNameMsg,
+      "Please don't leave it empty."
+    );
+  }
+
+  vrfAdminId() {
+    var adminId = $('#admin-uid');
+    var adminIdMsg = $('#aiMsg');
+    isValid = wrapFunc.BasicValidation(
+      $.trim(adminId.val()),
+      adminIdMsg,
+      "Please don't leave it empty.",
+      adminId
+    );
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      adminId,
+      adminIdMsg,
+      "Please don't leave it empty."
+    );
+  }  
+
+  vrfAdminEmail() {
+    var adminEmail = $('#admin-email');
+    var adminEmailMsg = $('#aeMsg');
+    var plainText = adminEmail.val().trim();
+    isValid = wrapFunc.BasicValidation(
+      plainText.length != 0,
+      adminEmailMsg,
+      "Please don't leave it empty.",
+      adminEmail
+    );
+    if (!isValid) {
+      return;
+    }
+    isValid = wrapFunc.BasicValidation(
+      plainText.match(/^.+@.+$/),
+      adminEmailMsg,
+      "Please enter valid student email format.",
+      adminEmail
+    );
+    if (!isValid) {
+      return;
+    }
+    wrapFunc.MeetRequirement(
+      adminEmail,
+      adminEmailMsg,
+      "Please don't leave it empty."
+    );
+  }
+
+  vrfAdminPhone() {
+    var adminPhone = $('#admin-contact-no');
+    var adminPhoneMsg = $('#apMsg');
+
+    adminPhone.val(adminPhone.intlTelInput("getNumber"));
+    if ($.trim(adminPhone.val())) {
+      isValid = wrapFunc.BasicValidation(
+        adminPhone.intlTelInput("isValidNumber"),
+        adminPhoneMsg,
+        "Please enter valid phone number.",
+        adminPhone
+      );
+      if (!isValid) {
+        return;
+      }
+    } else {
+      isValid = true;
+    }
+
+    wrapFunc.MeetRequirement(
+      adminPhone,
+      adminPhoneMsg,
+      ""
+    );
+  }
+
+  validFunc(func) {
+    func;
+    if (isValid) {
+      return true;
+    }
+    return false;
+  }
 
   getUserList() {
     var thisObj = this;
@@ -214,6 +341,7 @@ export default class AddAdminDialog extends Component {
                 type="text"
                 fullWidth={true}
               />
+              <div id="anMsg">Please don't leave it empty.</div>
               <TextField
                 id="admin-email"
                 name="admin-email"
@@ -221,6 +349,7 @@ export default class AddAdminDialog extends Component {
                 type="email"
                 fullWidth={true}
               />
+              <div id="aeMsg">Please don't leave it empty.</div>
               <TextField
                 id="admin-uid"
                 name="admin-uid"
@@ -228,14 +357,16 @@ export default class AddAdminDialog extends Component {
                 type="text"
                 fullWidth={true}
               />
-              <br/><br/>
+              <div id="aiMsg">Please don't leave it empty.</div>
+              <br/>
               <p className="form-paragraph">Contact No.</p>
               <input
                 id="admin-contact-no"
                 name="admin-contact-no"
                 type="tel"
               />
-              <br/><br/>
+              <div id="apMsg"></div>
+              <br/>
               <p className="form-paragraph">Role & Permissions</p>
               <Toggle
                 id="admin-activated"
