@@ -64,18 +64,18 @@ func initDB() {
 	verbose := true
 
 	// Admin account
-	// a := models.Admin{
-	// 	Name:           "Alpha",
-	// 	Campus:         "ALL",
-	// 	Email:          "ongkys1994@gmail.com",
-	// 	AvatarUrl:      "../static/upload/default/pikachu.png",
-	// 	ContactNo:      "+601121314799",
-	// 	Activated:      true,
-	// 	FullPermission: true,
-	// 	AdminId:        "xyz",
-	// }
+	a := models.Admin{
+		Name:           "o0o",
+		Campus:         "ALL",
+	 	Email:          "kuuki9999@gmail.com",
+	 	AvatarUrl:      "../static/upload/default/pikachu.png",
+	 	ContactNo:      "+6018131444",
+	 	Activated:      true,
+	 	FullPermission: true,
+	 	AdminId:        "abc",
+	 }
 
-	// a.Insert()
+	a.Insert()
 
 	// Error.
 	err := orm.RunSyncdb(name, force, verbose)

@@ -1,5 +1,1 @@
-cd app/static/js
-
-webpack --color --progress --watch
-
-
+docker run --rm -it -v `pwd`/app/static/js:/usr/app beegoapp:fo webpack --color --progress --watch

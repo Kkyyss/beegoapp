@@ -10,3 +10,4 @@ app/app.exe*
 app/static/upload/img
 app/.git
 app/testing.db
+app/static/js/npm-debug.log
