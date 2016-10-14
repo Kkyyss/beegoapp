@@ -32,6 +32,7 @@ func init() {
 	beego.Router("/user/room-type", &controllers.RoomTypeController{})
 	beego.Router("/user/room-type-console", &controllers.AdminRoomTypeController{})
 	beego.Router("/user/notifications", &controllers.UserNotificationController{})
+	beego.Router("/user/downloads", &controllers.UserDownloadController{})
 	beego.Router("/api/view-room-list", &controllers.RoomListController{})
 	beego.Router("/api/view-room-type-list", &controllers.RoomTypeListController{})
 	beego.Router("/api/view-room-status-list", &controllers.RoomStatusListController{})

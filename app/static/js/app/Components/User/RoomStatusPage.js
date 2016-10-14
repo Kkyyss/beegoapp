@@ -235,7 +235,6 @@ export default class RoomStatusPage extends Component {
       userCampus: userData.campus,
       userGender: userData.gender
     };
-
     ajax({
       url: "/api/view-room-status-list",
       method: "POST",

@@ -152,24 +152,8 @@ export default class Master extends Component {
     this.redirectUrl(event, "/user/notifications");
   }
 
-  downloadAccommodation = (event) => {
-    event.preventDefault();
-    _gaq.push(['_trackEvent', 'Download', 'Accommodation', '7z']);
-    var req = new XMLHttpRequest();
-    req.open("GET", "/static/download/Accommodation.7z", true);
-    req.responseType = "blob";
-
-    req.onload = function (e) {
-      var blob = req.response;
-      var link=document.createElement('a');
-      link.href=window.URL.createObjectURL(blob);
-      link.download="Accommodation.7z";
-      link.click();
-    };
-
-    req.send();
-    
-    // window.open("/static/download/Accommodation.7z");
+  accessDownloads = (event) => {
+    this.redirectUrl(event, "/user/downloads");
   }
 
   logout = (event) => {
@@ -308,7 +292,7 @@ export default class Master extends Component {
               case '/user/account':
                 if (isAdmin) {
                   $('#student-id').parent().next().remove();
-                  $('#student-id, #gender-section, #user-balance').parent().remove();
+                  $('#student-id, #user-gender, #user-balance').parent().remove();
                   $('#admin-id').val(adminId);
                 } else {
                   $('#admin-id').parent().next().remove();
@@ -596,16 +580,10 @@ export default class Master extends Component {
             <Subheader>Resources</Subheader>            
             <ListItem
               id="sidebar-download"
-              primaryTogglesNestedList={true}
               leftIcon={<FontIcon className="fa fa-download" />}
-              nestedItems = {[
-                <ListItem
-                  key={1}
-                  primaryText="Accommodation.7z"
-                  onTouchTap={this.downloadAccommodation}
-                />
-              ]}
-            >Download
+              onTouchTap={this.accessDownloads}
+            >
+            Downloads
             </ListItem>
           </Drawer>
           <AppBar

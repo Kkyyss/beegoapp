@@ -16,6 +16,7 @@ import UserRequestConsolePage from './Components/User/UserRequestConsolePage';
 import UserBookedRoomPage from './Components/User/UserBookedRoomPage';
 import RoomStatusPage from './Components/User/RoomStatusPage';
 import UserNotificationConsolePage from './Components/User/UserNotificationConsolePage';
+import UserDownloadsPage from './Components/User/UserDownloadsPage';
 
 import RoomConsolePage from './Components/Admin/RoomConsolePage';
 import RequestConsolePage from './Components/Admin/RequestConsolePage';
@@ -55,6 +56,7 @@ const AppRoutes = (
     <Route path="user/room-type" component={RoomTypeConsolePage} />
     <Route path="user/room-status" component={RoomStatusPage} />
     <Route path="user/request" component={UserRequestConsolePage} />
+    <Route path="user/downloads" component={UserDownloadsPage} />
     <Route path="401" component={FourZeroOnePage}/>
     <Route path="404" component={FourZeroFourPage}/>
     <Route path="500" component={FiveZeroZeroPage}/>

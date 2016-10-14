@@ -1040,7 +1040,7 @@ var wrapFunc = window.Wrapper;
 function removeRoom(e) {
   e.preventDefault();
   var roomId = {
-    roomId: $(this).parent().parent().children("#room-id").text()
+    roomId: $(this).parent().parent().children("#r-id").text()
   }
   ajax({
     url: "/user/room-console",

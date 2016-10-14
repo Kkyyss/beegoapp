@@ -15,6 +15,7 @@ module.exports = {
      './app/Components/User/UserBookedRoomPage.js',
      './app/Components/User/RoomStatusPage.js',
      './app/Components/User/UserNotificationConsolePage.js',
+     './app/Components/User/UserDownloadsPage.js',
      './app/Components/User/AddRequestComponents/AddRequestDialog.js',
      './app/Components/Admin/RoomConsolePage.js',
      './app/Components/Admin/RequestConsolePage.js',

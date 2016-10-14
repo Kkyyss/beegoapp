@@ -53,15 +53,60 @@ export default class IUPage extends Component {
     window.open(url, '_blank');
   }
 
-  openForm = (ev) => {
-    ev.preventDefault();
-    var url = "/user/iu-form";
-    $(location).prop('href', url);
+  componentDidMount() {
+    $(window).resize(function() {
+      $(window).trigger("window:resize");
+    });
+
+    viewRates();
+
+    $(window).on('window:resize', viewRates);
+
+    function viewRates() {
+      var windowHeight = $(window).height();
+      var viewRatesBox = $('#rates-box');
+      var windowWidth = $(window).width();
+      viewRatesBox.width(windowWidth * 0.8);
+      viewRatesBox.height(windowHeight * 0.8);
+      var dialogContentHeight = viewRatesBox.height() - 38;
+      $('.full-content').height(dialogContentHeight);
+    }
+
+    var dialogCollection = $('#bg-overlay, #rates-box');
+
+    $('#rates-info').on('click', function() {
+      $('#show-rates').attr('src', $(this).attr('src'));
+      dialogCollection.css('display', 'block');
+    });
+
+    $('#bg-overlay, .cancel-btn').on('click', function() {
+      dialogCollection.css('display', 'none');
+    });
+
+    $(document).on('keyup', function(e) {
+      if (e.keyCode == 27) {
+        dialogCollection.css('display', 'none');
+      }
+    });
   }
 
   render() {
     return (
       <div>
+        <div id="bg-overlay"></div>
+        <div id="rates-box">
+          <div className="full-header">
+          <RaisedButton
+            className="cancel-btn"
+            secondary={true}
+            label="Cancel"
+            fullWidth={true}
+          />
+          </div>
+          <div className="full-content">
+            <img id="show-rates" />
+          </div>
+        </div>
         <div id="card-wrapper" style={styles.cardWrapper} className="wrapper-margin">
           <Card id="card" style={styles.cardSize}>
             <CardMedia
@@ -84,24 +129,12 @@ export default class IUPage extends Component {
             >
               <img src="../static/img/IU_campus.jpg" />
             </CardMedia>
-            <RaisedButton
-              label="Apply"
-              primary={true}
-              fullWidth={true}
-              onTouchTap={this.openForm}
-            />            
             <div style={styles.contentPadding}>
               <CardTitle title="RENTAL RATES PER PERSON" />
               <CardMedia>
-                <img src="../static/img/iu-personal-rental-rates.png" />
+                <img id="rates-info" src="../static/img/iu-personal-rental-rates.png" />
               </CardMedia>
-            </div>
-            <RaisedButton
-              label="Apply"
-              primary={true}
-              fullWidth={true}
-              onTouchTap={this.openForm}
-            />            
+            </div>   
           </Card>
         </div>
       </div>

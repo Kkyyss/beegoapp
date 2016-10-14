@@ -43,7 +43,8 @@
 #view-user-box,
 #view-admin-box,
 #view-nf-box,
-#edit-nf-box {
+#edit-nf-box,
+#rates-box {
     /*padding: 15px;*/
     background:#FFFFFF;
 
@@ -118,6 +119,27 @@
     margin-top: 80px;
     margin-bottom: 60px; 
     background-color: rgb(241, 242, 242);       
+}
+
+.full-content {
+    margin-top: 38px;
+    overflow: auto;
+    width: 100%;
+}
+
+.full-header {
+  border-bottom: 1px solid #a4a4a6;    
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: white;
+  z-index: 999;
+  width: 100%;
+  /*padding-top: 79.88px;*/
+}
+
+#rates-info:hover {
+    cursor: pointer;
 }
 
 .location-content {
@@ -228,7 +250,8 @@
     .edit-rt-content, 
     .edit-admin-content,
     .edit-nf-content,
-    .view-nf-content {
+    .view-nf-content,
+    .half-wide {
         width: 70% !important; 
     }
     .half-content {
@@ -701,7 +724,8 @@ table, td, th {
 .edit-rt-content, 
 .edit-admin-content,
 .edit-nf-content,
-.view-nf-content {
+.view-nf-content,
+.half-wide {
     padding: 20px;
     background-color: white;
     box-shadow: rgb(136, 136, 136) 0px 2px 5px;    

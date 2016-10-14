@@ -312,7 +312,6 @@ export default class UserAccountPage extends Component {
   render() {
     return (
       <div>
-      <div id="bg-overlay"></div>
       <div id="card-wrapper" style={styles.cardWrapper} className="wrapper-margin">
         <Card id="card" name="account-card" style={styles.cardSize}>
           <Tabs>
