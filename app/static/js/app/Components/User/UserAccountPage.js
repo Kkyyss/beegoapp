@@ -190,9 +190,6 @@ export default class UserAccountPage extends Component {
     function submitAccount(e) {
       e.preventDefault();
       var finalValidation;
-      if (!userData.isAdmin) {
-        finalValidation = validFunc(genderVrf())
-      }
       finalValidation = validFunc(contactVrf());
                // & validFunc(phoneVrf());
       if (!finalValidation) {
@@ -248,31 +245,6 @@ export default class UserAccountPage extends Component {
         }
       });
       return;
-    }
-    
-    var userGender = $('input[name=user-gender]');
-    var genderMsg = $('#genderMsg');
-    userGender.on({
-      'click': genderVrf,
-    });
-
-    function genderVrf() {
-      if ($('input[name=user-gender]:checked').length == 0) {
-        isValid = wrapFunc.BasicValidation(
-          false,
-          genderMsg,
-          "Please select your gender.",
-          userGender
-        );
-        return;
-      } else {
-        isValid = true;
-        wrapFunc.MeetRequirement(
-          userGender, 
-          genderMsg, 
-          "Please select your gender."
-        );
-      }
     }
 
 
@@ -447,22 +419,17 @@ export default class UserAccountPage extends Component {
                             readOnly={true}
                             floatingLabelStyle={styles.floatingLabelStyle}
                           />
-                          <div>
-                          <p id="gender-section" className="form-paragraph">Gender</p>
-                          <RadioButtonGroup name="user-gender" style={styles.oneLine}>
-                            <RadioButton
-                              value="Male"
-                              label="Male"
-                            />
-                            <RadioButton
-                              value="Female"
-                              label="Female"
-                            />
-                          </RadioButtonGroup>
                           <br/>
-                          <div id="genderMsg">Please select your gender.</div>
-                          <br/>
-                          </div>
+                          <TextField
+                            floatingLabelText="Gender"
+                            floatingLabelFixed={true}
+                            fullWidth={true}
+                            id="user-gender"
+                            name="user-gender"
+                            type="text"
+                            readOnly={true}
+                            floatingLabelStyle={styles.floatingLabelStyle}
+                          />
                           <span style={styles.hide} id="user-tel-no"></span>
                           <p className="form-paragraph">Contact No.</p>
                           <input

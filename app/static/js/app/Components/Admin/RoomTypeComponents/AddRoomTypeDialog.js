@@ -412,11 +412,11 @@ export default class AddRoomTypeDialog extends Component {
               <p className="form-paragraph">Gender</p>
               <RadioButtonGroup name="gender">
                 <RadioButton
-                  value="Male"
+                  value="male"
                   label="Male"
                 />
                 <RadioButton
-                  value="Female"
+                  value="female"
                   label="Female"
                 />
               </RadioButtonGroup>

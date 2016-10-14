@@ -102,7 +102,7 @@ func (self *AuthProviderCallbackController) Get() {
 
 	u.StudentId = strings.Replace(u.Email, "@student.newinti.edu.my", "", -1)
 
-	err = u.GetAuthUser()
+	err = u.GetAuthUser(user.AccessToken)
 	if err != nil {
 		self.Data["json"] = err.Error()
 		self.ServeJSON()

@@ -333,11 +333,11 @@ export default class AddUserDialog extends Component {
               <p className="form-paragraph">Gender</p>
               <RadioButtonGroup name="user-gender">
                 <RadioButton
-                  value="Male"
+                  value="male"
                   label="Male"
                 />
                 <RadioButton
-                  value="Female"
+                  value="female"
                   label="Female"
                 />
               </RadioButtonGroup>

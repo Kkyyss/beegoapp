@@ -560,11 +560,11 @@ export default class UserConsolePage extends Component {
             <p className="form-paragraph">Gender</p>
             <RadioButtonGroup name="edit-user-gender">
               <RadioButton
-                value="Male"
+                value="male"
                 label="Male"
               />
               <RadioButton
-                value="Female"
+                value="female"
                 label="Female"
               />
             </RadioButtonGroup>

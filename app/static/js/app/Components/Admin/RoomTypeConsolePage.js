@@ -617,11 +617,11 @@ export default class RoomTypeConsolePage extends Component {
             <p className="form-paragraph">Gender</p>
             <RadioButtonGroup name="edit-gdr">
               <RadioButton
-                value="Male"
+                value="male"
                 label="Male"
               />
               <RadioButton
-                value="Female"
+                value="female"
                 label="Female"
               />
             </RadioButtonGroup>

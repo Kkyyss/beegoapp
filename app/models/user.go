@@ -157,7 +157,7 @@ func (u *User) GetUserId() (id int, errMsg string) {
 }
 
 // Auth users
-func (u *User) GetAuthUser() (err error) {
+func (u *User) GetAuthUser(accessToken string) (err error) {
 	o := orm.NewOrm()
 	qs := o.QueryTable("users")
 	// r := qs.Filter("provider", u.Provider).Filter("user_id", u.UserId)
@@ -167,7 +167,7 @@ func (u *User) GetAuthUser() (err error) {
 		beego.Debug(err)
 	}
 	if num <= 0 {
-		err = u.InsertAuthUser()
+		err = u.InsertAuthUser(accessToken)
 		if err != nil {
 			return
 		}
@@ -176,9 +176,20 @@ func (u *User) GetAuthUser() (err error) {
 	return
 }
 
-func (u *User) InsertAuthUser() (err error) {
+func (u *User) InsertAuthUser(accessToken string) (err error) {
 	o := orm.NewOrm()
 	qs := o.QueryTable("users")
+
+	var ob interface{}
+	req := httplib.NewBeegoRequest("https://www.googleapis.com/oauth2/v1/userinfo", "GET")
+	req.Param("alt", "json")
+	req.Param("access_token", accessToken)
+	err = req.ToJSON(&ob)
+	if err != nil {
+		beego.Debug(err)
+	}
+	u.Gender = ob.(map[string]interface{})["gender"].(string)
+	beego.Debug(u.Gender)
 	i, err := qs.PrepareInsert()
 	if err != nil {
 		return

@@ -314,15 +314,7 @@ export default class Master extends Component {
                   $('#admin-id').parent().next().remove();
                   $('#admin-id').parent().remove();
                   $('#student-id').val(studentId);
-                  switch (gender) {
-                    case 'Male':
-                      $('input[name=user-gender]')[0].click();
-                      break;
-                    case 'Female':
-                      $('input[name=user-gender]')[1].click();
-                      break;
-                    default: break;
-                  }
+                  $('#user-gender').val(gender.charAt(0).toUpperCase() + gender.slice(1));
                 }
                 if (isAccount === 'TRUE') {
                   $('#user-type').text(userType);
@@ -351,8 +343,8 @@ export default class Master extends Component {
               sidebarAdmin.prev().remove();
               sidebarAdmin.remove();
             } else {
-              $('#sidebar-user-item').parent().prev().remove();
-              $('#sidebar-user-item').parent().remove();
+              $('#sidebar-user-item, #campus-item, #sidebar-download').parent().prev().remove();
+              $('#sidebar-user-item, #campus-item, #sidebar-download').parent().remove();
             }
             if (isUser === 'TRUE') {
               $('#reg-gplus').remove();
@@ -456,48 +448,54 @@ export default class Master extends Component {
                 />,
                 <ListItem
                   key={2}
+                  primaryText="Room Status"
+                  onTouchTap={this.accessRoomStatus}
+                  leftIcon={<FontIcon className="fa fa-pie-chart" />}
+                />,
+                <ListItem
+                  key={3}
                   primaryText="Room Types"
                   leftIcon={<FontIcon className="fa fa-th" />}
                   href="/user/room-type"
                 />,
                 <ListItem
-                  key={3}
+                  key={4}
                   primaryText="Room"
                   leftIcon={<FontIcon className="fa fa-h-square" />}
                   onTouchTap={this.roomConsole}
                 />,
                 <ListItem
-                  key={4}
+                  key={5}
                   primaryText="Request"
                   leftIcon={<FontIcon className="fa fa-list-ul" />}
                   onTouchTap={this.requestConsole}
                 />,
                 <ListItem
-                  key={5}
+                  key={6}
                   primaryText="Booked Room"
                   leftIcon={<FontIcon className="fa fa-bed" />}
                   onTouchTap={this.bookedRoomConsole}
                 />,
                 <ListItem
-                  key={6}
+                  key={7}
                   primaryText="Notifications"
                   leftIcon={<FontIcon className="fa fa-bell" />}
                   onTouchTap={this.notificationConsole}
                 />,
                 <ListItem
-                  key={7}
+                  key={8}
                   primaryText="Student"
                   leftIcon={<FontIcon className="fa fa-users" />}
                   onTouchTap={this.userConsole}
                 />,
                 <ListItem
-                  key={8}
+                  key={9}
                   primaryText="Admin"
                   leftIcon={<FontIcon className="fa fa-eye" />}
                   onTouchTap={this.adminConsole}
                 />,                
                 <ListItem
-                  key={9}
+                  key={10}
                   primaryText="Sign Out"
                   onTouchTap={this.logout}
                   leftIcon={<FontIcon className="fa fa-sign-out" />}
@@ -528,24 +526,30 @@ export default class Master extends Component {
                 />,
                 <ListItem
                   key={2}
+                  primaryText="Room Status"
+                  onTouchTap={this.accessRoomStatus}
+                  leftIcon={<FontIcon className="fa fa-pie-chart" />}
+                />,                
+                <ListItem
+                  key={3}
                   primaryText="Account"
                   onTouchTap={this.accessUserAccount}
                   leftIcon={<FontIcon className="fa fa-user" />}
                 />,
                 <ListItem
-                  key={3}
+                  key={4}
                   primaryText="Request"
                   leftIcon={<FontIcon className="fa fa-list-ul" />}
                   onTouchTap={this.userRequestConsole}
                 />,
                 <ListItem
-                  key={4}
+                  key={5}
                   primaryText="Booked Room"
                   leftIcon={<FontIcon className="fa fa-bed" />}
                   onTouchTap={this.userBookedRoomConsole}
                 />,
                 <ListItem
-                  key={5}
+                  key={6}
                   primaryText="Sign Out"
                   onTouchTap={this.logout}
                   leftIcon={<FontIcon className="fa fa-sign-out" />}
@@ -554,24 +558,6 @@ export default class Master extends Component {
             >
              User
             </ListItem>
-            <Divider />
-            <Subheader>Detail</Subheader>
-            <ListItem
-              id="sidebar-room-item"
-              primaryTogglesNestedList={true}
-              initiallyOpen={true}
-              leftIcon={<FontIcon className="fa fa-info" />}
-              nestedItems = {[
-                <ListItem
-                  key={1}
-                  primaryText="Room Status"
-                  onTouchTap={this.accessRoomStatus}
-                  leftIcon={<FontIcon className="fa fa-pie-chart" />}
-                />
-              ]}
-            >
-              Detail
-            </ListItem>             
             <Divider />
             <Subheader>Campuses</Subheader>            
             <ListItem
