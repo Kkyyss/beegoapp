@@ -1,4 +1,5 @@
 var webpack = require('webpack');
+var ETP = require("extract-text-webpack-plugin");
 
 module.exports = {
    entry: [
@@ -43,10 +44,10 @@ module.exports = {
     },
   module: {
       loaders: [
-      { test: /\.css$/, loader: "style-loader!css-loader" },
+      { test: /\.css$/,
+        loader:ETP.extract("style-loader","css-loader")
+      },
       { test: /\.(gif|jpg|png|woff|svg|eot|ttf)\??.*$/, loader: "url-loader?limit=100000" },
-      { test: /jquery-mousewheel/, loader: "imports?define=>false&this=>window" },
-      { test: /malihu-custom-scrollbar-plugin/, loader: "imports?define=>false&this=>window" },
       {
             test: /\.jsx?$/,
             loader: 'babel',
@@ -60,18 +61,19 @@ module.exports = {
           modulesDirectories: [
             'node_modules'
           ]
-      }      
+      }
   },
-  // plugins:[
-  //   new webpack.DefinePlugin({
-  //     'process.env':{
-  //       'NODE_ENV': JSON.stringify('production')
-  //     }
-  //   }),
-  //   new webpack.optimize.UglifyJsPlugin({
-  //     compress:{
-  //       warnings: true
-  //     }
-  //   })
-  // ]
+  plugins:[
+    new webpack.DefinePlugin({
+      'process.env':{
+        'NODE_ENV': JSON.stringify('production')
+      }
+    }),
+    new ETP("./build/bundle.css"),
+    new webpack.optimize.UglifyJsPlugin({
+      compress:{
+        warnings: true
+      }
+    })
+  ]
 };

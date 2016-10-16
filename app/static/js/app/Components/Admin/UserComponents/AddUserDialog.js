@@ -9,14 +9,14 @@ import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
-import "intl-tel-input/build/css/intlTelInput.css";
+
 var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
+var intlTelInput = window.IntlTelInput;
 var userData;
 var isValid = false;
 
-import intlTelInput from 'intl-tel-input';
 
 const styles = {
   hide: {

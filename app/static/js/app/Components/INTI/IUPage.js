@@ -40,6 +40,9 @@ const styles = {
     width: '100%',
     padding: '15px',
   },
+  textCenter: {
+    textAlign: 'center',
+  },  
 };
 
 export default class IUPage extends Component {
@@ -66,7 +69,11 @@ export default class IUPage extends Component {
       var windowHeight = $(window).height();
       var viewRatesBox = $('#rates-box');
       var windowWidth = $(window).width();
+<<<<<<< Updated upstream
       viewRatesBox.width(windowWidth * 0.8);
+=======
+      viewRatesBox.width(windowWidth * 0.85);
+>>>>>>> Stashed changes
       viewRatesBox.height(windowHeight * 0.8);
       var dialogContentHeight = viewRatesBox.height() - 38;
       $('.full-content').height(dialogContentHeight);
@@ -104,7 +111,13 @@ export default class IUPage extends Component {
           />
           </div>
           <div className="full-content">
+<<<<<<< Updated upstream
             <img id="show-rates" />
+=======
+            <div style={styles.textCenter}>
+              <img id="show-rates" />
+            </div>
+>>>>>>> Stashed changes
           </div>
         </div>
         <div id="card-wrapper" style={styles.cardWrapper} className="wrapper-margin">
@@ -113,7 +126,7 @@ export default class IUPage extends Component {
               overlay={
                 <div style={styles.padding}>
                   <div>
-                    <span className="inti-title whitify">INTI International University Nilai</span>
+                    <span className="inti-title whitify">INTI INTERNATIONAL UNIVERSITY NILAI</span>
                       <RaisedButton
                         className="inti-title"
                         label="Map"
@@ -132,7 +145,11 @@ export default class IUPage extends Component {
             <div style={styles.contentPadding}>
               <CardTitle title="RENTAL RATES PER PERSON" />
               <CardMedia>
+<<<<<<< Updated upstream
                 <img id="rates-info" src="../static/img/iu-personal-rental-rates.png" />
+=======
+                <img id="rates-info" src="../static/img/iu-personal-rental-rates.jpg" />
+>>>>>>> Stashed changes
               </CardMedia>
             </div>   
           </Card>

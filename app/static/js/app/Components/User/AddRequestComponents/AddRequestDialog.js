@@ -3,7 +3,6 @@ import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
-import Toggle from 'material-ui/Toggle';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
 import DatePicker from 'material-ui/DatePicker';
@@ -295,6 +294,7 @@ export default class AddRequestDialog extends Component {
 
   getRoomTypeList() {
     var userState = {
+      userFUP: userData.fillUpProfile,
       userIsAdmin: userData.isAdmin,
       userCampus: userData.campus,
       userGender: userData.gender

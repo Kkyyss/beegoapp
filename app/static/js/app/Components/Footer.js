@@ -2,9 +2,7 @@ import React, {Component} from 'react';
 import Paper from 'material-ui/Paper';
 import IconButton from 'material-ui/IconButton';
 import Drawer from 'material-ui/Drawer';
-import AppBar from 'material-ui/AppBar';
 import {ListItem} from 'material-ui/List';
-import {grey900, yellow400} from 'material-ui/styles/colors';
 
 const styles = {
 	footer: {
@@ -12,7 +10,7 @@ const styles = {
 	  left:'0px',
 	  bottom:'0px',
  	  width: '100%',
-    backgroundColor: grey900,
+    backgroundColor: '#212121',
 	},
 	center: {
 	  textAlign: 'center',
@@ -34,7 +32,7 @@ const styles = {
     height: 64,
     width: 250,
     display: 'inline-block',
-    backgroundColor: yellow400,
+    backgroundColor: '#18FFFF',
   },
 };
 

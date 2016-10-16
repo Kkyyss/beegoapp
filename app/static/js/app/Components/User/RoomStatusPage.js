@@ -13,6 +13,7 @@ var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 var userData;
+var tempOptionIndex = [1];
 var options = [];
 var optionsIndex = [1];
 
@@ -151,6 +152,7 @@ export default class RoomStatusPage extends Component {
   };
 
   handleSortTypeChange = (event, index, value) => {
+    this.setSelectedValue(value);
     this.setState({
       sortValue: value,
     });
@@ -168,6 +170,7 @@ export default class RoomStatusPage extends Component {
     });
   };
   handleOptionDialogClose = (e) => {
+    optionsIndex = tempOptionIndex;
     this.setState({
       optionDialogOpen: false,
     });
@@ -176,7 +179,8 @@ export default class RoomStatusPage extends Component {
   handleSearchOptionSubmit = (e) => {
     this.setState({
       optionsButton: true,
-    })
+    });
+    tempOptionIndex = optionsIndex;
     options = [];
     optionsIndex = [];
 
@@ -194,6 +198,20 @@ export default class RoomStatusPage extends Component {
       optionsIndex.push(0);
     }
 
+    if (optionsIndex.indexOf(1) < 0) {
+      wrapFunc.AlertStatus(
+        "Oopps...",
+        "Please select at least 1 option.",
+        "error",
+        false,
+        false
+      );
+      this.setState({
+        optionsButton: false,
+      });
+      return;
+    }
+    tempOptionIndex = optionsIndex;
     wrapFunc.SetUpRoomStatusSearchOption(options);
     this.setState({
       optionDialogOpen: false,
@@ -214,12 +232,40 @@ export default class RoomStatusPage extends Component {
     });
   };
 
+  setSelectedValue(v) {
+    var thisObj = this;
+    var ds = wrapFunc.GetRoomStatusDataSource();
+    switch (v) {
+      case "Available":
+        ds.sort(thisObj.sortByAvailable);
+      break;
+      case "N/A":
+        ds.sort(thisObj.sortByNotAvailable);
+      break;
+      default: return;
+    }
+
+    wrapFunc.SetRoomStatusDataSource(ds);
+    wrapFunc.PaginateRoomStatusContent(ds);
+  }
+
   sortByCampus(a, b) {
     var aCampus = a.Campus.toLowerCase();
     var bCampus = b.Campus.toLowerCase();
     return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
-  }  
+  }
 
+  sortByAvailable(a, b) {
+    var av = a.Available;
+    var bv = b.Available;
+    return ((av > bv) ? -1 : ((av < bv) ? 1 : 0));
+  }
+
+  sortByNotAvailable(a, b) {
+    var av = a.Available;
+    var bv = b.Available;
+    return ((av < bv) ? -1 : ((av > bv) ? 1 : 0));
+  }
 
   componentDidMount() {
     var thisObj = this;
@@ -230,6 +276,7 @@ export default class RoomStatusPage extends Component {
   }
 
   updateRoomStatusList() {
+    var thisObj = this;
     var userState = {
       userIsAdmin: userData.isAdmin,
       userCampus: userData.campus,
@@ -248,7 +295,7 @@ export default class RoomStatusPage extends Component {
         if (res.error != null) {
           $('#errMsg').text(res.error);
         } else {
-          console.log(res.data);
+          res.data.sort(thisObj.sortByAvailable);
           wrapFunc.SetRoomStatusDataSource(res.data);
           wrapFunc.PaginateRoomStatusContent(res.data);
         }
@@ -326,6 +373,7 @@ export default class RoomStatusPage extends Component {
                 Sort By&nbsp;
                 <DropDownMenu maxHeight={250} id="sortDropDownMenu" value={this.state.sortValue} onChange={this.handleSortTypeChange}>
                   <MenuItem value={"Available"} primaryText="Available" />
+                  <MenuItem value={"N/A"} primaryText="N/A" />
                 </DropDownMenu>
                 </div>
             </div>

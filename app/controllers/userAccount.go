@@ -122,7 +122,6 @@ func (self *UserAccountController) Put() {
 
 	u = models.User{
 		Email:         self.GetString("reg-email"),
-		Gender:        self.GetString("user-gender"),
 		ContactNo:     self.GetString("user-contact-no"),
 		FillUpProfile: true,
 	}

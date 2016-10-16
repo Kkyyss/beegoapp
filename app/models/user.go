@@ -245,7 +245,6 @@ func (u *User) UpdateAccount() string {
 	}
 
 	_, err = r.Update(orm.Params{
-		"gender":          u.Gender,
 		"contact_no":      u.ContactNo,
 		"fill_up_profile": u.FillUpProfile,
 	})

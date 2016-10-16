@@ -12,17 +12,15 @@ import Divider from 'material-ui/Divider';
 import Checkbox from 'material-ui/Checkbox';
 import IconButton from 'material-ui/IconButton';
 import Avatar from 'material-ui/Avatar';
-import "intl-tel-input/build/css/intlTelInput.css";
 
 var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
+var intlTelInput = window.IntlTelInput;
 var userData;
 var tempOptionIndex = [1];
 var options = [];
 var optionsIndex = [1];
-
-import intlTelInput from 'intl-tel-input';
 
 const styles = {
   cardSize: {
@@ -241,7 +239,7 @@ export default class AdminConsolePage extends Component {
 
   setSelectedValue(v) {
     var thisObj = this;
-    var ds = wrapFunc.GetUsersDataSource();
+    var ds = wrapFunc.GetAdminDataSource();
     switch (v) {
       case 'Campus':
         ds.sort(thisObj.sortByCampus);
@@ -269,8 +267,8 @@ export default class AdminConsolePage extends Component {
   }
 
   sortByAdminId(a, b) {
-    var aCampus = a.StudentId.toLowerCase();
-    var bCampus = b.StudentId.toLowerCase();
+    var aCampus = a.AdminId.toLowerCase();
+    var bCampus = b.AdminId.toLowerCase();
     return ((aCampus < bCampus) ? -1 : ((aCampus > bCampus) ? 1 : 0));
   }  
 
@@ -668,11 +666,6 @@ export default class AdminConsolePage extends Component {
                       size={128} />
                   </caption>
                   <tbody>
-                  <tr colSpan="2">
-                    <td style={styles.textCenter}>
-                      <b>Joined On <span id="view-admin-dj"></span></b>
-                    </td>
-                  </tr>
                   </tbody>
                 </table>
               </Card>

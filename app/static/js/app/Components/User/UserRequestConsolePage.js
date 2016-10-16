@@ -573,10 +573,10 @@ export default class UserRequestConsolePage extends Component {
                         </tr>
                         <tr>
                           <td style={styles.dateAlign}>
-                            <DatePicker 
+                            <DatePicker
                               id="card-exp"
                               name="card-exp"
-                              hintText="Expire Date" 
+                              hintText="Expire Date"
                               formatDate={formatDate}
                               mode="landscape"
                               minDate={this.state.minDate}

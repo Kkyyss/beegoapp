@@ -142,7 +142,7 @@ func GetAdminList() (errMsg string, users []*Admin) {
 	return
 }
 
-func GetRoomTypeList(isAdmin bool, campus, gender string) (errMsg string, roomTypes []*RoomTypes) {
+func GetRoomTypeList(fillUpProfile, isAdmin bool, campus, gender string) (errMsg string, roomTypes []*RoomTypes) {
 	o := orm.NewOrm()
 	qs := o.QueryTable("room_types")
 
@@ -151,7 +151,7 @@ func GetRoomTypeList(isAdmin bool, campus, gender string) (errMsg string, roomTy
 	default:
 		qs = qs.Filter("campus", campus)
 		if !isAdmin {
-			if gender == "" {
+			if !fillUpProfile {
 				errMsg = `You <b>must complete</b> the <a href="/user/account">Profile</a> in order to send booking request.`
 				return errMsg, nil
 			}

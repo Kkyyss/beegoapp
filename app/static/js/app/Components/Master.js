@@ -1,30 +1,23 @@
 import React, {Component} from 'react';
-import ReactDOM from 'react-dom';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AppBar from 'material-ui/AppBar';
 import Drawer from 'material-ui/Drawer';
 import {ListItem} from 'material-ui/List';
 import Avatar from 'material-ui/Avatar';
 import Paper from 'material-ui/Paper';
-import {yellow400} from 'material-ui/styles/colors';
 import FontIcon from 'material-ui/FontIcon';
 import Divider from 'material-ui/Divider';
 import Subheader from 'material-ui/Subheader';
-import NotificationsIcon from 'material-ui/svg-icons/social/notifications';
 import FlatButton from 'material-ui/FlatButton';
-import {
-  IndexRoute,
-  IndexLink,
-  Link
-} from 'react-router';
 
+require('./CSS/main.css');
 require('./CSS/animate.css');
 require('./CSS/sweetalert2.min.css');
+require('intl-tel-input/build/css/intlTelInput.css');
 require('./CSS/backup.css');
 require('./JS/wrapperFunc.js');
 
 var $ = window.Jquery;
-var moment = window.Moment;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
 
@@ -58,13 +51,13 @@ const styles = {
     top: '0px',
     left: '0px',
     position: 'fixed',
-    backgroundColor: yellow400,
+    backgroundColor: '#18FFFF',
   },
   sidebarTitle: {
     height: 64,
     width: 250,
     display: 'inline-block',
-    backgroundColor: yellow400,
+    backgroundColor: '#18FFFF',
   },
   balanceStyle: {
     display: 'flex',
@@ -114,7 +107,11 @@ export default class Master extends Component {
 
   accessRoomStatus = (event) => {
     this.redirectUrl(event, "/user/room-status");
-  }
+  };
+
+  accessRoomTypes = (event) => {
+    this.redirectUrl(event, "/user/room-type");
+  }; 
 
   roomConsole = (event) => {
     this.redirectUrl(event, "/user/room-console");
@@ -150,11 +147,31 @@ export default class Master extends Component {
 
   userNotificationConsole = (event) => {
     this.redirectUrl(event, "/user/notifications");
-  }
+  };
 
   accessDownloads = (event) => {
     this.redirectUrl(event, "/user/downloads");
+<<<<<<< Updated upstream
   }
+=======
+  };
+
+  accessIU = (event) =>{
+    this.redirectUrl(event, "/user/inti-iu");
+  };
+
+  accessIICS = (event) =>{
+    this.redirectUrl(event, "/user/inti-iics");
+  };
+
+  accessIICKL = (event) =>{
+    this.redirectUrl(event, "/user/inti-iickl");
+  };
+
+  accessIICP = (event) =>{
+    this.redirectUrl(event, "/user/inti-iicp");
+  };  
+>>>>>>> Stashed changes
 
   logout = (event) => {
     event.preventDefault();
@@ -177,7 +194,7 @@ export default class Master extends Component {
   redirectUrl = (event, url) => {
     event.preventDefault();
     $(location).prop('href', url);
-  }
+  };
 
   updateDimensions() {
     if ($(window).width() > 767) {
@@ -275,6 +292,7 @@ export default class Master extends Component {
               case '/user/room-console':
               case '/user/request-console':
               case '/user/booked-room-console':
+              case '/user/notification-console':
                 if (!isAdmin) {
                   $(location).prop('href', '/user');
                 }
@@ -326,7 +344,12 @@ export default class Master extends Component {
               var sidebarAdmin = $('#sidebar-admin-console').parent();
               sidebarAdmin.prev().remove();
               sidebarAdmin.remove();
+              $('#admin-home').remove();
             } else {
+<<<<<<< Updated upstream
+=======
+              $('#user-home').remove();
+>>>>>>> Stashed changes
               $('#sidebar-user-item, #campus-item, #sidebar-download').parent().prev().remove();
               $('#sidebar-user-item, #campus-item, #sidebar-download').parent().remove();
             }
@@ -428,12 +451,13 @@ export default class Master extends Component {
                   key={1}
                   primaryText="Account"
                   onTouchTap={this.accessUserAccount}
-                  leftIcon={<FontIcon className="fa fa-user" />}
+                  // leftIcon={<FontIcon className="fa fa-user" />}
                 />,
                 <ListItem
                   key={2}
                   primaryText="Room Status"
                   onTouchTap={this.accessRoomStatus}
+<<<<<<< Updated upstream
                   leftIcon={<FontIcon className="fa fa-pie-chart" />}
                 />,
                 <ListItem
@@ -443,39 +467,50 @@ export default class Master extends Component {
                   href="/user/room-type"
                 />,
                 <ListItem
+=======
+                  // leftIcon={<FontIcon className="fa fa-pie-chart" />}
+                />,
+                <ListItem
+                  key={3}
+                  primaryText="Room Types"
+                  // leftIcon={<FontIcon className="fa fa-th" />}
+                  onTouchTap={this.accessRoomTypes}
+                />,
+                <ListItem
+>>>>>>> Stashed changes
                   key={4}
                   primaryText="Room"
-                  leftIcon={<FontIcon className="fa fa-h-square" />}
+                  // leftIcon={<FontIcon className="fa fa-h-square" />}
                   onTouchTap={this.roomConsole}
                 />,
                 <ListItem
                   key={5}
                   primaryText="Request"
-                  leftIcon={<FontIcon className="fa fa-list-ul" />}
+                  // leftIcon={<FontIcon className="fa fa-list-ul" />}
                   onTouchTap={this.requestConsole}
                 />,
                 <ListItem
                   key={6}
                   primaryText="Booked Room"
-                  leftIcon={<FontIcon className="fa fa-bed" />}
+                  // leftIcon={<FontIcon className="fa fa-bed" />}
                   onTouchTap={this.bookedRoomConsole}
                 />,
                 <ListItem
                   key={7}
                   primaryText="Notifications"
-                  leftIcon={<FontIcon className="fa fa-bell" />}
+                  // leftIcon={<FontIcon className="fa fa-bell" />}
                   onTouchTap={this.notificationConsole}
                 />,
                 <ListItem
                   key={8}
                   primaryText="Student"
-                  leftIcon={<FontIcon className="fa fa-users" />}
+                  // leftIcon={<FontIcon className="fa fa-users" />}
                   onTouchTap={this.userConsole}
                 />,
                 <ListItem
                   key={9}
                   primaryText="Admin"
-                  leftIcon={<FontIcon className="fa fa-eye" />}
+                  // leftIcon={<FontIcon className="fa fa-eye" />}
                   onTouchTap={this.adminConsole}
                 />,                
                 <ListItem
@@ -504,12 +539,13 @@ export default class Master extends Component {
               nestedItems = {[
                 <ListItem
                   key={1}
-                  primaryText="Notifications"
-                  leftIcon={<FontIcon className="fa fa-bell" />}
-                  onTouchTap={this.userNotificationConsole}
+                  primaryText="Account"
+                  onTouchTap={this.accessUserAccount}
+                  // leftIcon={<FontIcon className="fa fa-user" />}
                 />,
                 <ListItem
                   key={2}
+<<<<<<< Updated upstream
                   primaryText="Room Status"
                   onTouchTap={this.accessRoomStatus}
                   leftIcon={<FontIcon className="fa fa-pie-chart" />}
@@ -521,15 +557,28 @@ export default class Master extends Component {
                   leftIcon={<FontIcon className="fa fa-user" />}
                 />,
                 <ListItem
+=======
+                  primaryText="Notifications"
+                  // leftIcon={<FontIcon className="fa fa-bell" />}
+                  onTouchTap={this.userNotificationConsole}
+                />,
+                <ListItem
+                  key={3}
+                  primaryText="Room Status"
+                  onTouchTap={this.accessRoomStatus}
+                  // leftIcon={<FontIcon className="fa fa-pie-chart" />}
+                />,
+                <ListItem
+>>>>>>> Stashed changes
                   key={4}
                   primaryText="Request"
-                  leftIcon={<FontIcon className="fa fa-list-ul" />}
+                  // leftIcon={<FontIcon className="fa fa-list-ul" />}
                   onTouchTap={this.userRequestConsole}
                 />,
                 <ListItem
                   key={5}
                   primaryText="Booked Room"
-                  leftIcon={<FontIcon className="fa fa-bed" />}
+                  // leftIcon={<FontIcon className="fa fa-bed" />}
                   onTouchTap={this.userBookedRoomConsole}
                 />,
                 <ListItem
@@ -548,36 +597,37 @@ export default class Master extends Component {
               id="campus-item"
               primaryText="Campuses"
               primaryTogglesNestedList={true}
+              initiallyOpen={true}
               leftIcon={<FontIcon className="fa fa-graduation-cap" />}
               nestedItems = {[
                 <ListItem
                   key={1}
                   primaryText="IU"
                   className="IU"
-                  href="/user/inti-iu"
+                  onTouchTap={this.accessIU}
                 />,
                 <ListItem
                   key={2}
                   primaryText="IICS"
                   className="IICS"
-                  href="/user/inti-iics"
+                  onTouchTap={this.accessIICS}
                 />,
                 <ListItem
                   key={3}
                   primaryText="IICKL"
                   className="IICKL"
-                  href="/user/inti-iickl"
+                  onTouchTap={this.accessIICKL}
                 />,
                 <ListItem
                   key={4}
                   primaryText="IICP"
                   className="IICP"
-                  href="/user/inti-iicp"
+                  onTouchTap={this.accessIICP}
                 />
               ]}
             />
             <Divider />
-            <Subheader>Resources</Subheader>            
+            <Subheader>Resources</Subheader>
             <ListItem
               id="sidebar-download"
               leftIcon={<FontIcon className="fa fa-download" />}

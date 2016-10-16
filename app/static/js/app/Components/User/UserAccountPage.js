@@ -11,14 +11,11 @@ import {amber500} from 'material-ui/styles/colors';
 import Chip from 'material-ui/Chip';
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 
-import "intl-tel-input/build/css/intlTelInput.css";
-
 var $ = window.Jquery;
 var swal = window.SweetAlert;
+var intlTelInput = window.IntlTelInput;
 var userData;
 var personalData;
-
-import intlTelInput from 'intl-tel-input';
 
 const styles = {
   hide: {

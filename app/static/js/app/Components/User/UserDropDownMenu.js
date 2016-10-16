@@ -10,7 +10,6 @@ require('../JS/wrapperFunc.js');
 var $ = window.Jquery;
 var wrapFunc = window.Wrapper;
 var AvatarUrl;
-var Show;
 
 const styles = {
   textCenter: {

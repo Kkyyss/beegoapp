@@ -1,11 +1,13 @@
 import $ from 'jquery';
 import swal from 'sweetalert2';
-import moment from 'moment';
-import Fuse from 'fuse.js';
+import moment from 'moment/min/moment.min.js';
+import Fuse from 'fuse.js/src/fuse.min.js';
+import intlTelInput from 'intl-tel-input/build/js/intlTelInput.min.js';
 
 window.Jquery = $;
 window.Moment = moment;
 window.SweetAlert = swal;
+window.IntlTelInput = intlTelInput;
 
 var ajax = $.ajax;
 var roomDataSource,
@@ -82,7 +84,7 @@ window.Wrapper = {
 
     cardWrapperHeight = windowHeight - 112;
     $('#card-wrapper').height(cardWrapperHeight);
-    cardHeight = $('#card').height();
+    cardHeight = $('#card, #u-card').height();
     marginCardHeight = 32;
     $('#card').css('margin-top', marginCardHeight).
                css('margin-bottom', marginCardHeight);
@@ -1512,10 +1514,10 @@ function editUser(e) {
   var thisObj = $(this).parent().parent();
   var gender = thisObj.children("#u-gender").text();
   switch (gender) {
-    case 'Male':
+    case 'male':
       $('input[name=edit-user-gender]')[0].click();
       break;
-    case 'Female':
+    case 'female':
       $('input[name=edit-user-gender]')[1].click();
       break;
     default: break;
@@ -1806,10 +1808,10 @@ function editRoomType(e) {
     $('#rt-twin').click();
   }
   switch (gender) {
-    case 'Male':
+    case 'male':
       $('input[name=edit-gdr]')[0].click();
       break;
-    case 'Female':
+    case 'female':
       $('input[name=edit-gdr]')[1].click();
       break;
     default: break;

@@ -12,10 +12,9 @@
 <!-- <link rel="stylesheet" href="../static/css/intlTelInput.css"> -->
 <!-- <link rel="stylesheet" href="../static/css/animate.css"> -->
 <!-- <link rel="stylesheet" href="../static/css/sweetalert2.min.css"> -->
-<link rel="stylesheet" href="../static/css/font-awesome.min.css">
-<!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous"> -->
-<!-- <link rel="stylesheet" href="../static/css/jquery.mCustomScrollbar.min.css"> -->
+<!-- <link rel="stylesheet" href="../static/css/font-awesome.min.css"> -->
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 {{ template "base-css" .}}
 
-<link rel="stylesheet" href="../static/css/main.css">
+<link rel="stylesheet" href="../static/js/build/bundle.css">
 {{ template "main-css" . }}

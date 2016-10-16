@@ -13,17 +13,15 @@ import Checkbox from 'material-ui/Checkbox';
 import IconButton from 'material-ui/IconButton';
 import Avatar from 'material-ui/Avatar';
 import AddUserDialog from "./UserComponents/AddUserDialog.js";
-import "intl-tel-input/build/css/intlTelInput.css";
 
 var $ = window.Jquery;
 var ajax = $.ajax;
 var wrapFunc = window.Wrapper;
+var intlTelInput = window.IntlTelInput;
 var userData;
 var tempOptionIndex = [1];
 var options = [];
 var optionsIndex = [1];
-
-import intlTelInput from 'intl-tel-input';
 
 const styles = {
   cardSize: {
